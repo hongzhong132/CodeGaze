@@ -1,0 +1,1329 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load math_extras %}
+
+{% block title %}{{ problem.title }} - CodeGaze{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0.5rem 0 2.5rem;
+        position: relative;
+    }
+
+    .detail-page::before,
+    .detail-page::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(85px);
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.42;
+    }
+
+    .detail-page::before {
+        width: 280px;
+        height: 280px;
+        top: 20px;
+        left: 30px;
+        background: rgba(6, 182, 212, 0.12);
+    }
+
+    .detail-page::after {
+        width: 320px;
+        height: 320px;
+        right: 30px;
+        top: 120px;
+        background: rgba(37, 99, 235, 0.10);
+    }
+
+    .detail-inner {
+        position: relative;
+        z-index: 1;
+    }
+
+    .detail-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.8fr);
+        gap: 1.25rem;
+        align-items: start;
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.80);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        border-radius: 24px;
+        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+    }
+
+    .hero-card {
+        padding: 1.55rem 1.6rem;
+        margin-bottom: 1.15rem;
+    }
+
+    .hero-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .hero-title {
+        margin: 0 0 0.7rem 0;
+        font-size: 2.55rem;
+        font-weight: 800;
+        line-height: 1.15;
+        color: #0f172a;
+    }
+
+    .hero-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        flex-wrap: wrap;
+    }
+
+    .difficulty-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.5rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.86rem;
+        font-weight: 700;
+        border: 1px solid transparent;
+    }
+
+    .difficulty-easy {
+        background: rgba(16, 185, 129, 0.12);
+        color: #047857;
+        border-color: rgba(16, 185, 129, 0.18);
+    }
+
+    .difficulty-medium {
+        background: rgba(245, 158, 11, 0.14);
+        color: #b45309;
+        border-color: rgba(245, 158, 11, 0.18);
+    }
+
+    .difficulty-hard {
+        background: rgba(239, 68, 68, 0.12);
+        color: #b91c1c;
+        border-color: rgba(239, 68, 68, 0.18);
+    }
+
+    .hero-sub {
+        color: #64748b;
+        font-size: 0.95rem;
+        margin-top: 0.35rem;
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        align-items: stretch;
+        min-width: 280px;
+    }
+
+    .submit-btn-main {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        padding: 0.95rem 1.45rem;
+        border-radius: 16px;
+        background: linear-gradient(90deg, #0d9488, #14b8a6);
+        color: #fff;
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 1.05rem;
+        box-shadow: 0 12px 24px rgba(13, 148, 136, 0.18);
+        transition: all 0.25s ease;
+    }
+
+    .submit-btn-main:hover {
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 16px 28px rgba(13, 148, 136, 0.24);
+        background: linear-gradient(90deg, #0f766e, #0d9488);
+    }
+
+    .mode-panel {
+        padding: 1rem 1.05rem;
+        border-radius: 20px;
+        background: linear-gradient(135deg, rgba(240, 253, 250, 0.92), rgba(236, 254, 255, 0.9));
+        border: 1px solid rgba(20, 184, 166, 0.14);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+
+    .mode-panel-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .mode-panel-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.98rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .mode-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.38rem;
+        padding: 0.45rem 0.8rem;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 800;
+        border: 1px solid transparent;
+    }
+
+    .mode-practice {
+        background: rgba(16, 185, 129, 0.12);
+        color: #047857;
+        border-color: rgba(16, 185, 129, 0.18);
+    }
+
+    .mode-exam {
+        background: rgba(239, 68, 68, 0.10);
+        color: #b91c1c;
+        border-color: rgba(239, 68, 68, 0.18);
+    }
+
+    .mode-panel-desc {
+        color: #64748b;
+        font-size: 0.88rem;
+        line-height: 1.65;
+        margin-bottom: 0.95rem;
+    }
+
+    .mode-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.65rem;
+    }
+
+    .mode-switch-form {
+        margin: 0;
+    }
+
+    .mode-btn {
+        width: 100%;
+        border: none;
+        border-radius: 14px;
+        padding: 0.82rem 0.95rem;
+        text-align: left;
+        transition: all 0.22s ease;
+        font-weight: 700;
+        background: rgba(255,255,255,0.8);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+    }
+
+    .mode-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 20px rgba(15, 23, 42, 0.08);
+    }
+
+    .mode-btn .mode-btn-head {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-size: 0.94rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .mode-btn .mode-btn-sub {
+        font-size: 0.78rem;
+        color: #64748b;
+        line-height: 1.5;
+    }
+
+    .mode-btn.practice-btn {
+        color: #047857;
+    }
+
+    .mode-btn.practice-btn.active {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.14), rgba(13, 148, 136, 0.10));
+        border-color: rgba(16, 185, 129, 0.22);
+    }
+
+    .mode-btn.exam-btn {
+        color: #b91c1c;
+    }
+
+    .mode-btn.exam-btn.active {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.10), rgba(248, 113, 113, 0.08));
+        border-color: rgba(239, 68, 68, 0.22);
+    }
+
+    .mode-tip {
+        margin-top: 0.9rem;
+        border-radius: 14px;
+        padding: 0.8rem 0.9rem;
+        font-size: 0.82rem;
+        line-height: 1.65;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.55rem;
+    }
+
+    .mode-tip.practice {
+        background: rgba(16, 185, 129, 0.08);
+        color: #065f46;
+        border: 1px solid rgba(16, 185, 129, 0.12);
+    }
+
+    .mode-tip.exam {
+        background: rgba(239, 68, 68, 0.08);
+        color: #991b1b;
+        border: 1px solid rgba(239, 68, 68, 0.12);
+    }
+
+    .tabs-wrap {
+        margin-bottom: 1rem;
+    }
+
+    .detail-tabs {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+        padding-bottom: 0.35rem;
+    }
+
+    .detail-tabs .nav-link {
+        border: none;
+        background: transparent;
+        color: #475569;
+        border-radius: 14px 14px 0 0;
+        padding: 0.9rem 1rem 0.8rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        transition: all 0.2s ease;
+    }
+
+    .detail-tabs .nav-link.active {
+        color: #0d9488;
+        background: rgba(13, 148, 136, 0.06);
+        position: relative;
+    }
+
+    .detail-tabs .nav-link.active::after {
+        content: "";
+        position: absolute;
+        left: 14px;
+        right: 14px;
+        bottom: -2px;
+        height: 3px;
+        border-radius: 3px;
+        background: linear-gradient(90deg, #0d9488, #14b8a6);
+    }
+
+    .detail-tabs .nav-link:hover {
+        color: #0d9488;
+    }
+
+    .tab-content-shell {
+        padding: 1.3rem;
+    }
+
+    .section-card {
+        padding: 1.35rem;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #f7fcfd 0%, #eef8fa 55%, #e6f4f7 100%);
+        border: 1px solid rgba(56, 178, 172, 0.14);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+
+    .section-card + .section-card {
+        margin-top: 1rem;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        margin-bottom: 1rem;
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .section-title::before {
+        content: "";
+        display: inline-block;
+        width: 5px;
+        height: 1.5rem;
+        border-radius: 4px;
+        background: linear-gradient(180deg, #0d9488, #14b8a6);
+    }
+
+    .desc-body,
+    .section-card p,
+    .solution-content,
+    .discussion-content {
+        color: #334155;
+        line-height: 1.85;
+        font-size: 1rem;
+    }
+
+    .sample-wrap {
+        position: relative;
+    }
+
+    .sample-box {
+        margin: 0;
+        padding: 1rem 1rem 1rem;
+        border-radius: 16px;
+        background: #172554;
+        color: #e2e8f0;
+        font-family: "Consolas", "JetBrains Mono", monospace;
+        line-height: 1.7;
+        font-size: 0.94rem;
+        white-space: pre-wrap;
+        overflow-x: auto;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+    }
+
+    .copy-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        border: none;
+        border-radius: 10px;
+        padding: 0.4rem 0.7rem;
+        background: rgba(255,255,255,0.12);
+        color: #fff;
+        font-size: 0.78rem;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+        background: rgba(255,255,255,0.22);
+    }
+
+    .copy-btn.copied {
+        background: rgba(34, 197, 94, 0.9);
+    }
+
+    .discussion-compose .card-header,
+    .simple-card-header {
+        padding: 0.95rem 1.1rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+        background: rgba(248, 250, 252, 0.82);
+        border-radius: 20px 20px 0 0;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .discussion-compose .card-body {
+        padding: 1.15rem;
+    }
+
+    .discussion-compose input[type="text"],
+    .discussion-compose textarea,
+    .discussion-compose .form-control {
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        background: rgba(255,255,255,0.9);
+        padding: 0.85rem 1rem;
+        color: #0f172a;
+        transition: all 0.2s ease;
+    }
+
+    .discussion-compose textarea {
+        min-height: 130px;
+        resize: vertical;
+    }
+
+    .discussion-compose input[type="text"]:focus,
+    .discussion-compose textarea:focus,
+    .discussion-compose .form-control:focus {
+        border-color: rgba(13, 148, 136, 0.35);
+        box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.10);
+        outline: none;
+    }
+
+    .discussion-submit-btn,
+    .admin-edit-btn,
+    .back-btn,
+    .collect-btn,
+    .login-collect-btn {
+        border-radius: 14px;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+
+    .discussion-submit-btn {
+        background: linear-gradient(90deg, #0d9488, #14b8a6);
+        border: none;
+        color: #fff;
+        padding: 0.75rem 1.15rem;
+    }
+
+    .discussion-submit-btn:hover {
+        color: #fff;
+        background: linear-gradient(90deg, #0f766e, #0d9488);
+    }
+
+    .discussion-list {
+        margin-top: 1rem;
+    }
+
+    .discussion-item {
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .discussion-item:last-child {
+        border-bottom: none;
+    }
+
+    .discussion-title {
+        display: block;
+        text-decoration: none;
+        font-size: 1.08rem;
+        font-weight: 800;
+        color: #0d9488;
+        margin-bottom: 0.4rem;
+    }
+
+    .discussion-title:hover {
+        color: #0f766e;
+    }
+
+    .discussion-meta {
+        color: #64748b;
+        font-size: 0.88rem;
+        line-height: 1.7;
+    }
+
+    .discussion-content {
+        margin-top: 0.8rem;
+    }
+
+    .empty-box {
+        text-align: center;
+        padding: 2.2rem 1rem;
+        color: #64748b;
+    }
+
+    .empty-box i {
+        font-size: 3rem;
+        opacity: 0.35;
+        display: inline-block;
+        margin-bottom: 0.8rem;
+    }
+
+    .solution-topbar,
+    .video-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .admin-edit-btn {
+        border: 1px solid rgba(37, 99, 235, 0.2);
+        background: rgba(255,255,255,0.8);
+        color: #2563eb;
+        padding: 0.55rem 0.9rem;
+        text-decoration: none;
+    }
+
+    .admin-edit-btn:hover {
+        background: #2563eb;
+        color: #fff;
+    }
+
+    .solution-content pre {
+        background: #172554 !important;
+        border-radius: 16px !important;
+        padding: 1rem !important;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+    }
+
+    .solution-content p code,
+    .discussion-content p code,
+    .desc-body p code {
+        background: rgba(13, 148, 136, 0.08);
+        color: #0d9488;
+        padding: 0.15rem 0.45rem;
+        border-radius: 8px;
+        border: 1px solid rgba(13, 148, 136, 0.12);
+    }
+
+    .video-wrapper {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+        overflow: hidden;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #0f172a, #172554);
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+    }
+
+    .video-wrapper iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+
+    .video-placeholder {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+        background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(23,37,84,0.86));
+        color: #fff;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+    }
+
+    .video-placeholder i {
+        font-size: 4rem;
+        color: #14b8a6;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+        transition: transform 0.2s ease;
+    }
+
+    .video-placeholder:hover i {
+        transform: scale(1.06);
+    }
+
+    .side-card {
+        padding: 0;
+        position: sticky;
+        top: 1.2rem;
+    }
+
+    .side-card .card-header {
+        padding: 1rem 1.15rem;
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #0f172a;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+        background: rgba(248, 250, 252, 0.82);
+        border-radius: 24px 24px 0 0;
+    }
+
+    .side-card .card-body {
+        padding: 0;
+    }
+
+    .info-table {
+        width: 100%;
+        margin: 0;
+    }
+
+    .info-table td {
+        padding: 1rem 1.15rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.10);
+        vertical-align: middle;
+    }
+
+    .info-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: #475569;
+        font-weight: 700;
+        width: 110px;
+    }
+
+    .info-value {
+        color: #0f172a;
+        font-weight: 700;
+    }
+
+    .source-tag,
+    .tag-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.3rem 0.65rem;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        background: rgba(13, 148, 136, 0.08);
+        color: #0d9488;
+        border: 1px solid rgba(13, 148, 136, 0.12);
+    }
+
+    .tag-badge {
+        margin-right: 0.35rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .mode-side-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.38rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 800;
+    }
+
+    .side-actions {
+        padding: 1rem 1.15rem 1.15rem;
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .favorite-meta {
+        padding: 0.85rem 1rem;
+        border-radius: 16px;
+        background: rgba(255, 248, 235, 0.76);
+        border: 1px solid rgba(245, 158, 11, 0.14);
+        color: #92400e;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        font-size: 0.88rem;
+        font-weight: 700;
+    }
+
+    .collect-form {
+        margin: 0;
+    }
+
+    .collect-btn {
+        width: 100%;
+        border: 1px solid rgba(245, 158, 11, 0.18);
+        background: rgba(255, 248, 235, 0.9);
+        color: #b45309;
+        padding: 0.8rem 1rem;
+    }
+
+    .collect-btn:hover {
+        background: rgba(254, 243, 199, 0.9);
+    }
+
+    .collect-btn.is-active {
+        background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        border-color: rgba(245, 158, 11, 0.25);
+        color: #fff;
+        box-shadow: 0 12px 24px rgba(245, 158, 11, 0.16);
+    }
+
+    .collect-btn.is-active:hover {
+        background: linear-gradient(90deg, #d97706, #f59e0b);
+    }
+
+    .login-collect-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        border: 1px solid rgba(245, 158, 11, 0.18);
+        background: rgba(255, 248, 235, 0.9);
+        color: #b45309;
+        text-decoration: none;
+        padding: 0.8rem 1rem;
+    }
+
+    .login-collect-btn:hover {
+        color: #92400e;
+        background: rgba(254, 243, 199, 0.92);
+    }
+
+    .back-btn {
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        background: rgba(255, 255, 255, 0.86);
+        color: #475569;
+        text-decoration: none;
+        text-align: center;
+        padding: 0.8rem 1rem;
+    }
+
+    .back-btn:hover {
+        background: rgba(248, 250, 252, 1);
+        color: #0d9488;
+    }
+
+    .alert {
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        background: rgba(255, 255, 255, 0.84);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    @media (max-width: 992px) {
+        .detail-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .side-card {
+            position: static;
+        }
+
+        .hero-actions {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2rem;
+        }
+
+        .hero-card,
+        .tab-content-shell,
+        .section-card {
+            padding: 1rem;
+        }
+
+        .detail-tabs {
+            gap: 0.2rem;
+        }
+
+        .detail-tabs .nav-link {
+            padding: 0.8rem 0.8rem;
+            font-size: 0.92rem;
+        }
+
+        .submit-btn-main {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .mode-form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+    <div class="detail-inner">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
+                    <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}x-circle{% else %}info-circle{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="detail-layout">
+            <div>
+                <div class="glass-card hero-card">
+                    <div class="hero-top">
+                        <div>
+                            <h1 class="hero-title">{{ problem.id }}. {{ problem.title }}</h1>
+                            <div class="hero-meta">
+                                <span class="difficulty-badge {% if problem.difficulty == 'easy' %}difficulty-easy{% elif problem.difficulty == 'medium' %}difficulty-medium{% else %}difficulty-hard{% endif %}">
+                                    <i class="bi bi-flag-fill"></i>
+                                    {{ problem.get_difficulty_display }}
+                                </span>
+
+                                {% if current_mode == 'exam' %}
+                                    <span class="mode-status-badge mode-exam">
+                                        <i class="bi bi-shield-lock-fill"></i>
+                                        当前：考试模式
+                                    </span>
+                                {% else %}
+                                    <span class="mode-status-badge mode-practice">
+                                        <i class="bi bi-mortarboard-fill"></i>
+                                        当前：练习模式
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <div class="hero-sub">
+                                {% if current_mode == 'exam' %}
+                                    当前题目将以考试模式进入提交页，适合正式作答与监测场景。
+                                {% else %}
+                                    当前题目将以练习模式进入提交页，适合调试、学习与逐步完善思路。
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="hero-actions">
+                            <div class="mode-panel">
+                                <div class="mode-panel-top">
+                                    <div class="mode-panel-title">
+                                        <i class="bi bi-toggles2"></i>
+                                        选择答题模式
+                                    </div>
+
+                                    {% if current_mode == 'exam' %}
+                                        <span class="mode-status-badge mode-exam">
+                                            <i class="bi bi-shield-lock"></i> 考试中
+                                        </span>
+                                    {% else %}
+                                        <span class="mode-status-badge mode-practice">
+                                            <i class="bi bi-lightning-charge"></i> 练习中
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mode-panel-desc">
+                                    你可以在进入提交页前切换当前题目的作答方式。练习模式更适合学习与调试，考试模式更强调规范作答与监测约束。
+                                </div>
+
+                                <div class="mode-form-grid">
+                                    <form method="post" action="{% url 'programming:select_problem_mode' pk=problem.pk %}" class="mode-switch-form">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="mode" value="practice">
+                                        <input type="hidden" name="next" value="{{ request.path }}">
+                                        <button type="submit" class="mode-btn practice-btn {% if current_mode == 'practice' %}active{% endif %}">
+                                            <div class="mode-btn-head">
+                                                <i class="bi bi-mortarboard"></i>
+                                                <span>练习模式</span>
+                                            </div>
+                                            <div class="mode-btn-sub">
+                                                可用于学习、调试和逐步完善代码思路
+                                            </div>
+                                        </button>
+                                    </form>
+
+                                    <form method="post" action="{% url 'programming:select_problem_mode' pk=problem.pk %}" class="mode-switch-form">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="mode" value="exam">
+                                        <input type="hidden" name="next" value="{{ request.path }}">
+                                        <button type="submit" class="mode-btn exam-btn {% if current_mode == 'exam' %}active{% endif %}">
+                                            <div class="mode-btn-head">
+                                                <i class="bi bi-shield-lock"></i>
+                                                <span>考试模式</span>
+                                            </div>
+                                            <div class="mode-btn-sub">
+                                                更强调独立作答、行为监测与规则约束
+                                            </div>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                {% if current_mode == 'exam' %}
+                                    <div class="mode-tip exam">
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
+                                        <div>当前已选择考试模式。进入提交页后应避免借助外部辅助工具，并注意遵守监测与作答规则。</div>
+                                    </div>
+                                {% else %}
+                                    <div class="mode-tip practice">
+                                        <i class="bi bi-stars"></i>
+                                        <div>当前已选择练习模式。适合先理解题意、运行测试、反复调试，再逐步完成更优解法。</div>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <a href="{% url 'programming:submit_code' pk=problem.pk %}" class="submit-btn-main">
+                                {% if current_mode == 'exam' %}
+                                    <i class="bi bi-shield-check"></i>
+                                    <span>进入考试作答</span>
+                                {% else %}
+                                    <i class="bi bi-send-fill"></i>
+                                    <span>进入练习提交</span>
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card tabs-wrap">
+                    <ul class="nav detail-tabs" id="problemTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="desc-tab" data-bs-toggle="tab" data-bs-target="#desc-pane" type="button" role="tab">
+                                <i class="bi bi-file-text"></i>题目描述
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="discuss-tab" data-bs-toggle="tab" data-bs-target="#discuss-pane" type="button" role="tab">
+                                <i class="bi bi-chat-dots"></i>讨论
+                                <span class="tag-badge" style="margin:0 0 0 0.15rem;">{{ discussions.count }}</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="solution-tab" data-bs-toggle="tab" data-bs-target="#solution-pane" type="button" role="tab">
+                                <i class="bi bi-lightbulb"></i>官方题解
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="video-tab" data-bs-toggle="tab" data-bs-target="#video-pane" type="button" role="tab">
+                                <i class="bi bi-play-circle"></i>视频讲解
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content tab-content-shell" id="problemTabsContent">
+                        <div class="tab-pane fade show active" id="desc-pane" role="tabpanel">
+                            <div class="section-card">
+                                <div class="section-title">题目描述</div>
+                                <div class="desc-body mathjax-render">{{ problem.description|linebreaksbr }}</div>
+                            </div>
+
+                            {% if problem.input_format %}
+                            <div class="section-card">
+                                <div class="section-title">输入格式</div>
+                                <div class="desc-body mathjax-render">{{ problem.input_format|linebreaksbr }}</div>
+                            </div>
+                            {% endif %}
+
+                            {% if problem.output_format %}
+                            <div class="section-card">
+                                <div class="section-title">输出格式</div>
+                                <div class="desc-body mathjax-render">{{ problem.output_format|linebreaksbr }}</div>
+                            </div>
+                            {% endif %}
+
+                            {% if problem.data_range %}
+                            <div class="section-card">
+                                <div class="section-title">数据范围</div>
+                                <div class="desc-body mathjax-render">{{ problem.data_range|linebreaksbr }}</div>
+                            </div>
+                            {% endif %}
+
+                            {% if problem.sample_input %}
+                            <div class="section-card">
+                                <div class="section-title">输入样例</div>
+                                <div class="sample-wrap">
+                                    <pre class="sample-box">{{ problem.sample_input }}</pre>
+                                    <button class="copy-btn" onclick="copyToClipboard(this, '{{ problem.sample_input|escapejs }}')">
+                                        <i class="bi bi-clipboard"></i> 复制
+                                    </button>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if problem.sample_output %}
+                            <div class="section-card">
+                                <div class="section-title">输出样例</div>
+                                <div class="sample-wrap">
+                                    <pre class="sample-box">{{ problem.sample_output }}</pre>
+                                    <button class="copy-btn" onclick="copyToClipboard(this, '{{ problem.sample_output|escapejs }}')">
+                                        <i class="bi bi-clipboard"></i> 复制
+                                    </button>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="tab-pane fade" id="discuss-pane" role="tabpanel">
+                            <div class="glass-card discussion-compose">
+                                <div class="card-header">
+                                    <i class="bi bi-pencil-square me-2"></i>发起新讨论
+                                </div>
+                                <div class="card-body">
+                                    {% if user.is_authenticated %}
+                                        <form method="post" action="">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="discussion_form" value="1">
+
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold mb-2">标题</label>
+                                                {{ form.title }}
+                                                {% if form.title.errors %}
+                                                    <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+                                                {% endif %}
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold mb-2">内容</label>
+                                                {{ form.content }}
+                                                {% if form.content.errors %}
+                                                    <div class="text-danger small mt-1">{{ form.content.errors }}</div>
+                                                {% endif %}
+                                                <div class="form-text mt-2">支持 LaTeX 公式，例如 <code>$E=mc^2$</code>，换行会自动保留。</div>
+                                            </div>
+
+                                            <button type="submit" class="discussion-submit-btn">
+                                                <i class="bi bi-send"></i> 发布讨论
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <div class="alert alert-warning mb-0 d-flex align-items-center">
+                                            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                                            <div>
+                                                请先 <a href="{% url 'accounts:login' %}?next={{ request.get_full_path|urlencode }}" class="fw-bold">登录</a> 后再参与讨论。
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="section-card discussion-list">
+                                {% if discussions %}
+                                    {% for discussion in discussions %}
+                                        <div class="discussion-item">
+                                            <a href="#" class="discussion-title">{{ discussion.title }}</a>
+                                            <div class="discussion-meta">
+                                                <i class="bi bi-person-circle me-1"></i>
+                                                <strong>{{ discussion.user.username|default:"匿名" }}</strong>
+                                                · {{ discussion.created_at|timesince }}前
+                                                <span class="float-end">{{ discussion.created_at|date:"Y-m-d H:i" }}</span>
+                                            </div>
+                                            <div class="discussion-content mathjax-render">{{ discussion.content|linebreaksbr }}</div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="empty-box">
+                                        <i class="bi bi-chat-square-dots"></i>
+                                        <div>暂无讨论，快来发布第一条内容吧。</div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="solution-pane" role="tabpanel">
+                            <div class="solution-topbar">
+                                <div class="section-title" style="margin-bottom:0;">官方题解</div>
+                                {% if user.is_superuser %}
+                                    <a href="/admin/programming/codeproblem/{{ problem.id }}/change/" target="_blank" class="admin-edit-btn">
+                                        <i class="bi bi-pencil"></i> 编辑题解
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            <div class="section-card">
+                                <div class="solution-content mathjax-render">
+                                    {% if problem.solution_text %}
+                                        {{ problem.solution_text|linebreaksbr }}
+                                    {% else %}
+                                        <div class="empty-box">
+                                            <i class="bi bi-lightbulb"></i>
+                                            <div>暂无官方题解。</div>
+                                            {% if not user.is_superuser %}
+                                                <div class="mt-2">欢迎先在讨论区分享你的思路。</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="video-pane" role="tabpanel">
+                            <div class="video-topbar">
+                                <div class="section-title" style="margin-bottom:0;">视频讲解</div>
+                                {% if user.is_superuser %}
+                                    <a href="/admin/programming/codeproblem/{{ problem.id }}/change/" target="_blank" class="admin-edit-btn">
+                                        <i class="bi bi-gear"></i> 配置视频
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            {% if problem.video_url and "http" in problem.video_url %}
+                                <div class="video-wrapper" id="video-container">
+                                    <div class="video-placeholder" id="video-placeholder" onclick="loadVideo()">
+                                        <i class="bi bi-play-circle-fill"></i>
+                                        <span>点击播放视频讲解</span>
+                                    </div>
+
+                                    <iframe
+                                        id="problem-video-frame"
+                                        data-src="{{ problem.video_url }}"
+                                        allowfullscreen="true"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                                    </iframe>
+                                </div>
+                            {% else %}
+                                <div class="section-card">
+                                    <div class="empty-box">
+                                        <i class="bi bi-camera-video-off"></i>
+                                        <div>暂无视频讲解。</div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="glass-card side-card">
+                <div class="card-header">题目统计</div>
+                <div class="card-body">
+                    <table class="info-table">
+                        <tr>
+                            <td class="info-label">当前模式</td>
+                            <td class="info-value">
+                                {% if current_mode == 'exam' %}
+                                    <span class="mode-side-badge mode-exam">
+                                        <i class="bi bi-shield-lock-fill"></i> 考试模式
+                                    </span>
+                                {% else %}
+                                    <span class="mode-side-badge mode-practice">
+                                        <i class="bi bi-mortarboard-fill"></i> 练习模式
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="info-label">难度等级</td>
+                            <td class="info-value">
+                                <span class="difficulty-badge {% if problem.difficulty == 'easy' %}difficulty-easy{% elif problem.difficulty == 'medium' %}difficulty-medium{% else %}difficulty-hard{% endif %}">
+                                    {{ problem.get_difficulty_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="info-label">时间限制</td>
+                            <td class="info-value">{{ problem.time_limit }} s</td>
+                        </tr>
+                        <tr>
+                            <td class="info-label">内存限制</td>
+                            <td class="info-value">{{ problem.memory_limit }} MB</td>
+                        </tr>
+                        <tr>
+                            <td class="info-label">通过率</td>
+                            <td class="info-value">
+                                {% if problem.submission_count > 0 %}
+                                    {{ problem.accepted_count|divide:problem.submission_count|multiply:100|floatformat:1 }}%
+                                    <div class="mt-1 text-muted fw-normal" style="font-size:0.86rem;">
+                                        ({{ problem.accepted_count }} / {{ problem.submission_count }})
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted fw-normal">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="info-label">收藏人数</td>
+                            <td class="info-value">{{ favorite_count|default:0 }}</td>
+                        </tr>
+
+                        {% if problem.source %}
+                        <tr>
+                            <td class="info-label">题目来源</td>
+                            <td class="info-value">
+                                <span class="source-tag">{{ problem.source }}</span>
+                            </td>
+                        </tr>
+                        {% endif %}
+
+                        {% if problem.tags %}
+                        <tr>
+                            <td class="info-label" style="vertical-align: top;">算法标签</td>
+                            <td class="info-value">
+                                {% for tag in problem.get_tags_list %}
+                                    <span class="tag-badge">{{ tag }}</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </table>
+
+                    <div class="side-actions">
+                        <div class="favorite-meta">
+                            <span><i class="bi bi-star-fill me-1"></i>题目收藏</span>
+                            <span>{{ favorite_count|default:0 }}</span>
+                        </div>
+
+                        {% if user.is_authenticated %}
+                            <form method="post" action="{% url 'programming:toggle_problem_favorite' pk=problem.pk %}" class="collect-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                <button type="submit" class="collect-btn {% if is_favorited %}is-active{% endif %}">
+                                    {% if is_favorited %}
+                                        <i class="bi bi-star-fill"></i> 已收藏，点击取消
+                                    {% else %}
+                                        <i class="bi bi-star"></i> 收藏本题
+                                    {% endif %}
+                                </button>
+                            </form>
+                        {% else %}
+                            <a href="{% url 'login' %}?next={{ request.path }}" class="login-collect-btn">
+                                <i class="bi bi-person"></i> 登录后收藏
+                            </a>
+                        {% endif %}
+
+                        <a href="{% url 'programming:problem_list' %}" class="back-btn">
+                            <i class="bi bi-arrow-left"></i> 返回列表
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function copyToClipboard(btn, text) {
+        navigator.clipboard.writeText(text).then(() => {
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check"></i> 已复制';
+            btn.classList.add('copied');
+
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                btn.classList.remove('copied');
+            }, 1800);
+        }).catch(() => {
+            alert('复制失败，请手动复制');
+        });
+    }
+
+    function loadVideo() {
+        const iframe = document.getElementById('problem-video-frame');
+        const placeholder = document.getElementById('video-placeholder');
+
+        if (iframe && !iframe.src) {
+            iframe.src = iframe.getAttribute('data-src');
+            if (placeholder) {
+                placeholder.style.opacity = '0';
+                setTimeout(() => {
+                    placeholder.style.display = 'none';
+                }, 300);
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabElements = document.querySelectorAll('button[data-bs-toggle="tab"]');
+
+        tabElements.forEach(tabEl => {
+            tabEl.addEventListener('shown.bs.tab', function (event) {
+                const targetId = event.target.getAttribute('data-bs-target');
+                const targetPane = document.querySelector(targetId);
+
+                if (window.MathJax && targetPane) {
+                    MathJax.typesetPromise([targetPane]).catch(err => console.log(err));
+                }
+
+                if (window.Prism && targetPane) {
+                    Prism.highlightAllUnder(targetPane);
+                }
+            });
+        });
+
+        const activePane = document.querySelector('.tab-pane.active');
+        if (activePane) {
+            if (window.MathJax) MathJax.typesetPromise([activePane]).catch(err => console.log(err));
+            if (window.Prism) Prism.highlightAllUnder(activePane);
+        }
+    });
+</script>
+{% endblock %}

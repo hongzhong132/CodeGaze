@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>编程题目列表</h1>
+<ul>
+  {% for problem in problems %}
+    <li>
+      <h2>{{ problem.title }}</h2>
+      <p>难度: {{ problem.get_difficulty_display }}</p>
+      <p>{{ problem.description|truncatechars:100 }}</p>
+      <a href="{% url 'problem_detail' problem.id %}">查看题目</a>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,116 @@
+[
+  {
+    "id": 1,
+    "title": "A + B Problem",
+    "description": "计算两个整数 A 和 B 的和。这是所有算法竞赛的入门第一题。",
+    "difficulty": "简单",
+    "tags": ["入门", "模拟"],
+    "function_name": "add",
+    "param_names": ["a", "b"],
+    "input_example": {"a": 1, "b": 2},
+    "output_example": 3,
+    "test_cases": [
+      {"input": [1, 2], "expected": 3},
+      {"input": [-1, 1], "expected": 0},
+      {"input": [0, 0], "expected": 0}
+    ]
+  },
+  {
+    "id": 2,
+    "title": "两数之和",
+    "description": "给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出和为目标值的那两个整数，并返回它们的数组下标。",
+    "difficulty": "简单",
+    "tags": ["数组", "哈希表"],
+    "function_name": "twoSum",
+    "param_names": ["nums", "target"],
+    "input_example": {"nums": [2, 7, 11, 15], "target": 9},
+    "output_example": [0, 1],
+    "test_cases": [
+      {"input": [[2, 7, 11, 15], 9], "expected": [0, 1]},
+      {"input": [[3, 2, 4], 6], "expected": [1, 2]},
+      {"input": [[3, 3], 6], "expected": [0, 1]}
+    ]
+  },
+  {
+    "id": 20,
+    "title": "有效的括号",
+    "description": "给定一个只包括 '('，')'，'{'，'}'，'['，']' 的字符串 s ，判断字符串是否有效。",
+    "difficulty": "简单",
+    "tags": ["栈", "字符串"],
+    "function_name": "isValid",
+    "param_names": ["s"],
+    "input_example": {"s": "()[]{}"},
+    "output_example": true,
+    "test_cases": [
+      {"input": ["()[]{}"], "expected": true},
+      {"input": ["(]"], "expected": false},
+      {"input": ["([)]"], "expected": false},
+      {"input": ["{[]}"], "expected": true}
+    ]
+  },
+  {
+    "id": 70,
+    "title": "爬楼梯",
+    "description": "假设你正在爬楼梯。需要 n 阶你才能到达楼顶。每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶呢？",
+    "difficulty": "简单",
+    "tags": ["动态规划", "递归"],
+    "function_name": "climbStairs",
+    "param_names": ["n"],
+    "input_example": {"n": 3},
+    "output_example": 3,
+    "test_cases": [
+      {"input": [2], "expected": 2},
+      {"input": [3], "expected": 3},
+      {"input": [5], "expected": 8}
+    ]
+  },
+  {
+    "id": 11,
+    "title": "二分查找",
+    "description": "给定一个 n 个元素有序的（升序）整型数组 nums 和一个目标值 target ，写一个函数搜索 nums 中的 target，如果目标值存在返回下标，否则返回 -1。",
+    "difficulty": "简单",
+    "tags": ["数组", "二分查找"],
+    "function_name": "search",
+    "param_names": ["nums", "target"],
+    "input_example": {"nums": [-1, 0, 3, 5, 9, 12], "target": 9},
+    "output_example": 4,
+    "test_cases": [
+      {"input": [[-1, 0, 3, 5, 9, 12], 9], "expected": 4},
+      {"input": [[-1, 0, 3, 5, 9, 12], 2], "expected": -1},
+      {"input": [[5], 5], "expected": 0}
+    ]
+  },
+  {
+    "id": 3,
+    "title": "无重复字符的最长子串",
+    "description": "给定一个字符串 s ，请你找出其中不含有重复字符的最长子串的长度。",
+    "difficulty": "中等",
+    "tags": ["字符串", "滑动窗口", "哈希表"],
+    "function_name": "lengthOfLongestSubstring",
+    "param_names": ["s"],
+    "input_example": {"s": "abcabcbb"},
+    "output_example": 3,
+    "test_cases": [
+      {"input": ["abcabcbb"], "expected": 3},
+      {"input": ["bbbbb"], "expected": 1},
+      {"input": ["pwwkew"], "expected": 3},
+      {"input": [""], "expected": 0}
+    ]
+  },
+  {
+    "id": 46,
+    "title": "全排列",
+    "description": "给定一个不含重复数字的数组 nums ，返回其所有可能的全排列。你可以按任意顺序返回答案。",
+    "difficulty": "中等",
+    "tags": ["回溯", "递归", "数组"],
+    "function_name": "permute",
+    "param_names": ["nums"],
+    "input_example": {"nums": [1, 2, 3]},
+    "output_example": [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]],
+    "test_cases": [
+      {"input": [[1, 2, 3]], "expected": [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]]},
+      {"input": [[0, 1]], "expected": [[0, 1], [1, 0]]},
+      {"input": [[1]], "expected": [[1]]}
+    ]
+  }
+]

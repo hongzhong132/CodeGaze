@@ -1,0 +1,1330 @@
+{% extends 'base.html' %}
+{% block title %}智能人脸检测 - CodeGaze{% endblock %}
+
+{% block extra_css %}
+<style>
+    .camera-page {
+        position: relative;
+        padding: 0.6rem 0 2.4rem;
+        overflow: hidden;
+    }
+
+    .camera-page::before,
+    .camera-page::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(90px);
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.4;
+    }
+
+    .camera-page::before {
+        width: 340px;
+        height: 340px;
+        top: 40px;
+        left: 120px;
+        background: rgba(14, 165, 233, 0.12);
+    }
+
+    .camera-page::after {
+        width: 360px;
+        height: 360px;
+        top: 180px;
+        right: 40px;
+        background: rgba(37, 99, 235, 0.10);
+    }
+
+    .camera-shell {
+        position: relative;
+        z-index: 1;
+        max-width: 1280px;
+        margin: 0 auto;
+    }
+
+    .camera-hero {
+        text-align: center;
+        margin-bottom: 1.25rem;
+    }
+
+    .camera-hero .hero-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 76px;
+        height: 76px;
+        margin-bottom: 0.95rem;
+        border-radius: 22px;
+        background: linear-gradient(135deg, rgba(8, 145, 178, 0.14), rgba(37, 99, 235, 0.16));
+        box-shadow: 0 14px 30px rgba(8, 145, 178, 0.12);
+    }
+
+    .camera-hero .hero-icon i {
+        font-size: 2rem;
+        background: linear-gradient(135deg, #06b6d4, #2563eb);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .camera-title {
+        font-size: 2.35rem;
+        font-weight: 800;
+        margin-bottom: 0.45rem;
+        background: linear-gradient(90deg, #2563eb, #0891b2, #0ea5e9);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        line-height: 1.2;
+    }
+
+    .camera-subtitle {
+        color: #64748b;
+        font-size: 1rem;
+        margin-bottom: 0.9rem;
+        line-height: 1.8;
+    }
+
+    .hero-tags {
+        display: flex;
+        justify-content: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.58rem 0.9rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+        color: #475569;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .hero-tag i {
+        color: #0891b2;
+    }
+
+    .camera-overview {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .overview-card {
+        padding: 1rem 1.05rem;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+        backdrop-filter: blur(10px);
+    }
+
+    .overview-top {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        margin-bottom: 0.7rem;
+    }
+
+    .overview-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        color: #fff;
+        background: linear-gradient(135deg, #2563eb, #0891b2);
+        box-shadow: 0 10px 22px rgba(37, 99, 235, 0.16);
+        flex-shrink: 0;
+    }
+
+    .overview-label {
+        color: #64748b;
+        font-size: 0.82rem;
+        margin-bottom: 0.16rem;
+    }
+
+    .overview-value {
+        color: #0f172a;
+        font-size: 1rem;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+
+    .overview-desc {
+        color: #64748b;
+        font-size: 0.88rem;
+        line-height: 1.65;
+    }
+
+    .camera-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.7fr) minmax(340px, 0.98fr);
+        gap: 1.2rem;
+        align-items: start;
+    }
+
+    .camera-panel,
+    .side-panel {
+        background: rgba(255, 255, 255, 0.82);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        box-shadow: 0 16px 38px rgba(15, 23, 42, 0.08);
+    }
+
+    .camera-panel {
+        padding: 1.2rem;
+    }
+
+    .side-panel {
+        padding: 1rem;
+    }
+
+    .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .section-title-wrap h3 {
+        margin: 0 0 0.25rem 0;
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .section-title-wrap p {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.92rem;
+        line-height: 1.7;
+    }
+
+    .section-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.6rem 0.9rem;
+        border-radius: 999px;
+        background: rgba(37, 99, 235, 0.08);
+        color: #2563eb;
+        border: 1px solid rgba(37, 99, 235, 0.12);
+        font-size: 0.88rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .section-status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #2563eb;
+        box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.10);
+    }
+
+    .camera-frame-wrap {
+        position: relative;
+        border-radius: 22px;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at top left, rgba(6, 182, 212, 0.10), transparent 35%),
+            linear-gradient(135deg, #0b1327, #0f172a 55%, #172554);
+        box-shadow:
+            inset 0 0 0 1px rgba(255,255,255,0.06),
+            0 16px 36px rgba(15, 23, 42, 0.18);
+    }
+
+    .camera-frame {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        overflow: hidden;
+        border-radius: 22px;
+    }
+
+    #videoElement,
+    #canvasElement {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    #canvasElement {
+        pointer-events: none;
+    }
+
+    .camera-overlay-label {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        z-index: 3;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.55rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #e2e8f0;
+        background: rgba(15, 23, 42, 0.58);
+        border: 1px solid rgba(255,255,255,0.08);
+        backdrop-filter: blur(8px);
+    }
+
+    .camera-overlay-tip {
+        position: absolute;
+        right: 16px;
+        bottom: 16px;
+        z-index: 3;
+        padding: 0.6rem 0.95rem;
+        border-radius: 14px;
+        font-size: 0.82rem;
+        color: rgba(241, 245, 249, 0.94);
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid rgba(255,255,255,0.08);
+        backdrop-filter: blur(8px);
+        max-width: 260px;
+        text-align: right;
+    }
+
+    .control-bar {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .camera-btn {
+        min-width: 185px;
+        border: none;
+        border-radius: 999px;
+        padding: 0.95rem 1.6rem;
+        font-size: 1rem;
+        font-weight: 800;
+        transition: all 0.25s ease;
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+        letter-spacing: 0.2px;
+    }
+
+    .camera-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px rgba(15, 23, 42, 0.14);
+    }
+
+    .camera-btn:disabled {
+        opacity: 0.72;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .btn-start {
+        background: linear-gradient(90deg, #2563eb, #0ea5e9);
+        color: #fff;
+    }
+
+    .btn-stop {
+        background: linear-gradient(90deg, #fb7185, #ef4444);
+        color: #fff;
+    }
+
+    .camera-mini-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .mini-card {
+        padding: 0.95rem 1rem;
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.92));
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.95);
+    }
+
+    .mini-label {
+        color: #64748b;
+        font-size: 0.82rem;
+        margin-bottom: 0.32rem;
+    }
+
+    .mini-value {
+        color: #0f172a;
+        font-size: 1.05rem;
+        font-weight: 800;
+        line-height: 1.35;
+        word-break: break-word;
+    }
+
+    .status-card {
+        border-radius: 18px;
+        padding: 1rem 1.05rem;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        background: rgba(248, 250, 252, 0.78);
+        transition: all 0.25s ease;
+    }
+
+    .status-card.d-none {
+        display: none !important;
+    }
+
+    .status-inner {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+    }
+
+    .status-icon {
+        flex-shrink: 0;
+        width: 42px;
+        height: 42px;
+        border-radius: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.08rem;
+        color: #fff;
+        margin-top: 1px;
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+    }
+
+    .status-text-wrap {
+        flex: 1;
+    }
+
+    .status-title {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: #334155;
+        margin-bottom: 0.22rem;
+    }
+
+    .status-text {
+        font-size: 0.94rem;
+        color: #475569;
+        line-height: 1.7;
+        white-space: pre-line;
+    }
+
+    .status-success .status-icon { background: linear-gradient(135deg, #22c55e, #16a34a); }
+    .status-warning .status-icon { background: linear-gradient(135deg, #f59e0b, #ea580c); }
+    .status-danger .status-icon { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .status-info .status-icon,
+    .status-secondary .status-icon { background: linear-gradient(135deg, #2563eb, #0891b2); }
+
+    .backend-alert {
+        margin-top: 1rem;
+        padding: 0.95rem 1rem;
+        border-radius: 16px;
+        border: 1px solid rgba(239, 68, 68, 0.18);
+        background: rgba(254, 242, 242, 0.92);
+        color: #b91c1c;
+        line-height: 1.7;
+        font-size: 0.92rem;
+    }
+
+    .side-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.8rem;
+        margin-bottom: 0.95rem;
+        flex-wrap: wrap;
+    }
+
+    .panel-title {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        font-size: 1rem;
+        font-weight: 800;
+        color: #334155;
+        margin: 0;
+    }
+
+    .panel-mini-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.48rem 0.8rem;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.04);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        color: #475569;
+        font-size: 0.84rem;
+        font-weight: 700;
+    }
+
+    .panel-mini-badge .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #22c55e;
+    }
+
+    .side-section {
+        padding: 0.95rem;
+        border-radius: 20px;
+        background: rgba(248, 250, 252, 0.74);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        margin-bottom: 0.95rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+    }
+
+    .stat-card {
+        padding: 0.9rem 0.95rem;
+        border-radius: 16px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.90));
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.95);
+    }
+
+    .stat-card.wide {
+        grid-column: 1 / -1;
+    }
+
+    .stat-label {
+        font-size: 0.82rem;
+        color: #64748b;
+        margin-bottom: 0.35rem;
+    }
+
+    .stat-value {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.35;
+        word-break: break-word;
+    }
+
+    .subsection-title {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        font-size: 0.96rem;
+        font-weight: 800;
+        color: #334155;
+        margin-bottom: 0.7rem;
+    }
+
+    .debug-label {
+        font-size: 0.88rem;
+        color: #64748b;
+        margin-bottom: 0.7rem;
+        line-height: 1.7;
+    }
+
+    .debug-preview-shell {
+        padding: 0.85rem;
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(241,245,249,0.88));
+        border: 1px solid rgba(148, 163, 184, 0.14);
+    }
+
+    #debugCanvas {
+        width: 100%;
+        max-width: 250px;
+        aspect-ratio: 4 / 3;
+        display: block;
+        margin: 0 auto;
+        border-radius: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        background: linear-gradient(135deg, #dbeafe, #e2e8f0);
+        image-rendering: auto;
+    }
+
+    .warning-list {
+        margin: 0;
+        padding-left: 1.1rem;
+        color: #92400e;
+        line-height: 1.85;
+        font-size: 0.92rem;
+    }
+
+    .warning-empty {
+        font-size: 0.92rem;
+        color: #64748b;
+    }
+
+    .tips-list {
+        margin: 0;
+        padding-left: 1.1rem;
+        color: #64748b;
+        line-height: 1.85;
+        font-size: 0.92rem;
+    }
+
+    .tips-list li + li,
+    .warning-list li + li {
+        margin-top: 0.22rem;
+    }
+
+    .insight-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .insight-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.78rem 0;
+        border-bottom: 1px dashed rgba(148, 163, 184, 0.22);
+    }
+
+    .insight-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .insight-key {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .insight-value {
+        color: #0f172a;
+        font-size: 0.92rem;
+        font-weight: 700;
+        text-align: right;
+    }
+
+    @media (max-width: 1200px) {
+        .camera-overview {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 992px) {
+        .camera-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .camera-overview {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .camera-page {
+            padding-top: 0;
+        }
+
+        .camera-title {
+            font-size: 1.82rem;
+        }
+
+        .camera-overview {
+            grid-template-columns: 1fr;
+        }
+
+        .camera-mini-grid,
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .camera-panel,
+        .side-panel {
+            border-radius: 20px;
+        }
+
+        .camera-frame,
+        .camera-frame-wrap {
+            border-radius: 18px;
+        }
+
+        .camera-btn {
+            width: 100%;
+            min-width: auto;
+        }
+
+        .camera-overlay-tip {
+            max-width: 210px;
+            font-size: 0.78rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="camera-page" id="cameraPage" data-opencv-available="{{ opencv_available|yesno:'true,false' }}">
+    <div class="camera-shell">
+        <div class="camera-hero">
+            <div class="hero-icon">
+                <i class="bi bi-camera-video-fill"></i>
+            </div>
+            <h1 class="camera-title">智能人脸检测</h1>
+            <p class="camera-subtitle">支持正脸 / 侧脸检测、单人状态识别与过程提示，让 AI 监测页面更完整、更直观。</p>
+            <div class="hero-tags">
+                <span class="hero-tag"><i class="bi bi-person-bounding-box"></i> 人脸实时检测</span>
+                <span class="hero-tag"><i class="bi bi-shield-check"></i> 状态智能提示</span>
+                <span class="hero-tag"><i class="bi bi-speedometer2"></i> 轻量在线分析</span>
+            </div>
+        </div>
+
+        <div class="camera-overview">
+            <div class="overview-card">
+                <div class="overview-top">
+                    <div class="overview-icon"><i class="bi bi-cpu"></i></div>
+                    <div>
+                        <div class="overview-label">服务状态</div>
+                        <div class="overview-value">{% if opencv_available %}检测后端可用{% else %}检测后端异常{% endif %}</div>
+                    </div>
+                </div>
+                <div class="overview-desc">
+                    {% if opencv_available %}
+                        后端模型与接口已加载，可直接启动摄像头进行在线检测。
+                    {% else %}
+                        当前服务未能正常初始化，请检查依赖环境与模型配置。
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="overview-card">
+                <div class="overview-top">
+                    <div class="overview-icon"><i class="bi bi-camera-reels"></i></div>
+                    <div>
+                        <div class="overview-label">当前模式</div>
+                        <div class="overview-value">实时摄像头监测</div>
+                    </div>
+                </div>
+                <div class="overview-desc">
+                    面向当前摄像头画面进行周期检测，适合单人近景识别与状态提示。
+                </div>
+            </div>
+
+            <div class="overview-card">
+                <div class="overview-top">
+                    <div class="overview-icon"><i class="bi bi-aspect-ratio"></i></div>
+                    <div>
+                        <div class="overview-label">传输参数</div>
+                        <div class="overview-value">320 × 240 / 1.2 秒</div>
+                    </div>
+                </div>
+                <div class="overview-desc">
+                    采用压缩帧发送到后端接口，兼顾浏览器流畅度与基础识别效果。
+                </div>
+            </div>
+
+            <div class="overview-card">
+                <div class="overview-top">
+                    <div class="overview-icon"><i class="bi bi-lightning-charge"></i></div>
+                    <div>
+                        <div class="overview-label">页面特性</div>
+                        <div class="overview-value">主画面 + 数据侧栏</div>
+                    </div>
+                </div>
+                <div class="overview-desc">
+                    左侧聚焦实时画面与操作区，右侧展示检测指标、预览、警告与建议。
+                </div>
+            </div>
+        </div>
+
+        <div class="camera-grid">
+            <section class="camera-panel">
+                <div class="section-head">
+                    <div class="section-title-wrap">
+                        <h3>实时检测画面</h3>
+                        <p>主区域用于展示摄像头画面与识别框标注，适合作为当前监测的核心工作区。</p>
+                    </div>
+                    <div class="section-status-badge">
+                        <span class="section-status-dot"></span>
+                        <span id="panelStatusText">未启动</span>
+                    </div>
+                </div>
+
+                <div class="camera-frame-wrap">
+                    <div class="camera-frame">
+                        <div class="camera-overlay-label">
+                            <i class="bi bi-broadcast-pin"></i>
+                            <span id="cameraBadgeText">摄像头未启动</span>
+                        </div>
+
+                        <div class="camera-overlay-tip">
+                            建议保持人物处于画面中央，正对镜头并保持光线均匀
+                        </div>
+
+                        <video id="videoElement" autoplay playsinline muted></video>
+                        <canvas id="canvasElement"></canvas>
+                    </div>
+                </div>
+
+                <div class="control-bar">
+                    <button id="startBtn" class="camera-btn btn-start" {% if not opencv_available %}disabled{% endif %}>
+                        <i class="bi bi-play-circle me-2"></i>启动摄像头
+                    </button>
+                    <button id="stopBtn" class="camera-btn btn-stop" disabled>
+                        <i class="bi bi-stop-circle me-2"></i>停止检测
+                    </button>
+                </div>
+
+                <div class="camera-mini-grid">
+                    <div class="mini-card">
+                        <div class="mini-label">当前状态</div>
+                        <div class="mini-value" id="miniStateText">待启动</div>
+                    </div>
+                    <div class="mini-card">
+                        <div class="mini-label">当前人脸</div>
+                        <div class="mini-value" id="miniFaceCountText">0</div>
+                    </div>
+                    <div class="mini-card">
+                        <div class="mini-label">检测后端</div>
+                        <div class="mini-value" id="miniDetectorText">未初始化</div>
+                    </div>
+                </div>
+
+                <div id="statusLog" class="status-card status-info">
+                    <div class="status-inner">
+                        <div class="status-icon">
+                            <i class="bi bi-info-circle-fill" id="statusIcon"></i>
+                        </div>
+                        <div class="status-text-wrap">
+                            <div class="status-title">系统状态</div>
+                            <div class="status-text" id="statusText">
+                                {% if opencv_available %}
+                                    准备就绪，点击上方按钮启动摄像头。
+                                {% else %}
+                                    AI 监测当前不可用，请先检查后端依赖与模型配置。
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if not opencv_available %}
+                <div class="backend-alert">
+                    <strong>后端不可用：</strong>
+                    {% if backend_error %}{{ backend_error }}{% else %}未能初始化 AI 检测服务。{% endif %}
+                </div>
+                {% endif %}
+            </section>
+
+            <aside class="side-panel">
+                <div class="side-topbar">
+                    <div class="panel-title">
+                        <i class="bi bi-bar-chart-line-fill"></i>
+                        <span>检测面板</span>
+                    </div>
+                    <div class="panel-mini-badge">
+                        <span class="dot"></span>
+                        <span>在线分析</span>
+                    </div>
+                </div>
+
+                <div class="side-section">
+                    <div class="subsection-title">
+                        <i class="bi bi-grid-1x2-fill"></i>
+                        <span>核心指标</span>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">当前状态</div>
+                            <div class="stat-value" id="detectStateText">待启动</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">人脸数量</div>
+                            <div class="stat-value" id="faceCountText">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">检测后端</div>
+                            <div class="stat-value" id="detectorText">未初始化</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">接口耗时</div>
+                            <div class="stat-value" id="latencyText">-- ms</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">检测频率</div>
+                            <div class="stat-value" id="detectFrequencyText">1.2 秒 / 次</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">传输分辨率</div>
+                            <div class="stat-value" id="sendResolutionText">320 × 240</div>
+                        </div>
+                        <div class="stat-card wide">
+                            <div class="stat-label">上次成功检测</div>
+                            <div class="stat-value" id="lastDetectTime">从未</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="side-section">
+                    <div class="subsection-title">
+                        <i class="bi bi-image"></i>
+                        <span>发送到后端的图像预览</span>
+                    </div>
+                    <div class="debug-label">下方为发送给后端接口的压缩帧预览，可用来观察传输画质与构图情况。</div>
+                    <div class="debug-preview-shell">
+                        <canvas id="debugCanvas" width="160" height="120"></canvas>
+                    </div>
+                </div>
+
+                <div class="side-section">
+                    <div class="subsection-title">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <span>当前警告</span>
+                    </div>
+                    <div id="warningEmpty" class="warning-empty">暂无警告</div>
+                    <ul id="warningList" class="warning-list" style="display: none;"></ul>
+                </div>
+
+                <div class="side-section">
+                    <div class="subsection-title">
+                        <i class="bi bi-lightbulb"></i>
+                        <span>使用建议</span>
+                    </div>
+                    <ul class="tips-list">
+                        <li>保持面部完整进入画面，头顶与下巴尽量不要被裁切。</li>
+                        <li>背景过亮或逆光会影响识别效果，建议使用均匀正面光。</li>
+                        <li>停止检测前可观察右侧预览，确认发送给后端的画面是否清晰。</li>
+                        <li>若长时间未检测到人脸，可调整距离、角度和镜头位置。</li>
+                    </ul>
+                </div>
+
+                <div class="side-section" style="margin-bottom: 0;">
+                    <div class="subsection-title">
+                        <i class="bi bi-journal-text"></i>
+                        <span>运行说明</span>
+                    </div>
+                    <ul class="insight-list">
+                        <li class="insight-item">
+                            <span class="insight-key">检测目标</span>
+                            <span class="insight-value">单人近景为主</span>
+                        </li>
+                        <li class="insight-item">
+                            <span class="insight-key">识别方式</span>
+                            <span class="insight-value">前端采样 + 后端识别</span>
+                        </li>
+                        <li class="insight-item">
+                            <span class="insight-key">页面布局</span>
+                            <span class="insight-value">主画面优先展示</span>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const video = document.getElementById('videoElement');
+    const canvas = document.getElementById('canvasElement');
+    const ctx = canvas.getContext('2d');
+
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const cameraPage = document.getElementById('cameraPage');
+    const opencvAvailable = cameraPage.dataset.opencvAvailable === 'true';
+
+    const statusLog = document.getElementById('statusLog');
+    const statusText = document.getElementById('statusText');
+    const statusIcon = document.getElementById('statusIcon');
+
+    const debugCanvas = document.getElementById('debugCanvas');
+    const debugCtx = debugCanvas.getContext('2d');
+
+    const lastDetectTimeEl = document.getElementById('lastDetectTime');
+    const detectStateText = document.getElementById('detectStateText');
+    const faceCountText = document.getElementById('faceCountText');
+    const cameraBadgeText = document.getElementById('cameraBadgeText');
+    const detectorText = document.getElementById('detectorText');
+    const latencyText = document.getElementById('latencyText');
+    const warningList = document.getElementById('warningList');
+    const warningEmpty = document.getElementById('warningEmpty');
+
+    const miniStateText = document.getElementById('miniStateText');
+    const miniFaceCountText = document.getElementById('miniFaceCountText');
+    const miniDetectorText = document.getElementById('miniDetectorText');
+    const panelStatusText = document.getElementById('panelStatusText');
+    const detectFrequencyText = document.getElementById('detectFrequencyText');
+    const sendResolutionText = document.getElementById('sendResolutionText');
+
+    let stream = null;
+    let animationFrameId = null;
+    let lastDetectionTime = 0;
+    let latestFaces = [];
+    let latestFaceSources = [];
+
+    let consecutiveSuccess = 0;
+    let consecutiveFail = 0;
+    let currentStableState = null;
+    let lastSuccessfulDetectTime = null;
+
+    const STABILITY_THRESHOLD = 2;
+    const DETECTION_INTERVAL_MS = 1200;
+    const SEND_WIDTH = 320;
+    const SEND_HEIGHT = 240;
+
+    const offscreenCanvas = document.createElement('canvas');
+    const offscreenCtx = offscreenCanvas.getContext('2d');
+    offscreenCanvas.width = SEND_WIDTH;
+    offscreenCanvas.height = SEND_HEIGHT;
+
+    detectFrequencyText.textContent = `${(DETECTION_INTERVAL_MS / 1000).toFixed(1)} 秒 / 次`;
+    sendResolutionText.textContent = `${SEND_WIDTH} × ${SEND_HEIGHT}`;
+
+    function getCookie(name) {
+        const cookieValue = document.cookie
+            .split('; ')
+            .find(row => row.startsWith(name + '='));
+        return cookieValue ? decodeURIComponent(cookieValue.split('=')[1]) : null;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+
+    function mapBackendStatus(status) {
+        const map = {
+            normal: '单人正常',
+            no_face: '未检测到人脸',
+            multiple_faces: '多人进入',
+            face_too_small: '人脸过小',
+            side_face: '检测到侧脸'
+        };
+        return map[status] || '检测中';
+    }
+
+    function mapStatusType(status) {
+        if (status === 'normal') return 'success';
+        if (status === 'multiple_faces' || status === 'face_too_small' || status === 'side_face') return 'warning';
+        if (status === 'no_face') return 'info';
+        return 'secondary';
+    }
+
+    function setWarnings(warnings) {
+        warningList.innerHTML = '';
+
+        if (!warnings || warnings.length === 0) {
+            warningList.style.display = 'none';
+            warningEmpty.style.display = 'block';
+            warningEmpty.textContent = '暂无警告';
+            return;
+        }
+
+        warningEmpty.style.display = 'none';
+        warningList.style.display = 'block';
+
+        warnings.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            warningList.appendChild(li);
+        });
+    }
+
+    function updateBadge(text) {
+        cameraBadgeText.textContent = text;
+    }
+
+    function updateSideState(text) {
+        detectStateText.textContent = text;
+        miniStateText.textContent = text;
+        panelStatusText.textContent = text;
+    }
+
+    function updateFaceCount(count) {
+        const value = String(count);
+        faceCountText.textContent = value;
+        miniFaceCountText.textContent = value;
+    }
+
+    function updateDetector(name) {
+        detectorText.textContent = name;
+        miniDetectorText.textContent = name;
+    }
+
+    function showStatus(message, type) {
+        statusText.textContent = message;
+        statusLog.className = `status-card status-${type}`;
+
+        let iconClass = 'bi-info-circle-fill';
+        if (type === 'success') iconClass = 'bi-check-circle-fill';
+        if (type === 'warning') iconClass = 'bi-exclamation-triangle-fill';
+        if (type === 'danger') iconClass = 'bi-x-circle-fill';
+        if (type === 'secondary') iconClass = 'bi-stop-circle-fill';
+        if (type === 'info') iconClass = 'bi-search';
+
+        statusIcon.className = `bi ${iconClass}`;
+    }
+
+    function resetDetectionState() {
+        consecutiveSuccess = 0;
+        consecutiveFail = 0;
+        currentStableState = null;
+        latestFaces = [];
+        latestFaceSources = [];
+        lastSuccessfulDetectTime = null;
+
+        updateFaceCount(0);
+        updateDetector('未初始化');
+        latencyText.textContent = '-- ms';
+        setWarnings([]);
+    }
+
+    function drawBoxesOnContext(context, faces, sources) {
+        context.save();
+        context.strokeStyle = '#22c55e';
+        context.fillStyle = '#22c55e';
+        context.lineWidth = 3;
+        context.font = 'bold 14px Inter, Arial, sans-serif';
+        context.shadowColor = 'rgba(0,0,0,0.35)';
+        context.shadowBlur = 8;
+
+        faces.forEach((face, index) => {
+            const { x, y, w, h } = face;
+
+            context.beginPath();
+            context.rect(x, y, w, h);
+            context.stroke();
+
+            const source = sources[index] || '';
+            let label = 'FACE';
+            if (faces.length > 1) {
+                label = `FACE ${index + 1}`;
+            }
+            if (source.includes('profile')) {
+                label += ' / SIDE';
+            }
+
+            const textX = x + 8;
+            const textY = y > 24 ? y - 8 : y + 18;
+            context.fillText(label, textX, textY);
+        });
+
+        context.restore();
+    }
+
+    async function startCamera() {
+        try {
+            resetDetectionState();
+            updateBadge('摄像头启动中...');
+            updateSideState('初始化中');
+            showStatus('正在初始化摄像头...', 'info');
+
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    width: { ideal: 640 },
+                    height: { ideal: 480 },
+                    frameRate: { ideal: 30 },
+                    facingMode: 'user'
+                },
+                audio: false
+            });
+
+            video.srcObject = stream;
+
+            await new Promise((resolve) => {
+                video.onloadedmetadata = () => resolve();
+            });
+
+            await video.play();
+
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+
+            updateBadge('摄像头运行中');
+            showStatus('摄像头已启动，等待检测...', 'success');
+            updateSideState('等待检测');
+            lastDetectionTime = 0;
+            loop();
+        } catch (err) {
+            showStatus('无法访问摄像头：' + err.message, 'danger');
+            updateBadge('摄像头启动失败');
+            updateSideState('启动失败');
+        }
+    }
+
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+
+        if (video.srcObject) {
+            video.srcObject = null;
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        debugCtx.clearRect(0, 0, debugCanvas.width, debugCanvas.height);
+
+        startBtn.disabled = !opencvAvailable;
+        stopBtn.disabled = true;
+
+        latestFaces = [];
+        latestFaceSources = [];
+        resetDetectionState();
+        updateBadge('摄像头未启动');
+        updateSideState('已停止');
+        lastDetectTimeEl.textContent = '从未';
+        showStatus('已停止检测', 'secondary');
+    }
+
+    function loop() {
+        if (!stream) return;
+
+        const now = Date.now();
+
+        if (canvas.width !== video.clientWidth || canvas.height !== video.clientHeight) {
+            canvas.width = video.clientWidth;
+            canvas.height = video.clientHeight;
+        }
+
+        if (video.readyState >= 2) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        if (latestFaces.length > 0) {
+            drawBoxesOnContext(ctx, latestFaces, latestFaceSources);
+        }
+
+        if (video.readyState === 4 && now - lastDetectionTime > DETECTION_INTERVAL_MS) {
+            lastDetectionTime = now;
+            performDetection();
+        }
+
+        animationFrameId = requestAnimationFrame(loop);
+    }
+
+    async function performDetection() {
+        if (!stream || video.readyState !== 4) return;
+
+        offscreenCtx.clearRect(0, 0, SEND_WIDTH, SEND_HEIGHT);
+        offscreenCtx.filter = 'contrast(1.08) brightness(1.03)';
+        offscreenCtx.drawImage(video, 0, 0, SEND_WIDTH, SEND_HEIGHT);
+        offscreenCtx.filter = 'none';
+
+        debugCtx.clearRect(0, 0, debugCanvas.width, debugCanvas.height);
+        debugCtx.drawImage(offscreenCanvas, 0, 0, debugCanvas.width, debugCanvas.height);
+
+        const imageData = offscreenCanvas.toDataURL('image/jpeg', 0.65);
+
+        try {
+            const response = await fetch('{% url "programming:detect_face_api" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken || ''
+                },
+                body: JSON.stringify({ image: imageData })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || ('后端接口返回异常：' + response.status));
+            }
+
+            const count = result.count || 0;
+            const backendStatus = result.status || 'normal';
+            const warnings = result.warnings || [];
+            const message = result.message || '检测完成';
+            const latency = typeof result.latency_ms !== 'undefined' ? `${result.latency_ms} ms` : '-- ms';
+            const detector = result.detector || '未知';
+
+            updateFaceCount(count);
+            updateDetector(detector);
+            latencyText.textContent = latency;
+            setWarnings(warnings);
+
+            const hasFace = count > 0;
+
+            if (hasFace) {
+                consecutiveFail = 0;
+                consecutiveSuccess++;
+
+                lastSuccessfulDetectTime = new Date();
+                lastDetectTimeEl.textContent = lastSuccessfulDetectTime.toLocaleTimeString();
+
+                const scaleX = canvas.width / SEND_WIDTH;
+                const scaleY = canvas.height / SEND_HEIGHT;
+
+                latestFaces = (result.faces || []).map(face => ({
+                    x: face.x * scaleX,
+                    y: face.y * scaleY,
+                    w: face.w * scaleX,
+                    h: face.h * scaleY
+                }));
+
+                latestFaceSources = (result.faces || []).map(face => face.source || '');
+
+                if (consecutiveSuccess >= STABILITY_THRESHOLD && currentStableState !== backendStatus) {
+                    currentStableState = backendStatus;
+                    const uiType = mapStatusType(backendStatus);
+                    showStatus(message, uiType);
+                    updateSideState(mapBackendStatus(backendStatus));
+                    updateBadge(count > 1 ? '检测到多人' : '检测正常');
+                } else if (currentStableState === backendStatus) {
+                    updateSideState(mapBackendStatus(backendStatus));
+                }
+            } else {
+                consecutiveSuccess = 0;
+                consecutiveFail++;
+                latestFaces = [];
+                latestFaceSources = [];
+
+                if (consecutiveFail >= STABILITY_THRESHOLD && currentStableState !== 'no_face') {
+                    currentStableState = 'no_face';
+                    showStatus(message, 'info');
+                    updateSideState('未检测到人脸');
+                    updateBadge('画面中无人脸');
+                }
+            }
+        } catch (error) {
+            console.error('Detection error:', error);
+            showStatus('检测请求失败，请检查后端接口或网络连接。', 'danger');
+            updateSideState('接口异常');
+            updateBadge('检测异常');
+            latestFaces = [];
+            latestFaceSources = [];
+            updateFaceCount(0);
+            setWarnings(['接口请求失败或后端未正常响应']);
+        }
+    }
+
+    startBtn.addEventListener('click', startCamera);
+    stopBtn.addEventListener('click', stopCamera);
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && stream) {
+            stopCamera();
+        }
+    });
+
+    window.addEventListener('beforeunload', () => {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,653 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}发布新话题 - CodeGaze{% endblock %}
+
+{% block extra_css %}
+<style>
+    .post-page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0.75rem 0 2.8rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .post-page::before,
+    .post-page::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.46;
+    }
+
+    .post-page::before {
+        width: 300px;
+        height: 300px;
+        top: 20px;
+        left: 40px;
+        background: rgba(6, 182, 212, 0.12);
+    }
+
+    .post-page::after {
+        width: 360px;
+        height: 360px;
+        top: 120px;
+        right: 20px;
+        background: rgba(59, 130, 246, 0.10);
+    }
+
+    .post-inner {
+        position: relative;
+        z-index: 1;
+    }
+
+    .post-layout {
+        max-width: 860px;
+        margin: 0 auto;
+    }
+
+    .post-hero {
+        text-align: center;
+        margin-bottom: 1.7rem;
+    }
+
+    .post-badge {
+        width: 84px;
+        height: 84px;
+        margin: 0 auto 1rem;
+        border-radius: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(13, 148, 136, 0.12), rgba(14, 165, 233, 0.16));
+        box-shadow: 0 16px 34px rgba(14, 165, 233, 0.10);
+    }
+
+    .post-badge i {
+        font-size: 2.2rem;
+        background: linear-gradient(135deg, #0d9488, #0ea5e9);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .post-title {
+        font-size: 2.55rem;
+        font-weight: 800;
+        line-height: 1.15;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(90deg, #0f766e, #0891b2, #2563eb);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .post-subtitle {
+        max-width: 760px;
+        margin: 0 auto;
+        color: #64748b;
+        font-size: 1.03rem;
+        line-height: 1.8;
+    }
+
+    .post-summary {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 1.3rem;
+    }
+
+    .summary-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.78rem 1.1rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.76);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        color: #334155;
+        font-weight: 700;
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+        backdrop-filter: blur(8px);
+    }
+
+    .summary-chip i {
+        color: #0891b2;
+    }
+
+    .glass-card {
+        border-radius: 28px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(240,248,251,0.82));
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
+        overflow: hidden;
+    }
+
+    .post-card-header {
+        padding: 1.1rem 1.3rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.10);
+        background: rgba(248, 250, 252, 0.60);
+    }
+
+    .post-card-title {
+        margin: 0;
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #1e293b;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+    }
+
+    .post-card-title i {
+        color: #0891b2;
+    }
+
+    .post-card-body {
+        padding: 1.45rem 1.45rem 1.4rem;
+    }
+
+    .field-group + .field-group {
+        margin-top: 1.35rem;
+    }
+
+    .field-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-size: 0.98rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 0.65rem;
+    }
+
+    .field-label i {
+        color: #2563eb;
+    }
+
+    .form-label {
+        color: #1e293b !important;
+        font-weight: 800 !important;
+    }
+
+    .form-control,
+    .form-select,
+    input[type="text"],
+    select,
+    textarea {
+        width: 100%;
+        border-radius: 16px !important;
+        border: 1px solid rgba(148, 163, 184, 0.18) !important;
+        padding: 0.9rem 1rem !important;
+        background: rgba(255,255,255,0.86) !important;
+        color: #0f172a !important;
+        transition: all 0.22s ease !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+
+    .form-control:focus,
+    .form-select:focus,
+    input[type="text"]:focus,
+    select:focus,
+    textarea:focus {
+        border-color: rgba(13, 148, 136, 0.35) !important;
+        box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.10) !important;
+        background: rgba(255,255,255,0.95) !important;
+        outline: none !important;
+    }
+
+    .form-text {
+        margin-top: 0.45rem;
+        color: #64748b !important;
+        font-size: 0.88rem;
+        line-height: 1.7;
+    }
+
+    .invalid-feedback {
+        display: block;
+        margin-top: 0.45rem;
+        color: #ef4444 !important;
+        font-size: 0.88rem;
+        font-weight: 600;
+    }
+
+    .editor-shell {
+        border-radius: 20px;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        background: rgba(255,255,255,0.82);
+        overflow: hidden;
+        transition: all 0.22s ease;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+
+    .editor-shell.ck-focused {
+        border-color: rgba(13, 148, 136, 0.35);
+        box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.10);
+    }
+
+    .ck.ck-editor {
+        border: none !important;
+        background: transparent !important;
+    }
+
+    .ck.ck-toolbar {
+        border: none !important;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12) !important;
+        background: rgba(232, 244, 248, 0.9) !important;
+        padding: 0.55rem 0.65rem !important;
+    }
+
+    .ck.ck-toolbar .ck-button.ck-on {
+        background: rgba(13, 148, 136, 0.10) !important;
+        color: #0d9488 !important;
+    }
+
+    .ck.ck-toolbar .ck-button:hover,
+    .ck.ck-toolbar .ck-dropdown__button:hover {
+        background: rgba(13, 148, 136, 0.08) !important;
+    }
+
+    .ck-editor__editable_inline {
+        min-height: 360px !important;
+        padding: 1rem 1rem 1.1rem !important;
+        border: none !important;
+        background: transparent !important;
+        color: #1e293b !important;
+        line-height: 1.8 !important;
+        font-size: 1rem !important;
+    }
+
+    .editor-tip {
+        margin-top: 0.55rem;
+        color: #64748b;
+        font-size: 0.88rem;
+        line-height: 1.7;
+    }
+
+    .action-row {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.9rem;
+        flex-wrap: wrap;
+        margin-top: 1.5rem;
+        padding-top: 1.15rem;
+        border-top: 1px solid rgba(148, 163, 184, 0.10);
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-width: 132px;
+        padding: 0.82rem 1.25rem;
+        border-radius: 16px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: all 0.22s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .cancel-btn {
+        color: #475569;
+        background: rgba(255,255,255,0.82);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .cancel-btn:hover {
+        color: #0d9488;
+        background: rgba(248, 250, 252, 1);
+    }
+
+    .submit-btn {
+        color: #fff;
+        background: linear-gradient(90deg, #0d9488, #14b8a6);
+        box-shadow: 0 12px 24px rgba(13, 148, 136, 0.18);
+    }
+
+    .submit-btn:hover {
+        color: #fff;
+        transform: translateY(-1px);
+        background: linear-gradient(90deg, #0f766e, #0d9488);
+        box-shadow: 0 16px 28px rgba(13, 148, 136, 0.22);
+    }
+
+    .submit-btn:disabled {
+        opacity: 0.78;
+        transform: none;
+        box-shadow: none;
+        cursor: not-allowed;
+    }
+
+    .guide-card {
+        margin-top: 1.15rem;
+        border-radius: 24px;
+        background: linear-gradient(135deg, rgba(220,252,231,0.72), rgba(209,250,229,0.84));
+        border: 1px solid rgba(52, 211, 153, 0.18);
+        box-shadow: 0 14px 30px rgba(16, 185, 129, 0.06);
+        padding: 1.15rem 1.2rem 1rem;
+    }
+
+    .guide-title {
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: #065f46;
+        margin-bottom: 0.7rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .guide-title i {
+        color: #0d9488;
+    }
+
+    .guide-list {
+        margin: 0;
+        padding-left: 1.15rem;
+        color: #166534;
+        font-size: 0.93rem;
+        line-height: 1.85;
+    }
+
+    .guide-list code {
+        background: rgba(255,255,255,0.72);
+        color: #0d9488;
+        padding: 0.12rem 0.45rem;
+        border-radius: 7px;
+        border: 1px solid rgba(13, 148, 136, 0.10);
+    }
+
+    @media (max-width: 768px) {
+        .post-title {
+            font-size: 2rem;
+        }
+
+        .post-subtitle {
+            font-size: 0.96rem;
+        }
+
+        .summary-chip {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .post-card-body {
+            padding: 1rem;
+        }
+
+        .action-row {
+            flex-direction: column;
+        }
+
+        .action-btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="post-page">
+    <div class="post-inner">
+        <div class="post-layout">
+            <div class="post-hero">
+                <div class="post-badge">
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <h1 class="post-title">发布新话题</h1>
+                <p class="post-subtitle">
+                    分享你的技术见解，提出你的问题，与社区成员一起交流经验、沉淀思路、共同成长。
+                </p>
+
+                <div class="post-summary">
+                    <div class="summary-chip">
+                        <i class="bi bi-chat-square-text-fill"></i>
+                        <span>支持图文混排、代码块、表格</span>
+                    </div>
+                    <div class="summary-chip">
+                        <i class="bi bi-lightbulb-fill"></i>
+                        <span>描述越清晰，越容易获得高质量回复</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <div class="post-card-header">
+                    <h2 class="post-card-title">
+                        <i class="bi bi-file-earmark-text"></i>
+                        填写帖子详情
+                    </h2>
+                </div>
+
+                <div class="post-card-body">
+                    <form method="post" id="postForm" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="field-group">
+                            <label for="{{ form.title.id_for_label }}" class="field-label">
+                                <i class="bi bi-type"></i>
+                                <span>{{ form.title.label }}</span>
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback">{{ form.title.errors.0 }}</div>
+                            {% else %}
+                                <div class="form-text">
+                                    请填写一个简洁清晰、便于搜索的标题。
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="field-group">
+                            <label for="{{ form.category.id_for_label }}" class="field-label">
+                                <i class="bi bi-folder2-open"></i>
+                                <span>{{ form.category.label }}</span>
+                            </label>
+                            {{ form.category }}
+                            {% if form.category.errors %}
+                                <div class="invalid-feedback">{{ form.category.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label">
+                                <i class="bi bi-card-text"></i>
+                                <span>{{ form.content.label }}</span>
+                            </label>
+
+                            <div class="editor-shell">
+                                {{ form.content }}
+                            </div>
+
+                            {% if form.content.errors %}
+                                <div class="invalid-feedback">{{ form.content.errors.0 }}</div>
+                            {% else %}
+                                <div class="editor-tip">
+                                    支持插入<strong>代码块</strong>、<strong>图片</strong>（直接粘贴或拖拽）、表格等内容。
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="action-row">
+                            <a href="{% url 'community:community_home' %}" class="action-btn cancel-btn">
+                                <i class="bi bi-x-lg"></i>
+                                <span>取消</span>
+                            </a>
+                            <button type="submit" id="submitBtn" class="action-btn submit-btn">
+                                <i class="bi bi-send"></i>
+                                <span>立即发布</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="guide-card">
+                <div class="guide-title">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <span>社区发帖指南</span>
+                </div>
+                <ul class="guide-list">
+                    <li>标题尽量准确概括问题或主题，方便他人快速理解。</li>
+                    <li>粘贴代码时，建议使用工具栏中的 <code>&lt;/&gt;</code> 插入代码块。</li>
+                    <li>截图支持直接 <strong>Ctrl + V</strong> 粘贴到编辑区上传。</li>
+                    <li>可以补充报错信息、运行环境和你的尝试过程，便于获得更有效的帮助。</li>
+                    <li>保持文明交流，共同维护友好、专业的社区氛围。</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.ckeditor.com/ckeditor5/41.0.0/classic/ckeditor.js"></script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const textareaElement = document.querySelector('#id_content');
+
+    if (!textareaElement) {
+        console.error('未找到内容输入框 #id_content');
+        return;
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+
+    class MyUploadAdapter {
+        constructor(loader) {
+            this.loader = loader;
+        }
+
+        upload() {
+            return this.loader.file.then(file => new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append('upload', file);
+
+                fetch('{% url "community:upload_image" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.uploaded) {
+                        resolve({ default: data.url });
+                    } else {
+                        reject(data.error?.message || '上传失败');
+                    }
+                })
+                .catch(error => {
+                    console.error('图片上传失败:', error);
+                    reject(`图片上传失败：${error.message}`);
+                });
+            }));
+        }
+
+        abort() {}
+    }
+
+    function MyUploadAdapterPlugin(editor) {
+        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+            return new MyUploadAdapter(loader);
+        };
+    }
+
+    if (typeof ClassicEditor !== 'undefined') {
+        ClassicEditor.create(textareaElement, {
+            toolbar: [
+                'heading', '|',
+                'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
+                'blockQuote', 'insertTable', '|',
+                'codeBlock', '|',
+                'imageUpload',
+                'mediaEmbed', '|',
+                'undo', 'redo'
+            ],
+            codeBlock: {
+                languages: [
+                    { language: 'plaintext', label: '纯文本' },
+                    { language: 'c', label: 'C' },
+                    { language: 'cpp', label: 'C++' },
+                    { language: 'css', label: 'CSS' },
+                    { language: 'html', label: 'HTML' },
+                    { language: 'java', label: 'Java' },
+                    { language: 'javascript', label: 'JavaScript' },
+                    { language: 'python', label: 'Python' },
+                    { language: 'sql', label: 'SQL' }
+                ]
+            },
+            table: {
+                contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
+            },
+            language: 'zh-cn',
+            extraPlugins: [MyUploadAdapterPlugin]
+        })
+        .then(editor => {
+            const shell = document.querySelector('.editor-shell');
+
+            editor.ui.view.editable.on('focus', () => {
+                if (shell) shell.classList.add('ck-focused');
+            });
+
+            editor.ui.view.editable.on('blur', () => {
+                if (shell) shell.classList.remove('ck-focused');
+            });
+
+            const form = document.getElementById('postForm');
+            if (form) {
+                form.addEventListener('submit', () => {
+                    editor.updateSourceElement();
+                });
+            }
+        })
+        .catch(error => {
+            console.error('CKEditor 初始化失败:', error);
+            alert('编辑器加载失败，请检查控制台错误信息。');
+        });
+    } else {
+        console.error('ClassicEditor 未定义');
+        alert('编辑器脚本加载失败，请检查网络连接。');
+    }
+
+    const submitBtn = document.getElementById('submitBtn');
+    const postForm = document.getElementById('postForm');
+    if (postForm && submitBtn) {
+        postForm.addEventListener('submit', function () {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i><span>发布中...</span>';
+        });
+    }
+});
+</script>
+{% endblock %}

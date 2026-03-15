@@ -1,0 +1,1717 @@
+{% extends 'base.html' %}
+{% block title %}提交代码 - {{ problem.title }} - CodeGaze{% endblock %}
+{% block extra_css %}
+<style>
+ /* --- 基础样式保持原有风格 --- */
+ .assistant-card {
+   padding: 1rem;
+ }
+ .assistant-head {
+   display: flex;
+   align-items: flex-start;
+   justify-content: space-between;
+   gap: 0.8rem;
+   margin-bottom: 0.9rem;
+ }
+ .assistant-title {
+   display: flex;
+   align-items: center;
+   gap: 0.5rem;
+   font-size: 1.02rem;
+   font-weight: 800;
+   color: #1e293b;
+   margin: 0 0 0.2rem 0;
+ }
+ .assistant-subtitle {
+   margin: 0;
+   color: #64748b;
+   font-size: 0.86rem;
+   line-height: 1.65;
+ }
+ .assistant-mode-pill {
+   display: inline-flex;
+   align-items: center;
+   gap: 0.4rem;
+   padding: 0.46rem 0.78rem;
+   border-radius: 999px;
+   font-size: 0.8rem;
+   font-weight: 700;
+   background: rgba(16, 185, 129, 0.10);
+   color: #047857;
+   border: 1px solid rgba(16, 185, 129, 0.16);
+ }
+ .assistant-mode-pill.exam {
+   background: rgba(239, 68, 68, 0.10);
+   color: #b91c1c;
+   border-color: rgba(239, 68, 68, 0.16);
+ }
+ .assistant-quick-actions {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 0.65rem;
+   margin-bottom: 0.9rem;
+ }
+ .assistant-quick-btn {
+   border: none;
+   border-radius: 999px;
+   padding: 0.58rem 0.9rem;
+   font-size: 0.84rem;
+   font-weight: 700;
+   background: rgba(37, 99, 235, 0.08);
+   color: #2563eb;
+   border: 1px solid rgba(37, 99, 235, 0.12);
+   transition: all 0.2s ease;
+   cursor: pointer;
+ }
+ .assistant-quick-btn:hover {
+   background: rgba(37, 99, 235, 0.12);
+   transform: translateY(-1px);
+ }
+ .assistant-chat-box {
+   min-height: 260px;
+   max-height: 420px;
+   overflow-y: auto;
+   padding: 0.9rem;
+   border-radius: 18px;
+   background: linear-gradient(180deg, rgba(248,252,255,0.96), rgba(240,248,251,0.92));
+   border: 1px solid rgba(148, 163, 184, 0.14);
+   display: flex;
+   flex-direction: column;
+   gap: 0.8rem;
+   margin-bottom: 0.9rem;
+ }
+ .assistant-msg {
+   max-width: 92%;
+   padding: 0.85rem 0.95rem;
+   border-radius: 16px;
+   line-height: 1.7;
+   font-size: 0.9rem;
+   white-space: pre-wrap;
+   word-break: break-word;
+ }
+ .assistant-msg.user {
+   align-self: flex-end;
+   background: linear-gradient(90deg, #2563eb, #0ea5e9);
+   color: #fff;
+   border-bottom-right-radius: 6px;
+ }
+ .assistant-msg.bot {
+   align-self: flex-start;
+   background: rgba(255,255,255,0.94);
+   color: #334155;
+   border: 1px solid rgba(148, 163, 184, 0.12);
+   border-bottom-left-radius: 6px;
+ }
+ .assistant-msg.system {
+   align-self: center;
+   background: rgba(248, 250, 252, 0.95);
+   color: #64748b;
+   border: 1px dashed rgba(148, 163, 184, 0.18);
+   text-align: center;
+ }
+ .assistant-input-wrap {
+   display: grid;
+   grid-template-columns: 1fr auto;
+   gap: 0.75rem;
+ }
+ .assistant-input {
+   width: 100%;
+   min-height: 52px;
+   max-height: 140px;
+   resize: vertical;
+   padding: 0.9rem 1rem;
+   border-radius: 16px;
+   border: 1px solid rgba(148, 163, 184, 0.18);
+   background: rgba(248, 250, 252, 0.92);
+   color: #0f172a;
+   outline: none;
+   transition: all 0.25s ease;
+   line-height: 1.7;
+   font-size: 0.92rem;
+ }
+ .assistant-input:focus {
+   border-color: rgba(37, 99, 235, 0.35);
+   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+   background: #fff;
+ }
+ .assistant-send-btn {
+   border: none;
+   border-radius: 16px;
+   padding: 0.9rem 1rem;
+   min-width: 104px;
+   font-size: 0.92rem;
+   font-weight: 800;
+   color: #fff;
+   background: linear-gradient(90deg, #2563eb, #0ea5e9);
+   box-shadow: 0 10px 20px rgba(37, 99, 235, 0.14);
+   transition: all 0.22s ease;
+   cursor: pointer;
+ }
+ .assistant-send-btn:hover {
+   transform: translateY(-1px);
+ }
+ .assistant-send-btn:disabled {
+   opacity: 0.7;
+   cursor: not-allowed;
+   transform: none;
+ }
+ .assistant-disabled-box {
+   padding: 1rem;
+   border-radius: 18px;
+   background: rgba(254, 242, 242, 0.92);
+   border: 1px solid rgba(239, 68, 68, 0.16);
+   color: #991b1b;
+   line-height: 1.75;
+   font-size: 0.9rem;
+ }
+
+ /* --- 页面主体布局优化 --- */
+ .submit-page {
+   max-width: 1400px;
+   margin: 0 auto;
+   padding: 0.5rem 0 2.5rem;
+   position: relative;
+ }
+ .submit-page::before,
+ .submit-page::after {
+   content: "";
+   position: absolute;
+   border-radius: 50%;
+   filter: blur(80px);
+   pointer-events: none;
+   z-index: 0;
+   opacity: 0.45;
+ }
+ .submit-page::before {
+   width: 280px;
+   height: 280px;
+   top: 30px;
+   left: 40px;
+   background: rgba(6, 182, 212, 0.12);
+ }
+ .submit-page::after {
+   width: 320px;
+   height: 320px;
+   right: 30px;
+   top: 120px;
+   background: rgba(37, 99, 235, 0.10);
+ }
+ .submit-inner {
+   position: relative;
+   z-index: 1;
+ }
+ .submit-hero {
+   margin-bottom: 1.45rem;
+ }
+ .submit-title {
+   font-size: 2.65rem;
+   font-weight: 800;
+   line-height: 1.15;
+   margin-bottom: 0.55rem;
+   color: #1e293b;
+ }
+ .submit-title .highlight {
+   background: linear-gradient(90deg, #2563eb, #0891b2);
+   -webkit-background-clip: text;
+   background-clip: text;
+   color: transparent;
+ }
+ .hero-meta-row {
+   display: flex;
+   align-items: center;
+   gap: 0.75rem;
+   flex-wrap: wrap;
+   margin-bottom: 0.85rem;
+ }
+ .difficulty-badge,
+ .mode-badge {
+   display: inline-flex;
+   align-items: center;
+   gap: 0.5rem;
+   padding: 0.55rem 1rem;
+   border-radius: 999px;
+   border: 1px solid rgba(148, 163, 184, 0.16);
+   font-weight: 700;
+   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+ }
+ .difficulty-badge {
+   background: rgba(255, 255, 255, 0.72);
+   color: #475569;
+ }
+ .mode-practice {
+   background: rgba(16, 185, 129, 0.12);
+   color: #047857;
+   border-color: rgba(16, 185, 129, 0.18);
+ }
+ .mode-exam {
+   background: rgba(239, 68, 68, 0.10);
+   color: #b91c1c;
+   border-color: rgba(239, 68, 68, 0.18);
+ }
+ .mode-banner {
+   border-radius: 22px;
+   padding: 1rem 1.1rem;
+   margin-top: 0.6rem;
+   display: flex;
+   align-items: flex-start;
+   gap: 0.85rem;
+   border: 1px solid transparent;
+   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+ }
+ .mode-banner i {
+   font-size: 1.2rem;
+   margin-top: 0.1rem;
+   flex-shrink: 0;
+ }
+ .mode-banner h3 {
+   margin: 0 0 0.2rem 0;
+   font-size: 1rem;
+   font-weight: 800;
+ }
+ .mode-banner p {
+   margin: 0;
+   line-height: 1.75;
+   font-size: 0.93rem;
+ }
+ .mode-banner.practice {
+   background: linear-gradient(135deg, rgba(236, 253, 245, 0.92), rgba(240, 253, 250, 0.92));
+   border-color: rgba(16, 185, 129, 0.16);
+   color: #065f46;
+ }
+ .mode-banner.exam {
+   background: linear-gradient(135deg, rgba(254, 242, 242, 0.94), rgba(255, 247, 237, 0.94));
+   border-color: rgba(239, 68, 68, 0.16);
+   color: #991b1b;
+ }
+
+ /* --- 核心布局修正：调整网格比例 --- */
+ .submit-layout {
+   display: grid;
+   grid-template-columns: minmax(0, 2.5fr) minmax(280px, 0.75fr);
+   gap: 1.5rem;
+   align-items: start;
+ }
+
+ .glass-card {
+   background: rgba(255, 255, 255, 0.80);
+   backdrop-filter: blur(10px);
+   border: 1px solid rgba(148, 163, 184, 0.14);
+   border-radius: 24px;
+   box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+ }
+ .main-card {
+   padding: 1.3rem;
+ }
+ .card-section + .card-section {
+   margin-top: 1.25rem;
+ }
+ .section-label {
+   display: block;
+   font-size: 1rem;
+   font-weight: 700;
+   color: #1e293b;
+   margin-bottom: 0.65rem;
+ }
+ .language-select {
+   width: 100%;
+   padding: 0.95rem 1rem;
+   border-radius: 16px;
+   border: 1px solid rgba(148, 163, 184, 0.18);
+   background: rgba(248, 250, 252, 0.88);
+   color: #0f172a;
+   font-size: 1rem;
+   font-weight: 500;
+   outline: none;
+   transition: all 0.25s ease;
+   box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+ }
+ .language-select:focus {
+   border-color: rgba(37, 99, 235, 0.35);
+   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+   background: #fff;
+ }
+ .editor-wrap {
+   position: relative;
+ }
+ .editor-toolbar {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   margin-bottom: 0.65rem;
+   gap: 0.75rem;
+   flex-wrap: wrap;
+ }
+ .editor-badge {
+   display: inline-flex;
+   align-items: center;
+   gap: 0.45rem;
+   padding: 0.45rem 0.8rem;
+   border-radius: 999px;
+   background: linear-gradient(90deg, rgba(37, 99, 235, 0.10), rgba(6, 182, 212, 0.10));
+   color: #2563eb;
+   font-weight: 700;
+   font-size: 0.9rem;
+ }
+ .editor-tip {
+   font-size: 0.88rem;
+   color: #64748b;
+ }
+ .code-editor {
+   width: 100%;
+   min-height: 450px;
+   resize: vertical;
+   padding: 1.15rem;
+   border-radius: 18px;
+   border: 1px solid rgba(148, 163, 184, 0.18);
+   background: linear-gradient(180deg, rgba(250,252,255,0.96), rgba(245,249,252,0.92));
+   color: #0f172a;
+   font-size: 0.98rem;
+   line-height: 1.75;
+   font-family: "Consolas", "JetBrains Mono", "Fira Code", monospace;
+   outline: none;
+   transition: all 0.25s ease;
+   box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+ }
+ .code-editor:focus {
+   border-color: rgba(37, 99, 235, 0.35);
+   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+   background: #ffffff;
+ }
+ .action-row {
+   display: flex;
+   gap: 0.9rem;
+   flex-wrap: wrap;
+   margin-top: 1rem;
+ }
+ .primary-btn,
+ .success-btn,
+ .back-btn-lite,
+ .ai-btn {
+   border: none;
+   border-radius: 999px;
+   padding: 0.95rem 1.45rem;
+   font-size: 1rem;
+   font-weight: 700;
+   transition: all 0.25s ease;
+   text-decoration: none;
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   gap: 0.55rem;
+   cursor: pointer;
+ }
+ .primary-btn {
+   background: linear-gradient(90deg, #2563eb, #0ea5e9);
+   color: #fff;
+   box-shadow: 0 14px 26px rgba(37, 99, 235, 0.18);
+ }
+ .success-btn {
+   background: linear-gradient(90deg, #22c55e, #16a34a);
+   color: #fff;
+   box-shadow: 0 14px 26px rgba(34, 197, 94, 0.16);
+ }
+ .back-btn-lite {
+   background: rgba(255,255,255,0.9);
+   border: 1px solid rgba(148, 163, 184, 0.18);
+   color: #475569;
+ }
+ .primary-btn:hover,
+ .success-btn:hover,
+ .back-btn-lite:hover,
+ .ai-btn:hover:not(:disabled) {
+   transform: translateY(-2px);
+ }
+ .primary-btn:disabled,
+ .success-btn:disabled,
+ .ai-btn:disabled {
+   opacity: 0.75;
+   cursor: not-allowed;
+   transform: none;
+   box-shadow: none;
+ }
+ .result-container,
+ .test-output-card,
+ .test-error-card {
+   margin-top: 1rem;
+   border-radius: 18px;
+   padding: 1rem 1.1rem;
+   white-space: pre-wrap;
+ }
+ .result-container {
+   display: none;
+ }
+ .result-success,
+ .test-output-card {
+   background: rgba(240, 253, 244, 0.82);
+   border: 1px solid rgba(34, 197, 94, 0.22);
+   color: #166534;
+ }
+ .result-danger,
+ .test-error-card {
+   background: rgba(254, 242, 242, 0.85);
+   border: 1px solid rgba(239, 68, 68, 0.20);
+   color: #991b1b;
+ }
+ .custom-test-card {
+   padding: 1.25rem;
+   margin-top: 1.3rem;
+   background: rgba(255, 255, 255, 0.78);
+ }
+ .custom-title {
+   display: flex;
+   align-items: center;
+   gap: 0.7rem;
+   font-size: 1.75rem;
+   font-weight: 800;
+   color: #1e293b;
+   margin-bottom: 0.45rem;
+ }
+ .custom-desc {
+   color: #64748b;
+   font-size: 0.96rem;
+   line-height: 1.7;
+   margin-bottom: 1rem;
+ }
+ .custom-mode-tip {
+   margin-bottom: 0.95rem;
+   padding: 0.85rem 0.95rem;
+   border-radius: 16px;
+   font-size: 0.88rem;
+   line-height: 1.7;
+   display: flex;
+   align-items: flex-start;
+   gap: 0.55rem;
+ }
+ .custom-mode-tip.practice {
+   background: rgba(34, 197, 94, 0.08);
+   border: 1px solid rgba(34, 197, 94, 0.14);
+   color: #166534;
+ }
+ .custom-mode-tip.exam {
+   background: rgba(245, 158, 11, 0.10);
+   border: 1px solid rgba(245, 158, 11, 0.14);
+   color: #92400e;
+ }
+ .custom-input-row {
+   display: grid;
+   grid-template-columns: minmax(0, 1fr) auto;
+   gap: 0.85rem;
+ }
+ .custom-input {
+   width: 100%;
+   padding: 0.95rem 1rem;
+   border-radius: 16px;
+   border: 1px solid rgba(148, 163, 184, 0.18);
+   background: rgba(248, 250, 252, 0.88);
+   color: #0f172a;
+   outline: none;
+   transition: all 0.25s ease;
+   font-size: 1rem;
+ }
+ .custom-input:focus {
+   border-color: rgba(34, 197, 94, 0.35);
+   box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.10);
+   background: #fff;
+ }
+ .output-pre {
+   margin: 0.45rem 0 0 0;
+   padding: 0;
+   background: transparent;
+   border: none;
+   box-shadow: none;
+   color: inherit;
+   font-size: 0.96rem;
+   line-height: 1.7;
+   font-family: "Consolas", "JetBrains Mono", monospace;
+   white-space: pre-wrap;
+   word-break: break-word;
+ }
+ .side-stack {
+   position: sticky;
+   top: 1.2rem;
+   display: grid;
+   gap: 1rem;
+ }
+ .side-card {
+   padding: 1.1rem;
+ }
+ .side-title {
+   display: flex;
+   align-items: center;
+   gap: 0.55rem;
+   font-size: 1.05rem;
+   font-weight: 800;
+   color: #1e293b;
+   margin-bottom: 0.9rem;
+ }
+ .info-list {
+   display: grid;
+   gap: 0.85rem;
+ }
+ .info-item {
+   padding: 0.95rem 1rem;
+   border-radius: 16px;
+   background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.90));
+   border: 1px solid rgba(148, 163, 184, 0.12);
+ }
+ .info-label {
+   font-size: 0.82rem;
+   color: #64748b;
+   margin-bottom: 0.3rem;
+ }
+ .info-value {
+   font-size: 1rem;
+   font-weight: 700;
+   color: #0f172a;
+   word-break: break-word;
+ }
+ .side-tip-box {
+   margin-top: 1rem;
+   padding: 1rem;
+   border-radius: 18px;
+   border: 1px solid rgba(37,99,235,0.12);
+ }
+ .side-tip-box.practice {
+   background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(6,182,212,0.08));
+ }
+ .side-tip-box.exam {
+   background: linear-gradient(135deg, rgba(239,68,68,0.08), rgba(245,158,11,0.08));
+   border-color: rgba(239, 68, 68, 0.12);
+ }
+ .side-tip-box h4 {
+   font-size: 0.98rem;
+   font-weight: 800;
+   color: #1e293b;
+   margin-bottom: 0.55rem;
+ }
+ .side-tip-box ul {
+   margin: 0;
+   padding-left: 1.1rem;
+   color: #64748b;
+   font-size: 0.9rem;
+   line-height: 1.8;
+ }
+ 
+ /* AI 监控卡片样式保持不变 */
+ .ai-side-card {
+   padding: 1rem;
+   transition: all 0.25s ease;
+   border: 1px solid rgba(148, 163, 184, 0.14);
+ }
+ .ai-side-card.is-success { border-color: rgba(34, 197, 94, 0.20); box-shadow: 0 16px 34px rgba(34, 197, 94, 0.08); }
+ .ai-side-card.is-warning { border-color: rgba(245, 158, 11, 0.24); box-shadow: 0 16px 34px rgba(245, 158, 11, 0.08); }
+ .ai-side-card.is-danger { border-color: rgba(239, 68, 68, 0.24); box-shadow: 0 16px 34px rgba(239, 68, 68, 0.08); }
+ .ai-side-card.is-info { border-color: rgba(37, 99, 235, 0.22); box-shadow: 0 16px 34px rgba(37, 99, 235, 0.07); }
+ .ai-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.8rem; margin-bottom: 0.9rem; }
+ .ai-head-left h3 { display: flex; align-items: center; gap: 0.48rem; margin: 0 0 0.22rem 0; font-size: 1.04rem; font-weight: 800; color: #1e293b; }
+ .ai-head-left p { margin: 0; color: #64748b; font-size: 0.85rem; line-height: 1.6; }
+ .ai-state-pill { display: inline-flex; align-items: center; gap: 0.42rem; padding: 0.48rem 0.8rem; border-radius: 999px; background: rgba(255,255,255,0.8); border: 1px solid rgba(148, 163, 184, 0.14); color: #475569; font-size: 0.82rem; font-weight: 700; white-space: nowrap; }
+ .ai-state-dot { width: 8px; height: 8px; border-radius: 50%; background: #2563eb; box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.10); transition: all 0.25s ease; }
+ .ai-side-card.is-success .ai-state-dot { background: #16a34a; box-shadow: 0 0 0 6px rgba(22, 163, 74, 0.10); }
+ .ai-side-card.is-warning .ai-state-dot { background: #ea580c; box-shadow: 0 0 0 6px rgba(234, 88, 12, 0.10); }
+ .ai-side-card.is-danger .ai-state-dot { background: #dc2626; box-shadow: 0 0 0 6px rgba(220, 38, 38, 0.10); }
+ .ai-preview { position: relative; width: 100%; aspect-ratio: 16 / 11; border-radius: 20px; overflow: hidden; background: radial-gradient(circle at top left, rgba(6, 182, 212, 0.10), transparent 35%), linear-gradient(135deg, #081327, #0a1530 58%, #1b2c68); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); margin-bottom: 0.9rem; }
+ #videoElement, #canvasElement { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+ #canvasElement { pointer-events: none; }
+ .ai-overlay-label { position: absolute; top: 12px; left: 12px; z-index: 3; display: inline-flex; align-items: center; gap: 0.42rem; padding: 0.48rem 0.8rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; color: #e2e8f0; background: rgba(15, 23, 42, 0.56); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(6px); }
+ .ai-overlay-tip { position: absolute; right: 12px; bottom: 12px; z-index: 3; padding: 0.5rem 0.76rem; border-radius: 14px; font-size: 0.76rem; color: rgba(241, 245, 249, 0.94); background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(6px); }
+ .ai-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.95rem; }
+ .ai-btn { width: 100%; padding: 0.88rem 1rem; font-size: 0.92rem; font-weight: 800; box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08); }
+ .ai-btn-start { background: linear-gradient(90deg, #5b8cff, #55c3ee); color: #fff; }
+ .ai-btn-stop { background: linear-gradient(90deg, #ff8aa0, #f16e72); color: #fff; }
+ .ai-status-box { padding: 0.92rem 0.95rem; border-radius: 16px; background: rgba(248, 250, 252, 0.76); border: 1px solid rgba(148, 163, 184, 0.12); display: flex; align-items: flex-start; gap: 0.7rem; margin-bottom: 0.9rem; }
+ .ai-status-box i { font-size: 1rem; margin-top: 0.08rem; color: #2563eb; flex-shrink: 0; }
+ .ai-status-text { font-size: 0.9rem; color: #475569; line-height: 1.7; white-space: pre-line; }
+ .ai-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.9rem; }
+ .ai-stat { padding: 0.86rem 0.9rem; border-radius: 16px; background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.90)); border: 1px solid rgba(148, 163, 184, 0.12); }
+ .ai-stat-label { font-size: 0.78rem; color: #64748b; margin-bottom: 0.28rem; }
+ .ai-stat-value { font-size: 0.96rem; font-weight: 800; color: #0f172a; line-height: 1.4; word-break: break-word; }
+ .ai-warning-box { padding: 0.9rem 0.95rem; border-radius: 16px; background: rgba(255, 251, 235, 0.82); border: 1px solid rgba(245, 158, 11, 0.16); margin-bottom: 0.9rem; }
+ .ai-warning-title { display: flex; align-items: center; gap: 0.45rem; font-size: 0.9rem; font-weight: 800; color: #92400e; margin-bottom: 0.5rem; }
+ .ai-warning-list { margin: 0; padding-left: 1.05rem; color: #92400e; font-size: 0.88rem; line-height: 1.75; }
+ .ai-warning-empty { font-size: 0.88rem; color: #64748b; line-height: 1.7; }
+ .ai-backend-alert { margin-top: 0.85rem; padding: 0.9rem 0.95rem; border-radius: 16px; border: 1px solid rgba(239, 68, 68, 0.18); background: rgba(254, 242, 242, 0.92); color: #b91c1c; line-height: 1.7; font-size: 0.9rem; font-weight: 600; }
+
+ /* ================================ */
+ /* === 新增：题目描述面板样式 === */
+ /* ================================ */
+ .problem-description-panel {
+   padding: 1.3rem;
+   margin-bottom: 1.5rem;
+ }
+ .problem-description-panel .panel-header {
+   display: flex;
+   align-items: center;
+   gap: 0.65rem;
+   font-size: 1.18rem;
+   font-weight: 800;
+   color: #1e293b;
+   margin-bottom: 1.1rem;
+   padding-bottom: 0.9rem;
+   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+ }
+ .problem-description-panel .panel-header i {
+   color: #2563eb;
+   font-size: 1.25rem;
+ }
+ .problem-description-panel .description-section {
+   margin-bottom: 1.2rem;
+ }
+ .problem-description-panel .description-section:last-child {
+   margin-bottom: 0;
+ }
+ .problem-description-panel .description-section h4 {
+   font-size: 0.98rem;
+   font-weight: 700;
+   color: #1e293b;
+   margin: 0 0 0.6rem 0;
+   display: flex;
+   align-items: center;
+   gap: 0.5rem;
+ }
+ .problem-description-panel .description-section h4 i {
+   color: #0ea5e9;
+   font-size: 0.95rem;
+ }
+ .problem-description-panel .description-section p {
+   font-size: 0.94rem;
+   color: #475569;
+   line-height: 1.78;
+   margin: 0;
+ }
+ .problem-description-panel .sample-block {
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+   gap: 0.9rem;
+   margin-top: 0.7rem;
+ }
+ .problem-description-panel .sample-item {
+   background: linear-gradient(180deg, rgba(248, 250, 252, 0.85), rgba(241, 245, 249, 0.75));
+   border-radius: 14px;
+   padding: 0.9rem;
+   border: 1px solid rgba(148, 163, 184, 0.1);
+ }
+ .problem-description-panel .sample-item .sample-label {
+   font-size: 0.82rem;
+   font-weight: 700;
+   color: #64748b;
+   margin-bottom: 0.5rem;
+   display: flex;
+   align-items: center;
+   gap: 0.4rem;
+ }
+ .problem-description-panel .sample-item .sample-label i {
+   font-size: 0.85rem;
+ }
+ .problem-description-panel .sample-item pre {
+   background: rgba(255, 255, 255, 0.85);
+   border: 1px solid rgba(148, 163, 184, 0.12);
+   padding: 0.75rem 0.9rem;
+   border-radius: 10px;
+   font-size: 0.9rem;
+   margin: 0;
+   color: #334155;
+   font-family: "Consolas", "JetBrains Mono", monospace;
+ }
+
+ @media (max-width: 992px) {
+   .submit-layout {
+     grid-template-columns: 1fr;
+   }
+   .side-stack {
+     position: static;
+   }
+   .problem-description-panel .sample-block {
+     grid-template-columns: 1fr;
+   }
+ }
+ @media (max-width: 768px) {
+   .submit-title { font-size: 2.05rem; }
+   .main-card, .custom-test-card, .side-card, .ai-side-card, .problem-description-panel { padding: 1rem; border-radius: 18px; }
+   .custom-input-row { grid-template-columns: 1fr; }
+   .primary-btn, .success-btn, .back-btn-lite { width: 100%; }
+   .ai-controls { grid-template-columns: 1fr; }
+   .ai-stats-grid { grid-template-columns: 1fr; }
+   .ai-overlay-tip { display: none; }
+ }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="submit-page">
+  <div class="submit-inner">
+    <div class="submit-hero">
+      <h1 class="submit-title">
+        提交代码 - <span class="highlight">{{ problem.title }}</span>
+      </h1>
+      <div class="hero-meta-row">
+        <div class="difficulty-badge">
+          <i class="bi bi-bar-chart-fill"></i>
+          <span>难度：{{ problem.get_difficulty_display }}</span>
+        </div>
+        {% if current_mode == 'exam' %}
+        <div class="mode-badge mode-exam">
+          <i class="bi bi-shield-lock-fill"></i>
+          <span>当前模式：考试模式</span>
+        </div>
+        {% else %}
+        <div class="mode-badge mode-practice">
+          <i class="bi bi-mortarboard-fill"></i>
+          <span>当前模式：练习模式</span>
+        </div>
+        {% endif %}
+      </div>
+      
+      {% if current_mode == 'exam' %}
+      <div class="mode-banner exam">
+        <i class="bi bi-exclamation-octagon-fill"></i>
+        <div>
+          <h3>考试作答中</h3>
+          <p>当前页面偏向正式作答场景。请保持独立完成，右侧会显示 AI 监测状态；自定义测试窗口仍然保留，方便你核对输入输出格式与样例结果。</p>
+        </div>
+      </div>
+      {% else %}
+      <div class="mode-banner practice">
+        <i class="bi bi-stars"></i>
+        <div>
+          <h3>练习提交中</h3>
+          <p>你可以自由调试代码、运行自定义测试并反复修改。当前页面更适合学习、验证思路和逐步优化解法。</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="submit-layout">
+      <!-- 左侧主要内容区 -->
+      <div>
+        <!-- 新增：题目描述面板（双模式都显示） -->
+        <div class="glass-card problem-description-panel">
+          <div class="panel-header">
+            <i class="bi bi-file-text-fill"></i>
+            <span>题目描述</span>
+          </div>
+          
+          {% if problem.description %}
+          <div class="description-section">
+            <h4><i class="bi bi-journal-text"></i> 题目描述</h4>
+            <p>{{ problem.description }}</p>
+          </div>
+          {% endif %}
+          
+          {% if problem.input_format %}
+          <div class="description-section">
+            <h4><i class="bi bi-download"></i> 输入格式</h4>
+            <p>{{ problem.input_format }}</p>
+          </div>
+          {% endif %}
+          
+          {% if problem.output_format %}
+          <div class="description-section">
+            <h4><i class="bi bi-upload"></i> 输出格式</h4>
+            <p>{{ problem.output_format }}</p>
+          </div>
+          {% endif %}
+          
+          {% if problem.sample_input or problem.sample_output %}
+          <div class="description-section">
+            <h4><i class="bi bi-clipboard-data"></i> 样例</h4>
+            <div class="sample-block">
+              {% if problem.sample_input %}
+              <div class="sample-item">
+                <div class="sample-label"><i class="bi bi-key-fill"></i> 样例输入</div>
+                <pre>{{ problem.sample_input }}</pre>
+              </div>
+              {% endif %}
+              {% if problem.sample_output %}
+              <div class="sample-item">
+                <div class="sample-label"><i class="bi bi-check-circle-fill"></i> 样例输出</div>
+                <pre>{{ problem.sample_output }}</pre>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+          
+          {% if problem.data_range %}
+          <div class="description-section">
+            <h4><i class="bi bi-rulers"></i> 数据范围</h4>
+            <p>{{ problem.data_range }}</p>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="glass-card main-card">
+          <form id="code-form">
+            {% csrf_token %}
+            <div class="card-section">
+              <label for="language-select" class="section-label">编程语言</label>
+              <select id="language-select" name="language" class="language-select">
+                <option value="python" selected>Python 3</option>
+                <option value="cpp">C++ (G++)</option>
+                <option value="c">C (GCC)</option>
+                <option value="java">Java</option>
+              </select>
+            </div>
+
+            <div class="card-section">
+              <label for="code-editor" class="section-label">代码编辑器</label>
+              <div class="editor-wrap">
+                <div class="editor-toolbar">
+                  <div class="editor-badge">
+                    <i class="bi bi-code-slash"></i>
+                    <span>
+                      {% if current_mode == 'exam' %}
+                        正式作答编辑区
+                      {% else %}
+                        在线练习编辑区
+                      {% endif %}
+                    </span>
+                  </div>
+                  <div class="editor-tip">
+                    {% if current_mode == 'exam' %}
+                      请按题目要求独立完成代码，提交前再次检查边界情况。
+                    {% else %}
+                      先写出可运行版本，再逐步优化复杂度和边界处理。
+                    {% endif %}
+                  </div>
+                </div>
+                <textarea
+                  id="code-editor"
+                  name="code"
+                  class="code-editor"
+                  placeholder="{% if current_mode == 'exam' %}请在此独立完成代码...{% else %}在此输入你的代码，先写通再慢慢优化...{% endif %}"
+                  required
+                ></textarea>
+              </div>
+              
+              <div class="action-row">
+                <button type="submit" id="submit-btn" class="primary-btn">
+                  {% if current_mode == 'exam' %}
+                    <i class="bi bi-shield-check"></i>
+                    <span>正式提交代码</span>
+                  {% else %}
+                    <i class="bi bi-rocket-takeoff-fill"></i>
+                    <span>提交练习代码</span>
+                  {% endif %}
+                </button>
+                <a href="{% url 'programming:problem_detail' pk=problem.pk %}" class="back-btn-lite">
+                  <i class="bi bi-arrow-left"></i>
+                  <span>返回题目详情</span>
+                </a>
+              </div>
+            </div>
+          </form>
+          
+          <div id="result-container" class="result-container">
+            <div id="result-feedback"></div>
+          </div>
+        </div>
+
+        <div class="glass-card custom-test-card">
+          <h3 class="custom-title">
+            <span>🧪</span>
+            <span>自定义测试</span>
+          </h3>
+          <p class="custom-desc">
+            在这里输入测试数据，点击"运行测试"即可查看即时输出，不会保存提交记录。
+          </p>
+          {% if current_mode == 'exam' %}
+          <div class="custom-mode-tip exam">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div>当前为考试模式。你仍可使用测试窗口核对样例与输入输出格式，但正式成绩以后续提交结果为准。</div>
+          </div>
+          {% else %}
+          <div class="custom-mode-tip practice">
+            <i class="bi bi-lightbulb-fill"></i>
+            <div>当前为练习模式。建议先通过自定义测试验证思路，再进行正式提交。</div>
+          </div>
+          {% endif %}
+          
+          <div class="custom-input-row">
+            <input
+              type="text"
+              id="custom-input"
+              class="custom-input"
+              placeholder="例如：5 3"
+            >
+            <button type="button" onclick="runCustomTest()" id="test-btn" class="success-btn">
+              <i class="bi bi-play-circle-fill"></i>
+              <span>运行测试</span>
+            </button>
+          </div>
+          
+          <div id="test-result" class="test-output-card" style="display: none;">
+            <strong>✅ 程序输出：</strong>
+            <pre id="test-output" class="output-pre"></pre>
+          </div>
+          <div id="test-error" class="test-error-card" style="display: none;">
+            <strong>❌ 错误信息：</strong>
+            <pre id="test-error-msg" class="output-pre"></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧侧边栏 -->
+      <aside>
+        <div class="side-stack">
+          <!-- 仅在练习模式显示 AI 助手卡片 -->
+          {% if current_mode == 'practice' %}
+          <div class="glass-card assistant-card">
+            <div class="assistant-head">
+              <div>
+                <h3 class="assistant-title">
+                  <i class="bi bi-robot"></i>
+                  <span>AI 助手</span>
+                </h3>
+                <p class="assistant-subtitle">可结合当前题目、代码和语言，帮你理解思路、排查问题和优化解法。</p>
+              </div>
+              <div class="assistant-mode-pill">
+                <i class="bi bi-stars"></i>
+                <span>练习可用</span>
+              </div>
+            </div>
+            
+            <div class="assistant-quick-actions">
+              <button type="button" class="assistant-quick-btn" onclick="fillAiPrompt('请解释这道题的题意和解题思路')">解释题意</button>
+              <button type="button" class="assistant-quick-btn" onclick="fillAiPrompt('请分析我当前的代码实现')">分析代码</button>
+              <button type="button" class="assistant-quick-btn" onclick="fillAiPrompt('请帮我找当前代码里的 bug')">找 bug</button>
+              <button type="button" class="assistant-quick-btn" onclick="fillAiPrompt('请给我一些优化建议')">优化建议</button>
+            </div>
+            
+            <div class="assistant-chat-box" id="assistantChatBox">
+              <div class="assistant-msg system">
+                你好，我是右侧 AI 助手。你可以直接提问，或者点上面的快捷按钮。
+              </div>
+            </div>
+            
+            <div class="assistant-input-wrap">
+              <textarea
+                id="assistantInput"
+                class="assistant-input"
+                placeholder="例如：请帮我分析这段代码为什么没通过样例"
+              ></textarea>
+              <button type="button" id="assistantSendBtn" class="assistant-send-btn" onclick="sendAiMessage()">
+                发送
+              </button>
+            </div>
+          </div>
+          {% endif %}
+          
+          <!-- AI 监测状态 (仅考试模式或特定条件下显示) -->
+          {% if show_monitor %}
+          <div
+            class="glass-card ai-side-card is-info"
+            id="aiMonitorCard"
+            data-opencv-available="{{ opencv_available|yesno:'true,false' }}"
+            data-detect-url="{% url 'programming:detect_face_api' %}"
+          >
+            <div class="ai-head">
+              <div class="ai-head-left">
+                <h3>
+                  <i class="bi bi-camera-video-fill"></i>
+                  <span>AI 监测状态</span>
+                </h3>
+                <p>考试模式下开启辅助监测，请尽量保持面部稳定出现在画面中。</p>
+              </div>
+              <div class="ai-state-pill">
+                <span class="ai-state-dot"></span>
+                <span id="cameraPanelStateText">未启动</span>
+              </div>
+            </div>
+            
+            <div class="ai-preview">
+              <div class="ai-overlay-label">
+                <i class="bi bi-broadcast-pin"></i>
+                <span id="cameraBadgeText">摄像头未启动</span>
+              </div>
+              <div class="ai-overlay-tip">
+                建议正对镜头，保持面部完整进入画面
+              </div>
+              <video id="videoElement" autoplay playsinline muted></video>
+              <canvas id="canvasElement"></canvas>
+            </div>
+            
+            <div class="ai-controls">
+              <button id="startBtn" class="ai-btn ai-btn-start" {% if not opencv_available %}disabled{% endif %}>
+                <i class="bi bi-play-circle"></i>
+                <span>启动监测</span>
+              </button>
+              <button id="stopBtn" class="ai-btn ai-btn-stop" disabled>
+                <i class="bi bi-stop-circle"></i>
+                <span>停止监测</span>
+              </button>
+            </div>
+            
+            <div class="ai-status-box">
+              <i class="bi bi-info-circle-fill" id="aiStatusIcon"></i>
+              <div class="ai-status-text" id="aiStatusText">
+                {% if opencv_available %}
+                  准备就绪，点击"启动监测"即可开始辅助检测。
+                {% else %}
+                  当前 AI 监测不可用，请检查后端依赖或模型初始化状态。
+                {% endif %}
+              </div>
+            </div>
+            
+            <div class="ai-stats-grid">
+              <div class="ai-stat">
+                <div class="ai-stat-label">当前状态</div>
+                <div class="ai-stat-value" id="detectStateText">待启动</div>
+              </div>
+              <div class="ai-stat">
+                <div class="ai-stat-label">人脸数量</div>
+                <div class="ai-stat-value" id="faceCountText">0</div>
+              </div>
+              <div class="ai-stat">
+                <div class="ai-stat-label">检测后端</div>
+                <div class="ai-stat-value" id="detectorText">未初始化</div>
+              </div>
+              <div class="ai-stat">
+                <div class="ai-stat-label">接口耗时</div>
+                <div class="ai-stat-value" id="latencyText">-- ms</div>
+              </div>
+              <div class="ai-stat" style="grid-column: 1 / -1;">
+                <div class="ai-stat-label">上次成功检测</div>
+                <div class="ai-stat-value" id="lastDetectTime">从未</div>
+              </div>
+            </div>
+            
+            <div class="ai-warning-box">
+              <div class="ai-warning-title">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>实时提醒</span>
+              </div>
+              <div id="warningEmpty" class="ai-warning-empty">暂无提醒，监测正常后会在这里持续显示状态。</div>
+              <ul id="warningList" class="ai-warning-list" style="display: none;"></ul>
+            </div>
+            
+            {% if not opencv_available %}
+            <div class="ai-backend-alert">
+              后端不可用：
+              {% if backend_error %}{{ backend_error }}{% else %}未能初始化 AI 检测服务。{% endif %}
+            </div>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          <!-- 提交信息卡片 -->
+          <div class="glass-card side-card">
+            <div class="side-title">
+              <i class="bi bi-lightning-charge-fill"></i>
+              <span>提交信息</span>
+            </div>
+            <div class="info-list">
+              <div class="info-item">
+                <div class="info-label">题目名称</div>
+                <div class="info-value">{{ problem.title }}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">题目难度</div>
+                <div class="info-value">{{ problem.get_difficulty_display }}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">当前模式</div>
+                <div class="info-value">
+                  {% if current_mode == 'exam' %}
+                    考试模式
+                  {% else %}
+                    练习模式
+                  {% endif %}
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">支持语言</div>
+                <div class="info-value">Python / C / C++ / Java</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">页面特性</div>
+                <div class="info-value">
+                  {% if current_mode == 'exam' %}
+                    正式提交 + 摄像头监测 + 自定义测试
+                  {% else %}
+                    练习提交 + 自定义测试
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            
+            {% if current_mode == 'exam' %}
+            <div class="side-tip-box exam">
+              <h4>考试提醒</h4>
+              <ul>
+                <li>请独立完成作答，不要依赖外部辅助工具。</li>
+                <li>建议保持面部完整出现在摄像头范围内。</li>
+                <li>测试窗口可用于核对样例，但正式结果以后续提交为准。</li>
+              </ul>
+            </div>
+            {% else %}
+            <div class="side-tip-box practice">
+              <h4>练习建议</h4>
+              <ul>
+                <li>先保证程序能跑通，再考虑优化复杂度。</li>
+                <li>建议先用自定义测试验证样例和边界情况。</li>
+                <li>把错误样例记下来，方便后续总结思路。</li>
+              </ul>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  const csrftoken = getCookie('csrftoken');
+  const problemId = "{{ problem.id }}";
+  const currentMode = "{{ current_mode }}";
+  const showMonitor = "{{ show_monitor|yesno:'true,false' }}" === "true";
+
+  document.getElementById('code-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const submitBtn = document.getElementById('submit-btn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i><span>提交中...</span>';
+    
+    const code = document.getElementById('code-editor').value;
+    const language = document.getElementById('language-select').value;
+    const resultDiv = document.getElementById('result-feedback');
+    const container = document.getElementById('result-container');
+    const formData = `code=${encodeURIComponent(code)}&language=${encodeURIComponent(language)}`;
+
+    fetch("{% url 'programming:submit_code' pk=problem.pk %}", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrftoken,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      container.style.display = 'block';
+      const modeText = data.mode_display ? `（${data.mode_display}）` : '';
+      if (data.is_correct) {
+        resultDiv.className = 'result-success';
+        resultDiv.innerHTML = `<strong>🎉 通过${modeText}</strong><br>${(data.feedback || '').replace(/\n/g, '<br>')}`;
+      } else {
+        resultDiv.className = 'result-danger';
+        resultDiv.innerHTML = `<strong>❌ 未通过${modeText}</strong><br>${(data.feedback || '').replace(/\n/g, '<br>')}`;
+      }
+      container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      container.style.display = 'block';
+      resultDiv.className = 'result-danger';
+      resultDiv.innerHTML = '<strong>❌ 提交失败</strong><br>请检查网络连接或稍后重试。';
+    })
+    .finally(() => {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+    });
+  });
+
+  function runCustomTest() {
+    const inputEl = document.getElementById('custom-input');
+    if (!inputEl) return;
+    
+    const code = document.getElementById('code-editor').value;
+    const testInput = inputEl.value;
+    const language = document.getElementById('language-select').value;
+    const resultDiv = document.getElementById('test-result');
+    const errorDiv = document.getElementById('test-error');
+    const outputSpan = document.getElementById('test-output');
+    const errorMsg = document.getElementById('test-error-msg');
+    const testBtn = document.getElementById('test-btn');
+
+    resultDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
+
+    if (!code.trim()) {
+      alert('请先在上方输入代码！');
+      return;
+    }
+    if (!testInput.trim()) {
+      alert('请输入测试数据！');
+      return;
+    }
+
+    const originalBtnText = testBtn.innerHTML;
+    testBtn.disabled = true;
+    testBtn.innerHTML = '<i class="bi bi-hourglass-split"></i><span>运行中...</span>';
+    
+    const formData = `code=${encodeURIComponent(code)}&test_input=${encodeURIComponent(testInput)}&language=${encodeURIComponent(language)}`;
+
+    fetch("{% url 'programming:run_test' pk=problem.pk %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': csrftoken
+      },
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        outputSpan.textContent = data.output || '(程序无输出)';
+        resultDiv.style.display = 'block';
+      } else {
+        errorMsg.textContent = data.error || '运行失败';
+        errorDiv.style.display = 'block';
+      }
+    })
+    .catch(err => {
+      errorMsg.textContent = '网络错误：' + err.message;
+      errorDiv.style.display = 'block';
+    })
+    .finally(() => {
+      testBtn.disabled = false;
+      testBtn.innerHTML = originalBtnText;
+    });
+  }
+
+  if (showMonitor) {
+    const aiMonitorCard = document.getElementById('aiMonitorCard');
+    const opencvAvailable = aiMonitorCard.dataset.opencvAvailable === 'true';
+    const detectUrl = aiMonitorCard.dataset.detectUrl;
+
+    const video = document.getElementById('videoElement');
+    const canvas = document.getElementById('canvasElement');
+    const ctx = canvas.getContext('2d');
+
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const aiStatusText = document.getElementById('aiStatusText');
+    const aiStatusIcon = document.getElementById('aiStatusIcon');
+    const cameraBadgeText = document.getElementById('cameraBadgeText');
+    const cameraPanelStateText = document.getElementById('cameraPanelStateText');
+    const detectStateText = document.getElementById('detectStateText');
+    const faceCountText = document.getElementById('faceCountText');
+    const detectorText = document.getElementById('detectorText');
+    const latencyText = document.getElementById('latencyText');
+    const lastDetectTime = document.getElementById('lastDetectTime');
+    const warningList = document.getElementById('warningList');
+    const warningEmpty = document.getElementById('warningEmpty');
+
+    let stream = null;
+    let animationFrameId = null;
+    let lastDetectionTime = 0;
+    let latestFaces = [];
+    let latestFaceSources = [];
+    let consecutiveSuccess = 0;
+    let consecutiveFail = 0;
+    let currentStableState = null;
+    let lastSuccessAt = null;
+
+    const STABILITY_THRESHOLD = 2;
+    const DETECTION_INTERVAL_MS = 1200;
+    const SEND_WIDTH = 320;
+    const SEND_HEIGHT = 240;
+
+    const offscreenCanvas = document.createElement('canvas');
+    const offscreenCtx = offscreenCanvas.getContext('2d');
+    offscreenCanvas.width = SEND_WIDTH;
+    offscreenCanvas.height = SEND_HEIGHT;
+
+    function mapBackendStatus(status) {
+      const map = {
+        normal: '单人正常',
+        no_face: '未检测到人脸',
+        multiple_faces: '多人进入',
+        face_too_small: '人脸过小',
+        side_face: '检测到侧脸'
+      };
+      return map[status] || '检测中';
+    }
+
+    function mapStatusType(status) {
+      if (status === 'normal') return 'success';
+      if (status === 'multiple_faces' || status === 'face_too_small' || status === 'side_face') return 'warning';
+      if (status === 'no_face') return 'danger';
+      return 'info';
+    }
+
+    function setAiCardState(type) {
+      aiMonitorCard.classList.remove('is-success', 'is-warning', 'is-danger', 'is-info');
+      aiMonitorCard.classList.add(`is-${type}`);
+    }
+
+    function updateBadge(text) {
+      cameraBadgeText.textContent = text;
+      cameraPanelStateText.textContent = text;
+    }
+
+    function showAiStatus(message, type) {
+      aiStatusText.textContent = message;
+      setAiCardState(type);
+      let iconClass = 'bi-info-circle-fill';
+      let iconColor = '#2563eb';
+      if (type === 'success') {
+        iconClass = 'bi-check-circle-fill';
+        iconColor = '#16a34a';
+      } else if (type === 'warning') {
+        iconClass = 'bi-exclamation-triangle-fill';
+        iconColor = '#ea580c';
+      } else if (type === 'danger') {
+        iconClass = 'bi-x-circle-fill';
+        iconColor = '#dc2626';
+      } else if (type === 'secondary') {
+        iconClass = 'bi-stop-circle-fill';
+        iconColor = '#475569';
+      } else if (type === 'info') {
+        iconClass = 'bi-search';
+        iconColor = '#2563eb';
+      }
+      aiStatusIcon.className = `bi ${iconClass}`;
+      aiStatusIcon.style.color = iconColor;
+    }
+
+    function setWarnings(warnings) {
+      warningList.innerHTML = '';
+      if (!warnings || warnings.length === 0) {
+        warningList.style.display = 'none';
+        warningEmpty.style.display = 'block';
+        warningEmpty.textContent = '暂无提醒，监测正常后会在这里持续显示状态。';
+        return;
+      }
+      warningEmpty.style.display = 'none';
+      warningList.style.display = 'block';
+      warnings.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        warningList.appendChild(li);
+      });
+    }
+
+    function resetDetectionState() {
+      consecutiveSuccess = 0;
+      consecutiveFail = 0;
+      currentStableState = null;
+      latestFaces = [];
+      latestFaceSources = [];
+      faceCountText.textContent = '0';
+      detectorText.textContent = '未初始化';
+      latencyText.textContent = '-- ms';
+      detectStateText.textContent = '待启动';
+      lastDetectTime.textContent = '从未';
+      setWarnings([]);
+    }
+
+    function drawBoxesOnContext(context, faces, sources) {
+      context.save();
+      context.strokeStyle = '#22c55e';
+      context.fillStyle = '#22c55e';
+      context.lineWidth = 3;
+      context.font = 'bold 14px Inter, Arial, sans-serif';
+      context.shadowColor = 'rgba(0,0,0,0.35)';
+      context.shadowBlur = 8;
+
+      faces.forEach((face, index) => {
+        const { x, y, w, h } = face;
+        context.beginPath();
+        context.rect(x, y, w, h);
+        context.stroke();
+
+        const source = sources[index] || '';
+        let label = faces.length > 1 ? `FACE ${index + 1}` : 'FACE';
+        if (source.includes('profile')) {
+          label += ' / SIDE';
+        }
+
+        const textX = x + 8;
+        const textY = y > 24 ? y - 8 : y + 18;
+        context.fillText(label, textX, textY);
+      });
+      context.restore();
+    }
+
+    async function startCamera() {
+      try {
+        resetDetectionState();
+        updateBadge('摄像头启动中...');
+        detectStateText.textContent = '初始化中';
+        showAiStatus('正在初始化摄像头...', 'info');
+
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+            frameRate: { ideal: 30 },
+            facingMode: 'user'
+          },
+          audio: false
+        });
+        video.srcObject = stream;
+
+        await new Promise((resolve) => {
+          video.onloadedmetadata = () => resolve();
+        });
+        await video.play();
+
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        updateBadge('摄像头运行中');
+        detectStateText.textContent = '等待检测';
+        showAiStatus('摄像头已启动，等待检测...', 'success');
+        lastDetectionTime = 0;
+        loop();
+      } catch (err) {
+        showAiStatus('无法访问摄像头：' + err.message, 'danger');
+        updateBadge('启动失败');
+        detectStateText.textContent = '启动失败';
+        setWarnings(['无法访问摄像头，请检查浏览器权限设置']);
+      }
+    }
+
+    function stopCamera() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+      if (video.srcObject) {
+        video.srcObject = null;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      startBtn.disabled = !opencvAvailable;
+      stopBtn.disabled = true;
+      
+      latestFaces = [];
+      latestFaceSources = [];
+      resetDetectionState();
+      updateBadge('摄像头未启动');
+      showAiStatus('已停止检测', 'secondary');
+      setAiCardState('info');
+    }
+
+    function loop() {
+      if (!stream) return;
+      const now = Date.now();
+      
+      if (canvas.width !== video.clientWidth || canvas.height !== video.clientHeight) {
+        canvas.width = video.clientWidth;
+        canvas.height = video.clientHeight;
+      }
+      
+      if (video.readyState >= 2) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      
+      if (latestFaces.length > 0) {
+        drawBoxesOnContext(ctx, latestFaces, latestFaceSources);
+      }
+
+      if (video.readyState === 4 && now - lastDetectionTime > DETECTION_INTERVAL_MS) {
+        lastDetectionTime = now;
+        performDetection();
+      }
+      
+      animationFrameId = requestAnimationFrame(loop);
+    }
+
+    async function performDetection() {
+      if (!stream || video.readyState !== 4) return;
+
+      offscreenCtx.clearRect(0, 0, SEND_WIDTH, SEND_HEIGHT);
+      offscreenCtx.filter = 'contrast(1.08) brightness(1.03)';
+      offscreenCtx.drawImage(video, 0, 0, SEND_WIDTH, SEND_HEIGHT);
+      offscreenCtx.filter = 'none';
+      
+      const imageData = offscreenCanvas.toDataURL('image/jpeg', 0.65);
+
+      try {
+        const response = await fetch(detectUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken || ''
+          },
+          body: JSON.stringify({ image: imageData })
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || ('后端接口返回异常：' + response.status));
+        }
+
+        const count = result.count || 0;
+        const backendStatus = result.status || 'normal';
+        const warnings = result.warnings || [];
+        const message = result.message || '检测完成';
+        const latency = typeof result.latency_ms !== 'undefined' ? `${result.latency_ms} ms` : '-- ms';
+        const detector = result.detector || '未知';
+
+        faceCountText.textContent = String(count);
+        detectorText.textContent = detector;
+        latencyText.textContent = latency;
+        detectStateText.textContent = mapBackendStatus(backendStatus);
+        setWarnings(warnings);
+
+        const hasFace = count > 0;
+        if (hasFace) {
+          consecutiveFail = 0;
+          consecutiveSuccess++;
+          lastSuccessAt = new Date();
+          lastDetectTime.textContent = lastSuccessAt.toLocaleTimeString();
+
+          const scaleX = canvas.width / SEND_WIDTH;
+          const scaleY = canvas.height / SEND_HEIGHT;
+          
+          latestFaces = (result.faces || []).map(face => ({
+            x: face.x * scaleX,
+            y: face.y * scaleY,
+            w: face.w * scaleX,
+            h: face.h * scaleY
+          }));
+          latestFaceSources = (result.faces || []).map(face => face.source || '');
+
+          if (consecutiveSuccess >= STABILITY_THRESHOLD && currentStableState !== backendStatus) {
+            currentStableState = backendStatus;
+            const uiType = mapStatusType(backendStatus);
+            showAiStatus(message, uiType);
+            
+            if (count > 1) {
+              updateBadge(`检测到 ${count} 人`);
+            } else if (backendStatus === 'side_face') {
+              updateBadge('检测到侧脸');
+            } else if (backendStatus === 'face_too_small') {
+              updateBadge('人脸较小');
+            } else {
+              updateBadge('检测正常');
+            }
+          }
+        } else {
+          consecutiveSuccess = 0;
+          consecutiveFail++;
+          latestFaces = [];
+          latestFaceSources = [];
+          faceCountText.textContent = '0';
+          
+          if (consecutiveFail >= STABILITY_THRESHOLD && currentStableState !== 'no_face') {
+            currentStableState = 'no_face';
+            showAiStatus(message || '未检测到人脸，请回到摄像头可见范围内。', 'danger');
+            updateBadge('画面中无人脸');
+            detectStateText.textContent = '未检测到人脸';
+            setWarnings(warnings && warnings.length ? warnings : ['未检测到人脸，请正对摄像头并保持面部进入画面']);
+          }
+        }
+      } catch (error) {
+        console.error('Detection error:', error);
+        showAiStatus('检测请求失败，请检查后端接口或网络连接。', 'danger');
+        updateBadge('检测异常');
+        detectStateText.textContent = '接口异常';
+        latestFaces = [];
+        latestFaceSources = [];
+        faceCountText.textContent = '0';
+        setWarnings(['接口请求失败或后端未正常响应']);
+      }
+    }
+
+    startBtn.addEventListener('click', startCamera);
+    stopBtn.addEventListener('click', stopCamera);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && stream) {
+        stopCamera();
+      }
+    });
+
+    window.addEventListener('beforeunload', () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    });
+  }
+
+  function fillAiPrompt(text) {
+    const input = document.getElementById('assistantInput');
+    if (!input) return;
+    input.value = text;
+    input.focus();
+  }
+
+  function appendAssistantMessage(type, text) {
+    const chatBox = document.getElementById('assistantChatBox');
+    if (!chatBox) return;
+    const div = document.createElement('div');
+    div.className = `assistant-msg ${type}`;
+    div.textContent = text;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function sendAiMessage() {
+    const input = document.getElementById('assistantInput');
+    const sendBtn = document.getElementById('assistantSendBtn');
+    const codeEditor = document.getElementById('code-editor');
+    const languageSelect = document.getElementById('language-select');
+
+    if (!input || !sendBtn || !codeEditor || !languageSelect) return;
+
+    const message = input.value.trim();
+    const code = codeEditor.value;
+    const language = languageSelect.value;
+
+    if (!message) {
+      alert('请输入你想问 AI 的问题。');
+      return;
+    }
+
+    appendAssistantMessage('user', message);
+    input.value = '';
+    sendBtn.disabled = true;
+    const originalText = sendBtn.innerHTML;
+    sendBtn.innerHTML = '思考中...';
+
+    const formData = `message=${encodeURIComponent(message)}&code=${encodeURIComponent(code)}&language=${encodeURIComponent(language)}`;
+
+    fetch("{% url 'programming:ai_assistant_api' pk=problem.pk %}", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrftoken,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: formData
+    })
+    .then(response => response.json().then(data => ({ ok: response.ok, data })))
+    .then(({ ok, data }) => {
+      if (!ok || !data.success) {
+        appendAssistantMessage('bot', data.error || 'AI 助手暂时不可用。');
+        return;
+      }
+      appendAssistantMessage('bot', data.reply || 'AI 助手没有返回内容。');
+    })
+    .catch(error => {
+      console.error('AI assistant error:', error);
+      appendAssistantMessage('bot', '请求失败，请检查网络或后端接口。');
+    })
+    .finally(() => {
+      sendBtn.disabled = false;
+      sendBtn.innerHTML = originalText;
+    });
+  }
+</script>
+{% endblock %}

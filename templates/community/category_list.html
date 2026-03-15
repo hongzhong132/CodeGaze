@@ -1,0 +1,531 @@
+{% extends 'base.html' %}
+
+{% block title %}社区交流 - CodeGaze{% endblock %}
+
+{% block extra_css %}
+<style>
+    .community-page {
+        position: relative;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0.75rem 0 2.8rem;
+        overflow: hidden;
+    }
+
+    .community-page::before,
+    .community-page::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.5;
+    }
+
+    .community-page::before {
+        width: 300px;
+        height: 300px;
+        top: 10px;
+        left: 30px;
+        background: rgba(6, 182, 212, 0.14);
+    }
+
+    .community-page::after {
+        width: 360px;
+        height: 360px;
+        top: 120px;
+        right: 20px;
+        background: rgba(59, 130, 246, 0.10);
+    }
+
+    .community-inner {
+        position: relative;
+        z-index: 1;
+    }
+
+    .community-hero {
+        text-align: center;
+        padding: 1.2rem 1rem 1.6rem;
+        margin-bottom: 1.4rem;
+    }
+
+    .community-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 88px;
+        height: 88px;
+        margin-bottom: 1rem;
+        border-radius: 28px;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(8, 145, 178, 0.16));
+        box-shadow: 0 16px 34px rgba(37, 99, 235, 0.12);
+        backdrop-filter: blur(8px);
+    }
+
+    .community-badge i {
+        font-size: 2.25rem;
+        background: linear-gradient(135deg, #2563eb, #0891b2);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .community-title {
+        font-size: 2.7rem;
+        font-weight: 800;
+        margin-bottom: 0.55rem;
+        line-height: 1.15;
+        background: linear-gradient(90deg, #1e3a8a, #0891b2, #0ea5e9);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .community-subtitle {
+        max-width: 780px;
+        margin: 0 auto;
+        color: #64748b;
+        font-size: 1.05rem;
+        line-height: 1.85;
+    }
+
+    .community-summary {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 1.4rem 0 0;
+    }
+
+    .summary-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.8rem 1.15rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.76);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        color: #334155;
+        font-weight: 700;
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+        backdrop-filter: blur(8px);
+    }
+
+    .summary-chip i {
+        color: #0891b2;
+    }
+
+    .section-shell {
+        margin-top: 1.8rem;
+    }
+
+    .section-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .section-title i {
+        color: #0891b2;
+    }
+
+    .section-tip {
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    .community-card {
+        height: 100%;
+        border-radius: 26px;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        background: linear-gradient(180deg, rgba(255,255,255,0.84), rgba(240,248,251,0.82));
+        backdrop-filter: blur(12px);
+        box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
+        overflow: hidden;
+        position: relative;
+        transition: all 0.28s ease;
+    }
+
+    .community-card::before {
+        content: "";
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        top: 0;
+        height: 4px;
+        border-radius: 0 0 8px 8px;
+        background: linear-gradient(90deg, #22d3ee, #2563eb);
+        opacity: 0.95;
+    }
+
+    .community-card::after {
+        content: "";
+        position: absolute;
+        inset: auto -60px -90px auto;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(14,165,233,0.08), transparent 70%);
+        pointer-events: none;
+    }
+
+    .community-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 22px 42px rgba(15, 23, 42, 0.12);
+        border-color: rgba(37, 99, 235, 0.16);
+    }
+
+    .community-card .card-body {
+        padding: 2.2rem 1.5rem 1.5rem;
+        text-align: center;
+    }
+
+    .community-icon-wrap {
+        width: 96px;
+        height: 96px;
+        margin: 0 auto 1.15rem;
+        border-radius: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(6, 182, 212, 0.14));
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.85);
+    }
+
+    .community-icon-wrap i {
+        font-size: 2.35rem;
+        background: linear-gradient(135deg, #2563eb, #0ea5e9);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .community-card .card-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 0.8rem;
+    }
+
+    .community-card .card-text {
+        color: #64748b;
+        font-size: 1rem;
+        line-height: 1.85;
+        min-height: 3.7em;
+        margin-bottom: 1.5rem;
+    }
+
+    .enter-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-width: 170px;
+        padding: 0.8rem 1.2rem;
+        border-radius: 999px;
+        border: 1px solid rgba(59, 130, 246, 0.22);
+        background: rgba(255,255,255,0.78);
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 800;
+        transition: all 0.25s ease;
+        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.06);
+    }
+
+    .enter-btn:hover {
+        color: #fff;
+        background: linear-gradient(90deg, #2563eb, #0ea5e9);
+        border-color: transparent;
+        transform: translateY(-1px);
+    }
+
+    .community-card .card-footer {
+        padding: 1rem 1.2rem 1.1rem;
+        background: rgba(248, 250, 252, 0.75);
+        border-top: 1px solid rgba(148, 163, 184, 0.10);
+    }
+
+    .latest-topic {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.94rem;
+        line-height: 1.7;
+    }
+
+    .latest-topic strong {
+        color: #334155;
+        font-weight: 800;
+    }
+
+    .publish-wrap {
+        margin-top: 2.2rem;
+        text-align: center;
+    }
+
+    .publish-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.7rem;
+        padding: 1.05rem 1.8rem;
+        border-radius: 999px;
+        border: none;
+        text-decoration: none;
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 800;
+        background: linear-gradient(90deg, #2563eb, #0ea5e9);
+        box-shadow: 0 18px 34px rgba(37, 99, 235, 0.20);
+        transition: all 0.25s ease;
+    }
+
+    .publish-btn:hover {
+        color: #fff;
+        transform: translateY(-2px);
+        background: linear-gradient(90deg, #1d4ed8, #0891b2);
+        box-shadow: 0 22px 38px rgba(37, 99, 235, 0.24);
+    }
+
+    .extra-panel {
+        margin-top: 2.3rem;
+        border-radius: 26px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.82), rgba(240,248,251,0.82));
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
+        padding: 1.4rem 1.35rem;
+    }
+
+    .extra-panel h3 {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+    }
+
+    .extra-panel h3 i {
+        color: #0891b2;
+    }
+
+    .guide-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .guide-item {
+        padding: 1rem 1rem 0.95rem;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.65);
+        border: 1px solid rgba(148, 163, 184, 0.10);
+    }
+
+    .guide-item-title {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 0.45rem;
+    }
+
+    .guide-item-text {
+        color: #64748b;
+        font-size: 0.94rem;
+        line-height: 1.75;
+        margin: 0;
+    }
+
+    .empty-box {
+        max-width: 760px;
+        margin: 1rem auto 0;
+        padding: 2.2rem 1.6rem;
+        text-align: center;
+        border-radius: 26px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.84), rgba(240,248,251,0.82));
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
+    }
+
+    .empty-box i {
+        font-size: 2.8rem;
+        display: inline-block;
+        margin-bottom: 0.85rem;
+        background: linear-gradient(135deg, #2563eb, #06b6d4);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .empty-box h4 {
+        color: #1e293b;
+        font-size: 1.4rem;
+        font-weight: 800;
+        margin-bottom: 0.55rem;
+    }
+
+    .empty-box p {
+        color: #64748b;
+        margin-bottom: 0;
+        line-height: 1.8;
+    }
+
+    @media (max-width: 992px) {
+        .guide-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .community-page {
+            padding-top: 0;
+        }
+
+        .community-title {
+            font-size: 2rem;
+        }
+
+        .community-subtitle {
+            font-size: 0.97rem;
+        }
+
+        .community-card .card-body {
+            padding: 1.7rem 1.1rem 1.2rem;
+        }
+
+        .community-card .card-title {
+            font-size: 1.65rem;
+        }
+
+        .publish-btn {
+            width: 100%;
+        }
+
+        .summary-chip {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="community-page">
+    <div class="community-inner">
+        <div class="community-hero">
+            <div class="community-badge">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <h1 class="community-title">社区交流</h1>
+            <p class="community-subtitle">
+                在这里分享编程经验、讨论算法问题、交流学习日常，让每一次提问和回答都更高效、更有温度。
+            </p>
+
+            <div class="community-summary">
+                <div class="summary-chip">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>当前板块数：{{ categories|length }}</span>
+                </div>
+                <div class="summary-chip">
+                    <i class="bi bi-chat-square-dots-fill"></i>
+                    <span>欢迎发布你的第一条高质量话题</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-shell">
+            <div class="section-title-row">
+                <h2 class="section-title">
+                    <i class="bi bi-collection-fill"></i>
+                    交流板块
+                </h2>
+                <div class="section-tip">选择感兴趣的板块进入讨论</div>
+            </div>
+
+            {% if categories %}
+            <div class="row g-4 justify-content-center">
+                {% for cat in categories %}
+                <div class="col-md-6 col-xl-6">
+                    <div class="card community-card">
+                        <div class="card-body">
+                            <div class="community-icon-wrap">
+                                <i class="bi {{ cat.icon|default:'bi-chat-square-text' }}"></i>
+                            </div>
+                            <h5 class="card-title">{{ cat.name }}</h5>
+                            <p class="card-text">
+                                {{ cat.description|default:"欢迎进入本板块交流讨论，分享你的想法与经验。"|truncatechars:60 }}
+                            </p>
+                            <a href="{% url 'community:post_list' category_id=cat.id %}" class="enter-btn">
+                                <i class="bi bi-arrow-right-circle"></i>
+                                <span>进入板块</span>
+                            </a>
+                        </div>
+                        <div class="card-footer">
+                            <p class="latest-topic">
+                                <strong>最新话题：</strong>
+                                {% with latest=cat.latest_posts.0 %}
+                                    {% if latest %}
+                                        {{ latest.title|truncatechars:18 }}
+                                    {% else %}
+                                        暂无话题，快来发布第一条内容吧
+                                    {% endif %}
+                                {% endwith %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-box">
+                <i class="bi bi-chat-dots-fill"></i>
+                <h4>当前还没有社区板块</h4>
+                <p>可以先创建分类或发布第一条话题，逐步完善社区内容。</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="publish-wrap">
+            <a href="{% url 'community:create_post' %}" class="publish-btn">
+                <i class="bi bi-fire"></i>
+                <span>发布新话题</span>
+            </a>
+        </div>
+
+        <div class="extra-panel">
+            <h3>
+                <i class="bi bi-stars"></i>
+                社区使用建议
+            </h3>
+            <div class="guide-grid">
+                <div class="guide-item">
+                    <div class="guide-item-title">清晰描述问题</div>
+                    <p class="guide-item-text">发帖时尽量写清背景、报错信息和你的思路，别人会更容易帮到你。</p>
+                </div>
+                <div class="guide-item">
+                    <div class="guide-item-title">鼓励分享过程</div>
+                    <p class="guide-item-text">除了结果，也欢迎分享你的踩坑记录、思考过程和学习心得。</p>
+                </div>
+                <div class="guide-item">
+                    <div class="guide-item-title">保持友好交流</div>
+                    <p class="guide-item-text">尊重不同水平的同学，理性讨论，让社区氛围更轻松更高效。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

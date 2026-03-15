@@ -1,0 +1,8 @@
+<!-- programming/templates/programming/camera.html -->
+<h1>人脸识别学习界面</h1>
+<video id="video" width="640" height="480" autoplay></video>
+<script>
+    const video = document.getElementById('video');
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => video.srcObject = stream);
+</script>

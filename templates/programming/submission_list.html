@@ -1,0 +1,766 @@
+{% extends 'base.html' %}
+
+{% block title %}提交记录 - CodeGaze{% endblock %}
+
+{% block extra_css %}
+<style>
+    .submission-page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0.75rem 0 2.8rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .submission-page::before,
+    .submission-page::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.46;
+    }
+
+    .submission-page::before {
+        width: 280px;
+        height: 280px;
+        top: 10px;
+        left: 30px;
+        background: rgba(6, 182, 212, 0.12);
+    }
+
+    .submission-page::after {
+        width: 340px;
+        height: 340px;
+        top: 120px;
+        right: 20px;
+        background: rgba(59, 130, 246, 0.10);
+    }
+
+    .submission-inner {
+        position: relative;
+        z-index: 1;
+    }
+
+    .submission-hero {
+        text-align: center;
+        margin-bottom: 1.8rem;
+        padding: 0.5rem 0 0.6rem;
+    }
+
+    .submission-badge {
+        width: 84px;
+        height: 84px;
+        margin: 0 auto 1rem;
+        border-radius: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(13, 148, 136, 0.12), rgba(14, 165, 233, 0.16));
+        box-shadow: 0 16px 34px rgba(14, 165, 233, 0.10);
+    }
+
+    .submission-badge i {
+        font-size: 2.2rem;
+        background: linear-gradient(135deg, #0d9488, #0ea5e9);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .submission-title {
+        font-size: 2.7rem;
+        font-weight: 800;
+        line-height: 1.15;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(90deg, #0f766e, #0891b2, #2563eb);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .submission-subtitle {
+        max-width: 760px;
+        margin: 0 auto;
+        color: #64748b;
+        font-size: 1.03rem;
+        line-height: 1.8;
+    }
+
+    .submission-summary {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 1.35rem;
+    }
+
+    .summary-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.78rem 1.1rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.76);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        color: #334155;
+        font-weight: 700;
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+        backdrop-filter: blur(8px);
+    }
+
+    .summary-chip i {
+        color: #0891b2;
+    }
+
+    .record-shell {
+        border-radius: 28px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(240,248,251,0.82));
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
+        overflow: hidden;
+    }
+
+    .record-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        padding: 1.15rem 1.3rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.10);
+        background: rgba(248, 250, 252, 0.60);
+    }
+
+    .record-header-title {
+        margin: 0;
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #1e293b;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+    }
+
+    .record-header-title i {
+        color: #0891b2;
+    }
+
+    .record-header-tip {
+        color: #64748b;
+        font-size: 0.94rem;
+    }
+
+    .table-responsive {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        margin: 0;
+    }
+
+    .submission-table {
+        width: 100%;
+        margin: 0;
+        border-collapse: collapse;
+        background: transparent;
+    }
+
+    .submission-table thead th {
+        padding: 1rem 1.25rem;
+        background: rgba(248, 250, 252, 0.55);
+        color: #0f172a;
+        font-size: 1rem;
+        font-weight: 800;
+        border: none;
+        white-space: nowrap;
+    }
+
+    .submission-table tbody tr {
+        transition: all 0.22s ease;
+        border-top: 1px solid rgba(148, 163, 184, 0.10);
+    }
+
+    .submission-table tbody tr:hover {
+        background: rgba(14, 165, 233, 0.06);
+    }
+
+    .submission-table td {
+        padding: 1.15rem 1.25rem;
+        border: none;
+        color: #1e293b;
+        vertical-align: middle;
+    }
+
+    .submission-time {
+        color: #334155;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    .submission-problem {
+        text-decoration: none;
+        color: #0f172a;
+        font-weight: 800;
+        transition: color 0.2s ease;
+    }
+
+    .submission-problem:hover {
+        color: #0891b2;
+    }
+
+    .lang-badge,
+    .mode-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 102px;
+        padding: 0.42rem 0.82rem;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
+    }
+
+    .lang-badge {
+        background: #64748b;
+        color: #fff;
+    }
+
+    .mode-badge.practice {
+        background: rgba(16, 185, 129, 0.12);
+        color: #047857;
+        border: 1px solid rgba(16, 185, 129, 0.16);
+    }
+
+    .mode-badge.exam {
+        background: rgba(239, 68, 68, 0.10);
+        color: #b91c1c;
+        border: 1px solid rgba(239, 68, 68, 0.16);
+    }
+
+    .result-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.38rem;
+        padding: 0.42rem 0.82rem;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .result-badge.success {
+        background: linear-gradient(90deg, #10b981, #22c55e);
+        color: #fff;
+    }
+
+    .result-badge.fail {
+        background: linear-gradient(90deg, #ef4444, #f87171);
+        color: #fff;
+    }
+
+    .result-badge.warning {
+        background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        color: #fff;
+    }
+
+    .result-badge.info {
+        background: linear-gradient(90deg, #64748b, #94a3b8);
+        color: #fff;
+    }
+
+    .detail-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        padding: 0.62rem 1rem;
+        border-radius: 999px;
+        font-size: 0.92rem;
+        font-weight: 800;
+        color: #0d9488;
+        background: rgba(255,255,255,0.82);
+        border: 1px solid rgba(13, 148, 136, 0.22);
+        transition: all 0.22s ease;
+        box-shadow: 0 8px 18px rgba(13, 148, 136, 0.05);
+    }
+
+    .detail-btn:hover {
+        color: #fff;
+        background: linear-gradient(90deg, #0d9488, #14b8a6);
+        border-color: transparent;
+        transform: translateY(-1px);
+    }
+
+    .state-box {
+        max-width: 760px;
+        margin: 1.2rem auto 0;
+        padding: 2.25rem 1.6rem;
+        text-align: center;
+        border-radius: 26px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.84), rgba(240,248,251,0.82));
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
+    }
+
+    .state-box i.state-icon {
+        font-size: 2.9rem;
+        display: inline-block;
+        margin-bottom: 0.85rem;
+        background: linear-gradient(135deg, #2563eb, #06b6d4);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .state-box h3 {
+        font-size: 1.45rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 0.6rem;
+    }
+
+    .state-box p {
+        color: #64748b;
+        line-height: 1.8;
+        margin-bottom: 1rem;
+    }
+
+    .state-box .jump-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.75rem 1.1rem;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 800;
+        color: #2563eb;
+        background: rgba(255,255,255,0.84);
+        border: 1px solid rgba(37, 99, 235, 0.20);
+        transition: all 0.22s ease;
+    }
+
+    .state-box .jump-link:hover {
+        color: #fff;
+        background: linear-gradient(90deg, #2563eb, #0ea5e9);
+        border-color: transparent;
+    }
+
+    .alert-custom {
+        border-radius: 22px !important;
+        border: 1px solid rgba(148, 163, 184, 0.12) !important;
+        background: linear-gradient(135deg, rgba(255,255,255,0.84), rgba(240,248,251,0.82)) !important;
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08) !important;
+        color: #334155 !important;
+    }
+
+    .alert-custom a {
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .modal-content {
+        border-radius: 24px !important;
+        overflow: hidden;
+        border: 1px solid rgba(148, 163, 184, 0.12) !important;
+        background: linear-gradient(180deg, rgba(255,255,255,0.90), rgba(240,248,251,0.88)) !important;
+        box-shadow: 0 24px 48px rgba(15, 23, 42, 0.16);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid rgba(148, 163, 184, 0.10) !important;
+        background: rgba(248, 250, 252, 0.72) !important;
+        padding: 1rem 1.2rem;
+    }
+
+    .modal-title {
+        color: #0f172a !important;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+    }
+
+    .modal-body {
+        padding: 1.2rem;
+        color: #334155;
+    }
+
+    .detail-meta-card {
+        background: rgba(255,255,255,0.72);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        border-radius: 18px;
+        padding: 1rem 1rem 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .detail-meta-card strong {
+        color: #0f172a;
+    }
+
+    .detail-section-title {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.55rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.10);
+    }
+
+    .detail-code,
+    .detail-feedback {
+        border-radius: 18px;
+        padding: 1rem;
+        font-family: "Consolas", "JetBrains Mono", monospace;
+        line-height: 1.7;
+        font-size: 0.92rem;
+        overflow: auto;
+        white-space: pre-wrap;
+    }
+
+    .detail-code {
+        background: #172554;
+        color: #e2e8f0;
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+        max-height: 400px;
+    }
+
+    .detail-feedback {
+        background: rgba(255,255,255,0.72);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        color: #334155;
+        max-height: 220px;
+    }
+
+    @media (max-width: 768px) {
+        .submission-title {
+            font-size: 2rem;
+        }
+
+        .submission-subtitle {
+            font-size: 0.97rem;
+        }
+
+        .summary-chip {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .record-header {
+            padding: 1rem;
+        }
+
+        .submission-table thead th,
+        .submission-table td {
+            padding: 0.9rem 0.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="submission-page">
+    <div class="submission-inner">
+        <div class="submission-hero">
+            <div class="submission-badge">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <h1 class="submission-title">我的提交记录</h1>
+            <p class="submission-subtitle">
+                在这里查看你所有代码提交的历史记录，包括提交时间、作答模式、使用语言、判题结果以及详细反馈，方便复盘与改进。
+            </p>
+
+            <div class="submission-summary">
+                <div class="summary-chip">
+                    <i class="bi bi-file-earmark-check-fill"></i>
+                    <span>当前记录数：{{ submissions|length|default:0 }}</span>
+                </div>
+                <div class="summary-chip">
+                    <i class="bi bi-clock-fill"></i>
+                    <span>
+                        最新提交：
+                        {% if submissions %}
+                            {{ submissions.0.submitted_at|date:"m-d H:i" }}
+                        {% else %}
+                            暂无
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="summary-chip">
+                    <i class="bi bi-shuffle"></i>
+                    <span>支持练习模式 / 考试模式记录区分</span>
+                </div>
+            </div>
+        </div>
+
+        {% if show_login_hint %}
+            <div class="alert alert-warning alert-custom text-center">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                请先 <a href="{% url 'login' %}">登录</a> 以查看您的提交记录。
+            </div>
+
+        {% elif submissions %}
+            <div class="record-shell">
+                <div class="record-header">
+                    <h2 class="record-header-title">
+                        <i class="bi bi-table"></i>
+                        提交列表
+                    </h2>
+                    <div class="record-header-tip">点击“查看详情”可查看代码、模式和判题反馈</div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="submission-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">提交时间</th>
+                                <th scope="col">题目</th>
+                                <th scope="col">模式</th>
+                                <th scope="col">语言</th>
+                                <th scope="col">结果</th>
+                                <th scope="col" class="text-end">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sub in submissions %}
+                            <tr>
+                                <td>
+                                    <span class="submission-time">{{ sub.submitted_at|date:"Y-m-d H:i" }}</span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'programming:problem_detail' pk=sub.problem.id %}" class="submission-problem">
+                                        {{ sub.problem.title }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if sub.mode == 'exam' %}
+                                        <span class="mode-badge exam">
+                                            <i class="bi bi-shield-lock-fill me-1"></i>考试
+                                        </span>
+                                    {% else %}
+                                        <span class="mode-badge practice">
+                                            <i class="bi bi-mortarboard-fill me-1"></i>练习
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="lang-badge">{{ sub.get_language_display }}</span>
+                                </td>
+                                <td>
+                                    {% if sub.status == 'AC' %}
+                                        <span class="result-badge success">
+                                            <i class="bi bi-check-circle-fill"></i>{{ sub.get_status_display }}
+                                        </span>
+                                    {% elif sub.status == 'TLE' or sub.status == 'MLE' %}
+                                        <span class="result-badge warning">
+                                            <i class="bi bi-hourglass-split"></i>{{ sub.get_status_display }}
+                                        </span>
+                                    {% elif sub.status == 'PD' %}
+                                        <span class="result-badge info">
+                                            <i class="bi bi-arrow-repeat"></i>{{ sub.get_status_display }}
+                                        </span>
+                                    {% else %}
+                                        <span class="result-badge fail">
+                                            <i class="bi bi-x-circle-fill"></i>{{ sub.get_status_display }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <button
+                                        class="detail-btn view-detail-btn"
+                                        data-submission-id="{{ sub.id }}"
+                                        data-detail-url="{% url 'programming:submission_detail' pk=sub.id %}"
+                                        data-problem-url="{% url 'programming:problem_detail' pk=sub.problem.id %}"
+                                        data-language-code="{{ sub.language }}"
+                                    >
+                                        <i class="bi bi-eye"></i>
+                                        <span>查看详情</span>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        {% else %}
+            <div class="state-box">
+                <i class="bi bi-inbox-fill state-icon"></i>
+                <h3>你还没有提交过代码</h3>
+                <p>先去题目列表挑选一道题开始练习吧，完成第一次提交后，这里就会自动显示你的历史记录。</p>
+                <a href="{% url 'programming:problem_list' %}" class="jump-link">
+                    <i class="bi bi-arrow-right-circle"></i>
+                    <span>前往题目列表</span>
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="modal fade" id="submissionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-file-code"></i>
+                    提交详情
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-3 text-muted mb-0">加载详情中...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const buttons = document.querySelectorAll('.view-detail-btn');
+
+    buttons.forEach(button => {
+        button.addEventListener('click', function () {
+            const detailUrl = this.getAttribute('data-detail-url');
+            const problemUrl = this.getAttribute('data-problem-url');
+            const languageCode = this.getAttribute('data-language-code');
+            viewSubmissionDetail(detailUrl, problemUrl, languageCode);
+        });
+    });
+});
+
+function getStatusBadge(status, statusDisplay) {
+    if (status === 'AC') {
+        return '<span class="result-badge success"><i class="bi bi-check-circle-fill"></i>' + statusDisplay + '</span>';
+    }
+    if (status === 'TLE' || status === 'MLE') {
+        return '<span class="result-badge warning"><i class="bi bi-hourglass-split"></i>' + statusDisplay + '</span>';
+    }
+    if (status === 'PD') {
+        return '<span class="result-badge info"><i class="bi bi-arrow-repeat"></i>' + statusDisplay + '</span>';
+    }
+    return '<span class="result-badge fail"><i class="bi bi-x-circle-fill"></i>' + statusDisplay + '</span>';
+}
+
+function getModeBadge(mode, modeDisplay) {
+    if (mode === 'exam') {
+        return '<span class="mode-badge exam"><i class="bi bi-shield-lock-fill me-1"></i>' + modeDisplay + '</span>';
+    }
+    return '<span class="mode-badge practice"><i class="bi bi-mortarboard-fill me-1"></i>' + modeDisplay + '</span>';
+}
+
+function escapeHtml(unsafe) {
+    if (!unsafe) return "";
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function getLangClass(languageCode) {
+    if (languageCode === 'cpp') return 'language-cpp';
+    if (languageCode === 'c') return 'language-c';
+    if (languageCode === 'java') return 'language-java';
+    return 'language-python';
+}
+
+function viewSubmissionDetail(detailUrl, problemUrl, languageCode) {
+    const modalEl = document.getElementById('submissionModal');
+    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+    const modalBody = document.getElementById('modalBody');
+
+    modalBody.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-3 text-muted mb-0">正在获取提交详情...</p>
+        </div>
+    `;
+    modal.show();
+
+    fetch(detailUrl, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('网络响应异常');
+        return response.json();
+    })
+    .then(data => {
+        if (data.error) {
+            modalBody.innerHTML = `<div class="alert alert-danger alert-custom mb-0"><i class="bi bi-exclamation-triangle me-2"></i>${escapeHtml(data.error)}</div>`;
+            return;
+        }
+
+        const statusBadge = getStatusBadge(data.status, data.status_display);
+        const modeBadge = getModeBadge(data.mode, data.mode_display);
+        const langClass = getLangClass(languageCode);
+
+        modalBody.innerHTML = `
+            <div class="detail-meta-card">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <strong>题目：</strong>
+                        <a href="${problemUrl}" class="text-decoration-none fw-bold">${escapeHtml(data.problem_title)}</a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>语言：</strong> ${escapeHtml(data.language)}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>作答模式：</strong> ${modeBadge}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>状态：</strong> ${statusBadge}
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <strong>提交时间：</strong> ${escapeHtml(data.timestamp)}
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <strong>耗时：</strong> ${escapeHtml(String(data.time || 0))} ms
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <strong>内存：</strong> ${escapeHtml(String(data.memory || 0))} KB
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="detail-section-title">
+                    <i class="bi bi-code-slash"></i>
+                    代码内容
+                </div>
+                <pre class="detail-code"><code class="${langClass}">${escapeHtml(data.code)}</code></pre>
+            </div>
+
+            <div>
+                <div class="detail-section-title">
+                    <i class="bi bi-chat-left-text"></i>
+                    判题反馈
+                </div>
+                <pre class="detail-feedback">${escapeHtml(data.feedback || '暂无反馈')}</pre>
+            </div>
+        `;
+
+        const codeBlock = modalBody.querySelector('code');
+        if (codeBlock && window.Prism) {
+            Prism.highlightElement(codeBlock);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        modalBody.innerHTML = `<div class="alert alert-danger alert-custom mb-0"><i class="bi bi-wifi-off me-2"></i>加载失败：${escapeHtml(error.message)}</div>`;
+    });
+}
+</script>
+{% endblock %}

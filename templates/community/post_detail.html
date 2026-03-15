@@ -1,0 +1,584 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #f0f8fb 0%, #e8f4f8 50%, #f5fafe 100%) !important;
+        color: #1e293b;
+    }
+
+    .container {
+        background-color: transparent !important;
+        padding: 2.2rem 1.2rem 2.8rem;
+        max-width: 1160px;
+    }
+
+    .post-page {
+        position: relative;
+    }
+
+    .post-page::before,
+    .post-page::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(90px);
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.36;
+    }
+
+    .post-page::before {
+        width: 260px;
+        height: 260px;
+        top: 20px;
+        left: 10px;
+        background: rgba(20, 184, 166, 0.10);
+    }
+
+    .post-page::after {
+        width: 300px;
+        height: 300px;
+        top: 90px;
+        right: 20px;
+        background: rgba(66, 153, 225, 0.10);
+    }
+
+    .post-inner {
+        position: relative;
+        z-index: 1;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.68rem 1rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.76);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        color: #475569 !important;
+        text-decoration: none;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+        transition: all 0.2s ease;
+        margin-bottom: 1.2rem;
+        font-weight: 600;
+    }
+
+    .back-link:hover {
+        color: #0d9488 !important;
+        background: rgba(255, 255, 255, 0.92);
+        border-color: rgba(13, 148, 136, 0.22);
+        transform: translateY(-1px);
+    }
+
+    .post-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,255,255,0.64)) !important;
+        border: 1px solid rgba(56, 178, 172, 0.14) !important;
+        border-radius: 22px !important;
+        box-shadow: 0 12px 30px rgba(66, 153, 225, 0.08), 0 4px 12px rgba(56, 178, 172, 0.05) !important;
+        overflow: hidden;
+    }
+
+    .post-card-header,
+    .post-card-footer {
+        background: transparent !important;
+        border: none !important;
+    }
+
+    .post-card-header {
+        padding: 1.35rem 1.35rem 1rem !important;
+        border-bottom: 1px solid rgba(56, 178, 172, 0.10) !important;
+    }
+
+    .post-title {
+        margin-bottom: 0.55rem;
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.3;
+    }
+
+    .post-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.65rem 1rem;
+        color: #64748b;
+        font-size: 0.96rem;
+    }
+
+    .post-meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .post-meta-item i {
+        color: #0891b2;
+    }
+
+    .post-like-wrap {
+        flex-shrink: 0;
+    }
+
+    .badge.bg-primary {
+        background: linear-gradient(135deg, #0d9488, #14b8a6) !important;
+        border: none !important;
+        border-radius: 999px !important;
+        font-weight: 700;
+        font-size: 0.8rem;
+        padding: 0.48rem 0.78rem !important;
+        box-shadow: 0 6px 14px rgba(13, 148, 136, 0.16);
+    }
+
+    .post-card-body {
+        padding: 1.35rem !important;
+    }
+
+    .post-category-wrap {
+        margin-bottom: 1rem;
+    }
+
+    .post-content {
+        line-height: 1.9;
+        font-size: 1rem;
+        color: #334155;
+        word-break: break-word;
+    }
+
+    .post-content p:last-child {
+        margin-bottom: 0;
+    }
+
+    .post-card-footer {
+        padding: 1rem 1.35rem 1.1rem !important;
+        border-top: 1px solid rgba(56, 178, 172, 0.10) !important;
+        color: #64748b !important;
+        font-size: 0.95rem;
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444, #f87171) !important;
+        border: none !important;
+        border-radius: 12px !important;
+        box-shadow: 0 8px 18px rgba(239, 68, 68, 0.18) !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        padding: 0.62rem 0.95rem !important;
+    }
+
+    .btn-outline-danger {
+        color: #ef4444 !important;
+        border: 1px solid rgba(239, 68, 68, 0.34) !important;
+        background: rgba(255, 255, 255, 0.75) !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        padding: 0.62rem 0.95rem !important;
+    }
+
+    .btn-outline-danger:hover {
+        background: #ef4444 !important;
+        color: #fff !important;
+    }
+
+    .comment-section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 1.7rem 0 1rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid rgba(56, 178, 172, 0.12);
+    }
+
+    .comment-section-title h5 {
+        margin: 0;
+        background: linear-gradient(90deg, #0d9488, #38b2ac, #4299e1);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-size: 1.75rem;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+    }
+
+    .badge.bg-secondary {
+        background: rgba(20, 184, 166, 0.10) !important;
+        color: #0d9488 !important;
+        border: 1px solid rgba(56, 178, 172, 0.16) !important;
+        border-radius: 999px !important;
+        font-weight: 700;
+        padding: 0.45rem 0.8rem !important;
+    }
+
+    .comment-list {
+        display: grid;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .comment-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.78), rgba(255,255,255,0.60)) !important;
+        border: 1px solid rgba(56, 178, 172, 0.12) !important;
+        border-radius: 18px !important;
+        box-shadow: 0 8px 20px rgba(66, 153, 225, 0.07), 0 2px 8px rgba(56, 178, 172, 0.04) !important;
+        transition: all 0.22s ease;
+    }
+
+    .comment-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(56, 178, 172, 0.20) !important;
+        box-shadow: 0 12px 24px rgba(66, 153, 225, 0.10), 0 3px 10px rgba(56, 178, 172, 0.06) !important;
+    }
+
+    .comment-card .card-body {
+        padding: 1rem 1.1rem !important;
+    }
+
+    .comment-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.65rem;
+    }
+
+    .comment-author {
+        color: #0d9488 !important;
+        font-weight: 800;
+        font-size: 1.08rem;
+    }
+
+    .comment-time {
+        color: #64748b !important;
+        font-size: 0.92rem;
+        white-space: nowrap;
+    }
+
+    .comment-content {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        color: #1e293b;
+        line-height: 1.85;
+        font-size: 1rem;
+    }
+
+    .empty-comments {
+        text-align: center;
+        padding: 2rem 1rem;
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.78), rgba(255,255,255,0.60));
+        border: 1px solid rgba(56, 178, 172, 0.12);
+        color: #64748b;
+    }
+
+    .empty-comments i {
+        font-size: 2rem;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+        color: #14b8a6;
+    }
+
+    .reply-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,255,255,0.64)) !important;
+        border: 1px solid rgba(56, 178, 172, 0.14) !important;
+        border-radius: 20px !important;
+        box-shadow: 0 10px 24px rgba(66, 153, 225, 0.08), 0 3px 10px rgba(56, 178, 172, 0.05) !important;
+        overflow: hidden;
+    }
+
+    .reply-card .card-header {
+        background: transparent !important;
+        border: none !important;
+        border-bottom: 1px solid rgba(56, 178, 172, 0.10) !important;
+        padding: 1rem 1.2rem !important;
+    }
+
+    .reply-card .card-header h6 {
+        margin: 0;
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: #1e293b;
+    }
+
+    .reply-card .card-body {
+        padding: 1.15rem 1.2rem 1.2rem !important;
+    }
+
+    .form-control {
+        border-radius: 14px !important;
+        border: 1px solid rgba(56, 178, 172, 0.18) !important;
+        background: rgba(255,255,255,0.88) !important;
+        color: #334155 !important;
+        min-height: 120px;
+        padding: 0.95rem 1rem !important;
+        line-height: 1.8;
+    }
+
+    .form-control:focus {
+        border-color: #0d9488 !important;
+        box-shadow: 0 0 0 0.2rem rgba(13, 148, 136, 0.10) !important;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #0d9488, #14b8a6) !important;
+        border: none !important;
+        border-radius: 12px !important;
+        box-shadow: 0 8px 18px rgba(13, 148, 136, 0.18) !important;
+        font-weight: 700 !important;
+        padding: 0.72rem 1.1rem !important;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #0f766e, #0d9488) !important;
+        transform: translateY(-1px);
+    }
+
+    .alert-warning {
+        background: linear-gradient(135deg, rgba(254,243,199,0.95), rgba(255,251,235,0.92)) !important;
+        color: #92400e !important;
+        border: 1px solid rgba(245, 158, 11, 0.18) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 8px 18px rgba(245, 158, 11, 0.08);
+        padding: 1rem 1.1rem !important;
+    }
+
+    .alert-link {
+        color: #b45309 !important;
+        font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 1.2rem 0.9rem 2rem;
+        }
+
+        .post-title {
+            font-size: 1.55rem;
+        }
+
+        .post-card-header,
+        .post-card-body,
+        .post-card-footer {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+
+        .comment-section-title h5 {
+            font-size: 1.4rem;
+        }
+
+        .comment-top {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.4rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4 post-page">
+    <div class="post-inner">
+        <a href="{% url 'community:community_home' %}" class="back-link">
+            <span>←</span>
+            <span>返回社区</span>
+        </a>
+
+        <div class="card post-card mb-4">
+            <div class="card-header post-card-header d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h4 class="post-title">{{ post.title }}</h4>
+                    <div class="post-meta">
+                        <span class="post-meta-item">
+                            <i class="bi bi-person"></i>
+                            <span>{{ post.author.username }}</span>
+                        </span>
+                        <span class="post-meta-item">
+                            <i class="bi bi-clock"></i>
+                            <span>{{ post.created_at|date:"Y-m-d H:i" }}</span>
+                        </span>
+                        <span class="post-meta-item">
+                            <i class="bi bi-eye"></i>
+                            <span>{{ post.views }} 浏览</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="post-like-wrap">
+                    {% if user.is_authenticated %}
+                        <button id="like-btn"
+                                class="btn {% if is_liked %}btn-danger{% else %}btn-outline-danger{% endif %} btn-sm"
+                                data-post-id="{{ post.id }}"
+                                data-is-liked="{% if is_liked %}true{% else %}false{% endif %}">
+                            {% if is_liked %}
+                                <i class="bi bi-heart-fill"></i> <span id="like-count">{{ post.likes_count }}</span>
+                            {% else %}
+                                <i class="bi bi-heart"></i> <span id="like-count">{{ post.likes_count }}</span>
+                            {% endif %}
+                        </button>
+                    {% else %}
+                        <button class="btn btn-outline-danger btn-sm" disabled title="登录后点赞">
+                            <i class="bi bi-heart"></i> {{ post.likes_count }}
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card-body post-card-body">
+                <div class="post-category-wrap">
+                    <span class="badge bg-primary">{{ post.category.name }}</span>
+                </div>
+
+                <div class="post-content">
+                    {{ post.content|safe }}
+                </div>
+            </div>
+
+            <div class="card-footer post-card-footer">
+                <small>最后更新：{{ post.updated_at|date:"Y-m-d H:i" }}</small>
+            </div>
+        </div>
+
+        <div class="comment-section-title">
+            <h5>💬 评论</h5>
+            <span class="badge bg-secondary">{{ comments.count }}</span>
+        </div>
+
+        <div class="comment-list">
+            {% for comment in comments %}
+            <div class="card comment-card border-0">
+                <div class="card-body">
+                    <div class="comment-top">
+                        <strong class="comment-author">{{ comment.author.username }}</strong>
+                        <small class="comment-time">{{ comment.created_at|date:"m-d H:i" }}</small>
+                    </div>
+                    <p class="comment-content">{{ comment.content }}</p>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-comments">
+                <i class="bi bi-chat-square-text"></i>
+                <p class="mb-0">暂无评论，快来发表你的看法吧！</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if user.is_authenticated %}
+            <div class="card reply-card shadow-sm">
+                <div class="card-header">
+                    <h6>发表回复</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {% if form.content.errors %}
+                                <div class="text-danger small mb-2">{{ form.content.errors.0 }}</div>
+                            {% endif %}
+                            <label for="{{ form.content.id_for_label }}" class="form-label visually-hidden">评论内容</label>
+                            {{ form.content }}
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i> 提交评论
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-warning d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <div>
+                    请 <a href="{% url 'login' %}?next={{ request.path }}" class="alert-link">登录</a> 后再发表评论。
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const likeBtn = document.getElementById('like-btn');
+    const likeUrl = "{% url 'community:toggle_like' post.id %}";
+
+    if (likeBtn) {
+        likeBtn.addEventListener('click', function() {
+            const btn = this;
+
+            if (btn.disabled) return;
+
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')
+                ? document.querySelector('[name=csrfmiddlewaretoken]').value
+                : getCookie('csrftoken');
+
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> 处理中...';
+
+            fetch(likeUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 403 || response.status === 401) {
+                        window.location.href = "{% url 'accounts:login' %}?next={{ request.path }}";
+                        throw new Error('未登录');
+                    }
+                    throw new Error('网络响应失败');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    if (data.is_liked) {
+                        btn.classList.remove('btn-outline-danger');
+                        btn.classList.add('btn-danger');
+                        btn.innerHTML = '<i class="bi bi-heart-fill"></i> <span id="like-count">' + data.likes_count + '</span>';
+                    } else {
+                        btn.classList.remove('btn-danger');
+                        btn.classList.add('btn-outline-danger');
+                        btn.innerHTML = '<i class="bi bi-heart"></i> <span id="like-count">' + data.likes_count + '</span>';
+                    }
+                } else {
+                    alert(data.message || '操作失败，请稍后重试');
+                    btn.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                if (error.message !== '未登录') {
+                    alert('发生错误，请检查网络连接');
+                }
+                btn.innerHTML = originalText;
+            })
+            .finally(() => {
+                btn.disabled = false;
+            });
+        });
+    }
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

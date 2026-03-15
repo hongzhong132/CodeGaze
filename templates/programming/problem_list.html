@@ -1,0 +1,746 @@
+{% extends 'base.html' %}
+
+{% block title %}题目列表 - CodeGaze{% endblock %}
+
+{% block extra_css %}
+<style>
+    .problem-page {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 0.5rem 0 2.5rem;
+        position: relative;
+    }
+
+    .problem-page::before,
+    .problem-page::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(85px);
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.42;
+    }
+
+    .problem-page::before {
+        width: 280px;
+        height: 280px;
+        top: 20px;
+        left: 20px;
+        background: rgba(6, 182, 212, 0.12);
+    }
+
+    .problem-page::after {
+        width: 320px;
+        height: 320px;
+        right: 40px;
+        top: 140px;
+        background: rgba(37, 99, 235, 0.10);
+    }
+
+    .problem-inner {
+        position: relative;
+        z-index: 1;
+    }
+
+    .problem-hero {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .problem-badge {
+        width: 76px;
+        height: 76px;
+        margin: 0 auto 0.95rem;
+        border-radius: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(8, 145, 178, 0.16));
+        box-shadow: 0 12px 30px rgba(37, 99, 235, 0.12);
+    }
+
+    .problem-badge i {
+        font-size: 2rem;
+        background: linear-gradient(135deg, #2563eb, #0891b2);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .problem-title-main {
+        font-size: 2.35rem;
+        font-weight: 800;
+        margin-bottom: 0.45rem;
+        background: linear-gradient(90deg, #0f766e, #0891b2, #2563eb);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        line-height: 1.2;
+    }
+
+    .problem-subtitle {
+        max-width: 720px;
+        margin: 0 auto;
+        color: #64748b;
+        font-size: 1rem;
+        line-height: 1.75;
+    }
+
+    .problem-search-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 0 0 1.35rem 0;
+    }
+
+    .problem-filter-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-toggle-btn,
+    .filter-toggle-btn-active {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        padding: 0.78rem 1rem;
+        border-radius: 14px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.22s ease;
+        white-space: nowrap;
+    }
+
+    .filter-toggle-btn {
+        color: #0891b2;
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(8, 145, 178, 0.14);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        backdrop-filter: blur(10px);
+    }
+
+    .filter-toggle-btn:hover {
+        transform: translateY(-1px);
+        color: #0f766e;
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .filter-toggle-btn-active {
+        color: #fff;
+        background: linear-gradient(135deg, #f59e0b, #f97316);
+        border: 1px solid transparent;
+        box-shadow: 0 10px 24px rgba(249, 115, 22, 0.18);
+    }
+
+    .filter-toggle-btn-active:hover {
+        transform: translateY(-1px);
+        color: #fff;
+        box-shadow: 0 12px 24px rgba(249, 115, 22, 0.22);
+    }
+
+    .problem-search-form {
+        width: 430px;
+        max-width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        padding: 0.5rem 0.55rem 0.5rem 1rem;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        backdrop-filter: blur(10px);
+    }
+
+    .problem-search-icon {
+        color: #0891b2;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .problem-search-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: #334155;
+        font-size: 0.96rem;
+        padding: 0.45rem 0;
+    }
+
+    .problem-search-input::placeholder {
+        color: #94a3b8;
+    }
+
+    .problem-search-btn {
+        border: none;
+        outline: none;
+        padding: 0.68rem 1rem;
+        border-radius: 10px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: #ffffff;
+        background: linear-gradient(135deg, #0891b2, #2563eb);
+        box-shadow: 0 8px 18px rgba(37, 99, 235, 0.16);
+        transition: all 0.22s ease;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+
+    .problem-search-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+        background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    }
+
+    .problem-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.4rem;
+    }
+
+    .problem-topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+
+    .problem-count,
+    .problem-mode-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.7rem 1rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.76);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        color: #334155;
+        font-weight: 700;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    }
+
+    .problem-count i {
+        color: #0891b2;
+    }
+
+    .problem-mode-chip.only-favorite {
+        background: rgba(245, 158, 11, 0.10);
+        color: #b45309;
+        border-color: rgba(245, 158, 11, 0.16);
+    }
+
+    .problem-mode-chip.only-favorite i {
+        color: #f59e0b;
+    }
+
+    .problem-tip {
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    .login-hint-card {
+        margin-bottom: 1rem;
+        padding: 1rem 1.1rem;
+        border-radius: 18px;
+        background: rgba(255, 251, 235, 0.92);
+        border: 1px solid rgba(245, 158, 11, 0.16);
+        color: #92400e;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    }
+
+    .login-hint-card a {
+        color: #b45309;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .login-hint-card a:hover {
+        color: #92400e;
+    }
+
+    .problem-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 1.15rem;
+    }
+
+    .problem-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        background: linear-gradient(135deg, #f4fbfc 0%, #eaf8fa 55%, #def2f5 100%);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(56, 178, 172, 0.16);
+        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.07);
+        transition: all 0.28s ease;
+    }
+
+    .problem-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.10);
+        border-color: rgba(56, 178, 172, 0.24);
+        background: linear-gradient(135deg, #f0fafb 0%, #e3f5f8 58%, #d8eef3 100%);
+    }
+
+    .problem-card-body {
+        padding: 1.4rem 1.5rem 1.35rem 1.45rem;
+    }
+
+    .problem-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 0.9rem;
+        flex-wrap: wrap;
+    }
+
+    .problem-card-left {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .problem-card-title-row {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.2rem;
+    }
+
+    .problem-card-title {
+        margin: 0;
+        font-size: 1.45rem;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+
+    .problem-card-title a {
+        color: #1e293b;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .problem-card-title a:hover {
+        color: #0891b2;
+    }
+
+    .favorite-mark {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.34rem 0.7rem;
+        border-radius: 999px;
+        background: rgba(245, 158, 11, 0.10);
+        color: #b45309;
+        border: 1px solid rgba(245, 158, 11, 0.16);
+        font-size: 0.76rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .difficulty-tag {
+        flex-shrink: 0;
+        padding: 0.42rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+        border: 1px solid transparent;
+    }
+
+    .difficulty-tag.easy {
+        background: rgba(16, 185, 129, 0.12);
+        color: #047857;
+        border-color: rgba(16, 185, 129, 0.18);
+    }
+
+    .difficulty-tag.medium {
+        background: rgba(245, 158, 11, 0.14);
+        color: #b45309;
+        border-color: rgba(245, 158, 11, 0.18);
+    }
+
+    .difficulty-tag.hard {
+        background: rgba(239, 68, 68, 0.12);
+        color: #b91c1c;
+        border-color: rgba(239, 68, 68, 0.18);
+    }
+
+    .problem-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.2rem;
+        align-items: center;
+        margin-bottom: 1rem;
+        color: #64748b;
+        font-size: 0.92rem;
+    }
+
+    .meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+    }
+
+    .meta-item i {
+        color: #0891b2;
+    }
+
+    .problem-description {
+        margin: 0 0 1.15rem 0;
+        padding: 1rem 1.05rem;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.52);
+        border: 1px solid rgba(148, 163, 184, 0.08);
+        color: #475569;
+        line-height: 1.8;
+        font-size: 0.98rem;
+    }
+
+    .problem-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .problem-hint {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .detail-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.78rem 1.2rem;
+        border-radius: 999px;
+        font-weight: 700;
+        text-decoration: none;
+        color: #2563eb;
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(37, 99, 235, 0.20);
+        box-shadow: 0 8px 18px rgba(37, 99, 235, 0.05);
+        transition: all 0.25s ease;
+    }
+
+    .detail-link:hover {
+        color: #fff;
+        background: linear-gradient(90deg, #2563eb, #0ea5e9);
+        border-color: transparent;
+        transform: translateY(-1px);
+        box-shadow: 0 14px 24px rgba(37, 99, 235, 0.16);
+    }
+
+    .empty-state {
+        max-width: 760px;
+        margin: 1rem auto 0;
+        text-align: center;
+        padding: 2.4rem 1.6rem;
+        border-radius: 24px;
+        background: linear-gradient(135deg, #f4fbfc 0%, #eaf8fa 55%, #def2f5 100%);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(56, 178, 172, 0.16);
+        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.07);
+    }
+
+    .empty-state i {
+        font-size: 2.6rem;
+        display: inline-block;
+        margin-bottom: 0.85rem;
+        background: linear-gradient(135deg, #2563eb, #06b6d4);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .empty-state h3 {
+        margin-bottom: 0.55rem;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1e293b;
+    }
+
+    .empty-state p {
+        margin-bottom: 1rem;
+        color: #64748b;
+        font-size: 1rem;
+        line-height: 1.8;
+    }
+
+    .empty-state a {
+        color: #0891b2;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .empty-state a:hover {
+        color: #2563eb;
+    }
+
+    .empty-state .empty-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.82rem 1.05rem;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.86);
+        border: 1px solid rgba(8, 145, 178, 0.14);
+        text-decoration: none;
+        margin-top: 0.2rem;
+    }
+
+    @media (max-width: 768px) {
+        .problem-title-main {
+            font-size: 1.9rem;
+        }
+
+        .problem-search-row {
+            justify-content: stretch;
+        }
+
+        .problem-filter-actions,
+        .problem-search-form {
+            width: 100%;
+        }
+
+        .problem-search-form {
+            padding: 0.45rem 0.45rem 0.45rem 0.85rem;
+        }
+
+        .problem-search-btn {
+            padding: 0.7rem 0.9rem;
+        }
+
+        .problem-card-body {
+            padding: 1rem;
+        }
+
+        .problem-card-title {
+            font-size: 1.2rem;
+        }
+
+        .problem-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .detail-link {
+            justify-content: center;
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="problem-page">
+    <div class="problem-inner">
+        <div class="problem-hero">
+            <div class="problem-badge">
+                <i class="bi bi-list-task"></i>
+            </div>
+            <h1 class="problem-title-main">题目列表</h1>
+            <p class="problem-subtitle">
+                按难度逐步挑战题目，练习基础语法、算法思维与代码实现能力，构建更扎实的编程能力体系。
+            </p>
+        </div>
+
+        <div class="problem-search-row">
+            <div class="problem-filter-actions">
+                {% if user.is_authenticated %}
+                    {% if only_favorite %}
+                        <a href="{% url 'programming:problem_list' %}{% if q %}?q={{ q|urlencode }}{% endif %}" class="filter-toggle-btn">
+                            <i class="bi bi-grid"></i>
+                            查看全部题目
+                        </a>
+                    {% else %}
+                        <a href="{% url 'programming:problem_list' %}?favorite=1{% if q %}&q={{ q|urlencode }}{% endif %}" class="filter-toggle-btn-active">
+                            <i class="bi bi-bookmark-star"></i>
+                            只看收藏
+                        </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <form method="get" action="" class="problem-search-form">
+                <i class="bi bi-search problem-search-icon"></i>
+                <input
+                    type="text"
+                    name="q"
+                    class="problem-search-input"
+                    placeholder="检索题目名称 / 关键词"
+                    value="{{ q|default:'' }}"
+                >
+                {% if only_favorite %}
+                    <input type="hidden" name="favorite" value="1">
+                {% endif %}
+                <button type="submit" class="problem-search-btn">搜索</button>
+            </form>
+        </div>
+
+        {% if only_favorite and not user.is_authenticated %}
+            <div class="login-hint-card">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                请先 <a href="{% url 'accounts:login' %}?next={{ request.path }}?favorite=1">登录</a> 后查看你收藏的题目。
+            </div>
+        {% endif %}
+
+        <div class="problem-topbar">
+            <div class="problem-topbar-left">
+                <div class="problem-count">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>当前题目数量：{{ problems|length }}</span>
+                </div>
+
+                {% if only_favorite %}
+                    <div class="problem-mode-chip only-favorite">
+                        <i class="bi bi-bookmark-heart-fill"></i>
+                        <span>当前筛选：只看收藏</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="problem-tip">点击卡片可查看题目详情并进入提交页面</div>
+        </div>
+
+        {% if problems %}
+            <ul class="problem-list">
+                {% for problem in problems %}
+                    <li class="problem-card">
+                        <div class="problem-card-body">
+                            <div class="problem-card-top">
+                                <div class="problem-card-left">
+                                    <div class="problem-card-title-row">
+                                        <h2 class="problem-card-title">
+                                            <a href="{% url 'programming:problem_detail' pk=problem.pk %}">
+                                                {{ problem.title }}
+                                            </a>
+                                        </h2>
+
+                                        {% if user.is_authenticated and problem.id in favorite_problem_ids %}
+                                            <span class="favorite-mark">
+                                                <i class="bi bi-star-fill"></i>
+                                                已收藏
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <span class="difficulty-tag
+                                    {% if problem.difficulty == 'easy' or problem.difficulty == 'Easy' or problem.difficulty == '简单' or problem.get_difficulty_display == 'Easy' or problem.get_difficulty_display == '简单' %}
+                                        easy
+                                    {% elif problem.difficulty == 'medium' or problem.difficulty == 'Medium' or problem.difficulty == '中等' or problem.get_difficulty_display == 'Medium' or problem.get_difficulty_display == '中等' %}
+                                        medium
+                                    {% elif problem.difficulty == 'hard' or problem.difficulty == 'Hard' or problem.difficulty == '困难' or problem.get_difficulty_display == 'Hard' or problem.get_difficulty_display == '困难' %}
+                                        hard
+                                    {% endif %}">
+                                    {{ problem.get_difficulty_display }}
+                                </span>
+                            </div>
+
+                            <div class="problem-meta">
+                                <span class="meta-item">
+                                    <i class="bi bi-calendar-event"></i>
+                                    {{ problem.created_at|date:"Y-m-d H:i" }}
+                                </span>
+                                <span class="meta-item">
+                                    <i class="bi bi-code-square"></i>
+                                    在线练习题
+                                </span>
+                                <span class="meta-item">
+                                    <i class="bi bi-lightning-charge"></i>
+                                    支持多语言提交
+                                </span>
+                            </div>
+
+                            <div class="problem-description">
+                                {{ problem.description|truncatechars:160 }}
+                            </div>
+
+                            <div class="problem-footer">
+                                <div class="problem-hint">
+                                    建议先阅读题目要求，再进行代码提交与自定义测试
+                                </div>
+                                <a href="{% url 'programming:problem_detail' pk=problem.pk %}" class="detail-link">
+                                    <i class="bi bi-arrow-right-circle"></i>
+                                    <span>查看详情</span>
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-stars"></i>
+
+                {% if only_favorite and not user.is_authenticated %}
+                    <h3>登录后才能查看收藏题目</h3>
+                    <p>
+                        当前你选择了“只看收藏”，但还没有登录账号。登录后即可只查看自己已收藏的题目。
+                    </p>
+                    <a href="{% url 'accounts:login' %}?next={{ request.path }}?favorite=1" class="empty-action">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        立即登录
+                    </a>
+
+                {% elif only_favorite and q %}
+                    <h3>收藏题目中没有匹配结果</h3>
+                    <p>
+                        你当前在“只看收藏”模式下搜索了“{{ q }}”，但没有找到匹配题目。
+                        可以尝试更换关键词，或切换回全部题目查看。
+                    </p>
+                    <a href="{% url 'programming:problem_list' %}?favorite=1" class="empty-action">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        查看全部收藏
+                    </a>
+
+                {% elif only_favorite %}
+                    <h3>你还没有收藏任何题目</h3>
+                    <p>
+                        先去题目详情页点击“收藏本题”，之后这里就会显示你保存下来的题目。
+                    </p>
+                    <a href="{% url 'programming:problem_list' %}" class="empty-action">
+                        <i class="bi bi-search"></i>
+                        去浏览全部题目
+                    </a>
+
+                {% elif q %}
+                    <h3>没有找到匹配题目</h3>
+                    <p>
+                        当前没有和“{{ q }}”相关的题目结果，可以尝试换个关键词，或者返回查看全部题目。
+                    </p>
+                    <a href="{% url 'programming:problem_list' %}" class="empty-action">
+                        <i class="bi bi-arrow-left"></i>
+                        查看全部题目
+                    </a>
+
+                {% else %}
+                    <h3>暂时还没有题目</h3>
+                    <p>
+                        当前题库为空，你可以前往 <a href="/admin/">管理员后台</a> 添加题目，
+                        然后回到这里开始练习。
+                    </p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
