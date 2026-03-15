@@ -229,4 +229,7 @@ CodeGaze/
 ├── manage.py                    # Django 启动入口
 ├── requirements.txt             # 项目依赖
 ├── README.md                    # 项目说明文档
+<<<<<<< HEAD
 └── .env.example                 # 环境变量示例文件（建议补充）
+=======
+
