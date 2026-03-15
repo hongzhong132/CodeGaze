@@ -207,6 +207,8 @@ CodeGaze/
 ├── requirements.txt             # 项目依赖
 ├── README.md                    # 项目说明文档
 └── .env.example                 # 环境变量示例文件（建议补充）
+
+
 十二、开发环境与运行环境
 
 建议开发环境如下：
