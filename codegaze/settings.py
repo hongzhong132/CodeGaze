@@ -14,35 +14,56 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # 先加载 .env，再读取所有环境变量
 load_dotenv(BASE_DIR / ".env")
 
+
+def env_bool(name: str, default: bool = False) -> bool:
+    return os.getenv(name, str(default)).lower() in {"1", "true", "yes", "on"}
+
+
+def env_list(name: str, default: str = "") -> list[str]:
+    value = os.getenv(name, default)
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
 # =========================================================
 # 安全配置
 # =========================================================
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "please-change-this-in-env")
-DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() == "true"
+DEBUG = env_bool("DJANGO_DEBUG", True)
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
-    if host.strip()
-]
+ALLOWED_HOSTS = env_list(
+    "DJANGO_ALLOWED_HOSTS",
+    "127.0.0.1,localhost,.up.railway.app,.onrender.com",
+)
+
+CSRF_TRUSTED_ORIGINS = env_list(
+    "CSRF_TRUSTED_ORIGINS",
+    "http://127.0.0.1:8000,http://localhost:8000",
+)
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+
+SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", False)
+SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", not DEBUG)
+CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", not DEBUG)
+
 
 # =========================================================
 # 邮件配置（忘记密码 / 邮箱找回）
 # =========================================================
-# 开发环境默认打印到控制台，生产环境默认走 SMTP
-EMAIL_BACKEND = os.getenv(
-    "EMAIL_BACKEND",
+default_email_backend = (
     "django.core.mail.backends.console.EmailBackend"
     if DEBUG
-    else "django.core.mail.backends.smtp.EmailBackend",
+    else "django.core.mail.backends.smtp.EmailBackend"
 )
 
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", default_email_backend)
 EMAIL_HOST = os.getenv("EMAIL_HOST", "")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() == "true"
-EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "False").lower() == "true"
+EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
+EMAIL_USE_SSL = env_bool("EMAIL_USE_SSL", False)
 EMAIL_TIMEOUT = int(os.getenv("EMAIL_TIMEOUT", "10"))
 
 DEFAULT_FROM_EMAIL = os.getenv(
@@ -56,6 +77,7 @@ PASSWORD_RESET_TIMEOUT = int(os.getenv("PASSWORD_RESET_TIMEOUT", "86400"))
 
 if EMAIL_USE_TLS and EMAIL_USE_SSL:
     raise ValueError("EMAIL_USE_TLS 和 EMAIL_USE_SSL 不能同时为 True，请只保留一种。")
+
 
 # =========================================================
 # Application definition
@@ -84,6 +106,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -97,7 +120,7 @@ ROOT_URLCONF = "codegaze.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -112,23 +135,35 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "codegaze.wsgi.application"
 
+
 # =========================================================
 # Database
 # =========================================================
-DATABASES = {
-    "default": {
-        "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.mysql"),
-        "NAME": os.getenv("DB_NAME", "codegaze_db"),
-        "USER": os.getenv("DB_USER", ""),
-        "PASSWORD": os.getenv("DB_PASSWORD", ""),
-        "HOST": os.getenv("DB_HOST", "127.0.0.1"),
-        "PORT": os.getenv("DB_PORT", "3306"),
-        "OPTIONS": {
-            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-            "charset": "utf8mb4",
-        },
+DB_ENGINE = os.getenv("DB_ENGINE", "django.db.backends.mysql")
+
+if DB_ENGINE == "django.db.backends.sqlite3":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.getenv("SQLITE_PATH", os.path.join(BASE_DIR, "db.sqlite3")),
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": DB_ENGINE,
+            "NAME": os.getenv("DB_NAME", "codegaze_db"),
+            "USER": os.getenv("DB_USER", ""),
+            "PASSWORD": os.getenv("DB_PASSWORD", ""),
+            "HOST": os.getenv("DB_HOST", "127.0.0.1"),
+            "PORT": os.getenv("DB_PORT", "3306"),
+            "OPTIONS": {
+                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+                "charset": "utf8mb4",
+            },
+        }
+    }
+
 
 # =========================================================
 # Password validation
@@ -140,6 +175,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+
 # =========================================================
 # Internationalization
 # =========================================================
@@ -148,6 +184,7 @@ TIME_ZONE = "Asia/Shanghai"
 USE_I18N = True
 USE_TZ = True
 
+
 # =========================================================
 # 登录跳转
 # =========================================================
@@ -155,34 +192,51 @@ LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "/accounts/redirect/"
 LOGOUT_REDIRECT_URL = "accounts:login"
 
+
 # =========================================================
 # Static files (CSS, JavaScript, Images)
 # =========================================================
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # =========================================================
 # 媒体文件配置
 # =========================================================
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = os.getenv("MEDIA_ROOT", os.path.join(BASE_DIR, "media"))
+
+
+
 
 # AI 监测截图 / 日志图片目录
 MONITOR_LOG_SUBDIR = "monitor_logs"
-MONITOR_LOG_DIR = os.path.join(MEDIA_ROOT, MONITOR_LOG_SUBDIR)
+MONITOR_LOG_DIR = MEDIA_ROOT / MONITOR_LOG_SUBDIR
+
 
 # =========================================================
 # Default primary key field type
 # =========================================================
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+
 # =========================================================
 # 上传大小限制
 # =========================================================
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
+
 
 # =========================================================
 # 缓存配置
@@ -194,6 +248,7 @@ CACHES = {
         "TIMEOUT": 300,
     }
 }
+
 
 # =========================================================
 # AI 监测配置
@@ -243,7 +298,7 @@ AI_MONITOR = {
     },
 
     "YOLO": {
-        "MODEL_PATH": os.path.join(BASE_DIR, "models", "yolo_face.pt"),
+        "MODEL_PATH": str(BASE_DIR / "models" / "yolo_face.pt"),
         "CONFIDENCE_THRESHOLD": 0.35,
         "IOU_THRESHOLD": 0.45,
     },
@@ -255,9 +310,12 @@ AI_MONITOR = {
     },
 }
 
+
 # =========================================================
 # 日志配置
 # =========================================================
+PROGRAMMING_LOG_FILE = os.getenv("PROGRAMMING_LOG_FILE", str(BASE_DIR / "programming.log"))
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -278,7 +336,7 @@ LOGGING = {
         },
         "file_programming": {
             "class": "logging.FileHandler",
-            "filename": os.path.join(BASE_DIR, "programming.log"),
+            "filename": PROGRAMMING_LOG_FILE,
             "formatter": "verbose",
             "encoding": "utf-8",
         },
@@ -291,6 +349,7 @@ LOGGING = {
         },
     },
 }
+
 
 # =========================================================
 # AI Assistant 配置
