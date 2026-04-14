@@ -1,0 +1,229 @@
+{% extends 'teacher_base.html' %}
+{% block title %}学习推荐 - CodeGaze{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">学习推荐</h2>
+      <div class="text-muted">基于错误次数、待攻克题数量与尝试次数生成规则推荐</div>
+    </div>
+    <span class="soft-chip">
+      <i class="bi bi-lightbulb"></i>
+      已生成 {{ recommendation_count }} 条推荐
+    </span>
+  </div>
+
+  <div class="glass-card p-4 mb-4">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label text-muted small mb-2">搜索学生</label>
+        <input
+          type="text"
+          name="keyword"
+          class="form-control"
+          placeholder="输入学生用户名"
+          value="{{ current_filters.keyword }}"
+        >
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label text-muted small mb-2">关注等级</label>
+        <select name="focus" class="form-select">
+          <option value="">全部等级</option>
+          {% for item in focus_choices %}
+            <option value="{{ item }}" {% if current_filters.focus == item %}selected{% endif %}>
+              {{ item }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label text-muted small mb-2">推荐方向</label>
+        <select name="category" class="form-select">
+          <option value="">全部方向</option>
+          {% for item in category_choices %}
+            <option value="{{ item }}" {% if current_filters.category == item %}selected{% endif %}>
+              {{ item }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-2 d-grid gap-2">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-search"></i>
+          筛选结果
+        </button>
+        <a href="{% url 'teacher:recommendation_overview' %}" class="btn btn-outline-secondary">
+          重置
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+      <div class="glass-card p-4 h-100">
+        <div class="text-muted small mb-2">推荐学生数</div>
+        <h3 class="mb-1 fw-bold">{{ students_with_recommendation }}</h3>
+        <div class="text-muted small">当前筛选条件下可生成推荐的学生数量</div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="glass-card p-4 h-100">
+        <div class="text-muted small mb-2">高风险学生数</div>
+        <h3 class="mb-1 fw-bold">{{ high_priority_count }}</h3>
+        <div class="text-muted small">建议教师优先跟进与干预</div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="glass-card p-4 h-100">
+        <div class="text-muted small mb-2">平均关注分</div>
+        <h3 class="mb-1 fw-bold">{{ avg_focus_score }}</h3>
+        <div class="text-muted small">用于衡量当前推荐学生整体风险水平</div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="glass-card p-4 h-100">
+        <div class="text-muted small mb-2">风险分布</div>
+        <div class="d-flex flex-wrap gap-2 mt-1">
+          <span class="soft-chip">高风险 · {{ high_priority_count }}</span>
+          <span class="soft-chip">中风险 · {{ medium_priority_count }}</span>
+          <span class="soft-chip">低风险 · {{ low_priority_count }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass-card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+      <div>
+        <div class="text-muted small mb-2">高频推荐方向</div>
+        <div class="d-flex flex-wrap gap-2 mb-2">
+          {% for item in top_categories %}
+            <span class="soft-chip">{{ item.category }} · {{ item.count }} 人</span>
+          {% empty %}
+            <span class="text-muted small">暂无推荐方向统计</span>
+          {% endfor %}
+        </div>
+        <div class="text-muted small">{{ summary_text }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    {% for item in recommendations %}
+    <div class="col-12">
+      <div class="glass-card p-4 h-100">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+          <div>
+            <h5 class="mb-1 fw-bold">{{ item.student.username }}</h5>
+            <div class="text-muted small">
+              推荐方向：{{ item.recommended_category }}
+              · 总提交 {{ item.total_submissions }}
+              · 待攻克 {{ item.needs_work_count }}
+              · 通过率 {{ item.accept_rate }}%
+            </div>
+          </div>
+
+          <div class="text-end">
+            <span class="badge rounded-pill px-3 py-2 {{ item.focus_badge_class }}">
+              {{ item.focus_level }}
+            </span>
+            <div class="text-muted small mt-2">关注分：{{ item.score }}</div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-lg-4">
+            <div class="border rounded-4 p-3 h-100 bg-white bg-opacity-50">
+              <div class="fw-semibold mb-2">诊断结论</div>
+              <p class="text-muted mb-3">{{ item.diagnosis }}</p>
+
+              <div class="fw-semibold mb-2">教学建议</div>
+              <p class="text-muted mb-3">{{ item.teacher_advice }}</p>
+
+              <div class="fw-semibold mb-2">建议优先练习</div>
+              <ul class="list-unstyled mb-0">
+                {% for problem in item.recommended_problems %}
+                  <li class="mb-2 d-flex align-items-center gap-2">
+                    <span class="badge rounded-pill text-dark" style="background: rgba(59, 130, 246, 0.14);">
+                      {{ problem.note }}
+                    </span>
+                    <span>{{ problem.title }}</span>
+                  </li>
+                {% empty %}
+                  <li class="text-muted">暂无可推荐题目</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+
+          <div class="col-lg-8">
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>分类</th>
+                    <th>尝试</th>
+                    <th>通过</th>
+                    <th>待攻克</th>
+                    <th>错误</th>
+                    <th>关注分</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for stat in item.category_stats %}
+                  <tr {% if stat.category == item.recommended_category %}class="table-primary-subtle"{% endif %}>
+                    <td class="fw-semibold">
+                      {{ stat.category }}
+                      {% if stat.category == item.recommended_category %}
+                        <span class="soft-chip ms-2">当前推荐方向</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ stat.attempts }}</td>
+                    <td>{{ stat.passed }}</td>
+                    <td>
+                      <span class="badge rounded-pill text-dark" style="background: rgba(245, 158, 11, 0.18);">
+                        {{ stat.needs_work }}
+                      </span>
+                    </td>
+                    <td>{{ stat.wrong_count }}</td>
+                    <td class="fw-semibold">{{ stat.focus_score }}</td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="6" class="text-center text-muted py-4">暂无推荐明细</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="d-flex justify-content-end mt-3">
+              <a href="{% url 'teacher:student_detail' item.student.id %}" class="btn btn-outline-primary btn-sm">
+                查看学生画像
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="glass-card p-4">
+        <div class="fw-semibold mb-2">暂无推荐数据</div>
+        <div class="text-muted">
+          请先确认学生账号、题目分类、提交记录以及题目状态数据是否已建立关联。只要有学生提交记录，本页就可以生成基础规则推荐。
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

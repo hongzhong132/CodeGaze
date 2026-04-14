@@ -1,0 +1,760 @@
+{% extends 'student_base.html' %}
+
+{% block title %}{{ zone.name }} - CodeGaze{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-page {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0.3rem 0 2rem;
+    }
+
+    .detail-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.85rem;
+    }
+
+    .breadcrumb-lite {
+        display: flex;
+        align-items: center;
+        gap: 0.42rem;
+        flex-wrap: wrap;
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .breadcrumb-lite a {
+        color: #0891b2;
+        text-decoration: none;
+        font-weight: 800;
+    }
+
+    .detail-hero {
+        padding: 1.4rem 1.45rem 1.2rem;
+        border-radius: 26px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(240,249,252,0.9));
+        border: 1px solid rgba(148,163,184,0.14);
+        box-shadow: 0 16px 32px rgba(15,23,42,0.06);
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .detail-hero::before {
+        content: "";
+        position: absolute;
+        right: -80px;
+        top: -70px;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: rgba(14,165,233,0.08);
+        filter: blur(70px);
+        pointer-events: none;
+    }
+
+    .zone-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.46rem;
+        padding: 0.44rem 0.8rem;
+        border-radius: 999px;
+        background: rgba(14,165,233,0.10);
+        color: #0284c7;
+        font-size: 0.84rem;
+        font-weight: 800;
+        margin-bottom: 0.8rem;
+    }
+
+    .detail-title-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .detail-title-row h1 {
+        margin: 0 0 0.3rem;
+        color: #0f172a;
+        font-size: 1.95rem;
+        line-height: 1.18;
+        font-weight: 900;
+    }
+
+    .detail-subtitle {
+        color: #64748b;
+        line-height: 1.7;
+        font-size: 0.94rem;
+    }
+
+    .detail-count {
+        text-align: right;
+        min-width: 120px;
+    }
+
+    .detail-count .num {
+        color: #0f172a;
+        font-size: 1.75rem;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .detail-count .text {
+        margin-top: 0.18rem;
+        color: #64748b;
+        font-size: 0.82rem;
+    }
+
+    .detail-desc {
+        margin: 0.85rem 0 0;
+        max-width: 980px;
+        color: #475569;
+        font-size: 0.95rem;
+        line-height: 1.78;
+    }
+
+    .detail-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.7rem;
+        margin-top: 0.95rem;
+    }
+
+    .detail-stat {
+        padding: 0.86rem 0.92rem;
+        border-radius: 18px;
+        background: rgba(255,255,255,0.84);
+        border: 1px solid rgba(148,163,184,0.12);
+    }
+
+    .detail-stat .k {
+        color: #64748b;
+        font-size: 0.8rem;
+        margin-bottom: 0.18rem;
+    }
+
+    .detail-stat .v {
+        color: #0f172a;
+        font-size: 1rem;
+        font-weight: 900;
+    }
+
+    .zone-tabs {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 0.7rem;
+        margin-bottom: 1rem;
+    }
+
+    .zone-tab {
+        padding: 0.85rem 0.9rem;
+        border-radius: 18px;
+        background: rgba(255,255,255,0.9);
+        border: 1px solid rgba(148,163,184,0.14);
+        text-decoration: none;
+        color: #0f172a;
+        box-shadow: 0 10px 18px rgba(15,23,42,0.04);
+        transition: all 0.2s ease;
+    }
+
+    .zone-tab:hover {
+        transform: translateY(-1px);
+        color: #0891b2;
+    }
+
+    .zone-tab.active {
+        background: linear-gradient(90deg, rgba(14,165,233,0.12), rgba(37,99,235,0.08));
+        border-color: rgba(14,165,233,0.18);
+    }
+
+    .zone-tab .name {
+        display: block;
+        font-weight: 900;
+        margin-bottom: 0.18rem;
+        line-height: 1.35;
+    }
+
+    .zone-tab .count {
+        color: #64748b;
+        font-size: 0.82rem;
+    }
+
+    .panel-card {
+        padding: 1rem;
+        border-radius: 24px;
+        background: rgba(255,255,255,0.94);
+        border: 1px solid rgba(148,163,184,0.14);
+        box-shadow: 0 14px 28px rgba(15,23,42,0.06);
+        margin-bottom: 1rem;
+    }
+
+    .panel-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.8rem;
+        align-items: flex-start;
+        margin-bottom: 0.9rem;
+        flex-wrap: wrap;
+    }
+
+    .panel-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 1.08rem;
+        font-weight: 900;
+    }
+
+    .panel-desc {
+        margin: 0.18rem 0 0;
+        color: #64748b;
+        font-size: 0.88rem;
+        line-height: 1.7;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    .field label {
+        display: block;
+        font-size: 0.8rem;
+        color: #64748b;
+        font-weight: 700;
+        margin-bottom: 0.32rem;
+    }
+
+    .field input,
+    .field select {
+        width: 100%;
+        border: 1px solid rgba(148,163,184,0.18);
+        background: rgba(255,255,255,0.95);
+        border-radius: 14px;
+        padding: 0.72rem 0.84rem;
+        font-size: 0.92rem;
+        outline: none;
+        transition: all 0.2s ease;
+    }
+
+    .field input:focus,
+    .field select:focus {
+        border-color: rgba(14,165,233,0.42);
+        box-shadow: 0 0 0 4px rgba(14,165,233,0.08);
+    }
+
+    .advanced-filters {
+        margin-top: 0.85rem;
+        border-radius: 18px;
+        background: rgba(248,251,253,0.94);
+        border: 1px solid rgba(148,163,184,0.12);
+        padding: 0.8rem;
+    }
+
+    .advanced-filters summary {
+        cursor: pointer;
+        color: #0f172a;
+        font-weight: 800;
+        list-style: none;
+    }
+
+    .advanced-filters summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .advanced-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+    }
+
+    .filter-actions,
+    .active-filters,
+    .meta-row,
+    .tag-row,
+    .lang-row,
+    .card-actions,
+    .mode-inline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+    }
+
+    .filter-actions {
+        margin-top: 0.9rem;
+        align-items: center;
+    }
+
+    .active-filters {
+        margin-top: 0.8rem;
+    }
+
+    .filter-chip,
+    .pill,
+    .tag-chip,
+    .lang-chip,
+    .mode-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.28rem;
+        padding: 0.36rem 0.66rem;
+        border-radius: 999px;
+        font-size: 0.79rem;
+        font-weight: 800;
+    }
+
+    .filter-chip { background: rgba(14,165,233,0.09); color: #0369a1; }
+    .pill.diff-easy { background: rgba(34,197,94,0.12); color: #15803d; }
+    .pill.diff-medium { background: rgba(245,158,11,0.14); color: #b45309; }
+    .pill.diff-hard { background: rgba(239,68,68,0.14); color: #b91c1c; }
+    .pill.progress-undone { background: rgba(148,163,184,0.14); color: #475569; }
+    .pill.progress-attempted, .pill.progress-retrying { background: rgba(245,158,11,0.14); color: #b45309; }
+    .pill.progress-passed { background: rgba(34,197,94,0.12); color: #15803d; }
+    .pill.favorite { background: rgba(244,63,94,0.12); color: #e11d48; }
+    .pill.stage { background: rgba(59,130,246,0.10); color: #1d4ed8; }
+    .pill.type { background: rgba(139,92,246,0.12); color: #7c3aed; }
+    .tag-chip { background: #f2f6fa; color: #475569; border: 1px solid rgba(148,163,184,0.12); }
+    .tag-chip.accent { background: rgba(14,165,233,0.08); color: #0369a1; border-color: transparent; }
+    .lang-chip { background: #f3f6f8; color: #334155; border: 1px solid rgba(148,163,184,0.12); }
+    .mode-chip { background: rgba(15,23,42,0.05); color: #334155; }
+
+    .list-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.8rem;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        margin-bottom: 0.9rem;
+    }
+
+    .list-head h2 {
+        margin: 0 0 0.16rem;
+        color: #0f172a;
+        font-size: 1.18rem;
+        font-weight: 900;
+    }
+
+    .list-head p {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.88rem;
+    }
+
+    .problem-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+    }
+
+    .problem-card {
+        padding: 1rem;
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.97), rgba(248,251,253,0.94));
+        border: 1px solid rgba(148,163,184,0.14);
+        box-shadow: 0 10px 18px rgba(15,23,42,0.04);
+    }
+
+    .problem-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.8rem;
+        align-items: flex-start;
+        margin-bottom: 0.72rem;
+        flex-wrap: wrap;
+    }
+
+    .problem-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        color: #0f172a;
+        font-size: 1.12rem;
+        line-height: 1.35;
+        font-weight: 900;
+    }
+
+    .problem-title:hover {
+        color: #0891b2;
+    }
+
+    .problem-desc {
+        margin: 0;
+        color: #475569;
+        line-height: 1.78;
+        font-size: 0.93rem;
+    }
+
+    .problem-body {
+        display: grid;
+        gap: 0.72rem;
+    }
+
+    .problem-footer {
+        margin-top: 0.85rem;
+        padding-top: 0.85rem;
+        border-top: 1px solid rgba(148,163,184,0.12);
+        display: flex;
+        justify-content: space-between;
+        gap: 0.8rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .mode-inline {
+        align-items: center;
+    }
+
+    .mode-inline form {
+        margin: 0;
+    }
+
+    .mode-btn {
+        border: 1px solid rgba(148,163,184,0.16);
+        background: rgba(255,255,255,0.96);
+        color: #475569;
+        border-radius: 999px;
+        padding: 0.44rem 0.76rem;
+        font-size: 0.8rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .mode-btn.active {
+        color: #fff;
+        border-color: transparent;
+        background: linear-gradient(90deg, #0891b2, #2563eb);
+        box-shadow: 0 8px 14px rgba(37,99,235,0.12);
+    }
+
+    .mode-note {
+        color: #64748b;
+        font-size: 0.82rem;
+    }
+
+    .empty-box {
+        text-align: center;
+        padding: 2rem 1rem;
+        border-radius: 20px;
+        background: rgba(248,251,253,0.92);
+        border: 1px dashed rgba(148,163,184,0.26);
+        color: #64748b;
+    }
+
+    @media (max-width: 1180px) {
+        .detail-stats,
+        .zone-tabs,
+        .filter-grid,
+        .advanced-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .detail-hero {
+            padding: 1.2rem 1rem;
+            border-radius: 22px;
+        }
+
+        .detail-title-row h1 {
+            font-size: 1.7rem;
+        }
+
+        .detail-stats,
+        .zone-tabs,
+        .filter-grid,
+        .advanced-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-count,
+        .problem-top,
+        .problem-footer,
+        .detail-topbar {
+            text-align: left;
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+    <div class="detail-topbar">
+        <div class="breadcrumb-lite">
+            <a href="{% url 'programming:problem_zones' %}">题库分区</a>
+            <i class="bi bi-chevron-right"></i>
+            <span>{{ zone.name }}</span>
+        </div>
+
+        <a href="{% url 'programming:problem_list' %}" class="secondary-btn">
+            <i class="bi bi-list-task"></i>
+            <span>查看全部题目</span>
+        </a>
+    </div>
+
+    <section class="detail-hero">
+        <div class="zone-badge">
+            <i class="bi {{ zone.icon }}"></i>
+            <span>{{ zone.name }}</span>
+        </div>
+
+        <div class="detail-title-row">
+            <div>
+                <h1>{{ zone.name }}</h1>
+                <div class="detail-subtitle">{{ zone_summary.subtitle }}</div>
+            </div>
+            <div class="detail-count">
+                <div class="num">{{ zone_summary.problem_count }}</div>
+                <div class="text">道题目</div>
+            </div>
+        </div>
+
+        <p class="detail-desc">{{ zone.description }}</p>
+
+        <div class="detail-stats">
+            <div class="detail-stat">
+                <div class="k">难度分布</div>
+                <div class="v">简 {{ zone_summary.easy_count }} / 中 {{ zone_summary.medium_count }} / 难 {{ zone_summary.hard_count }}</div>
+            </div>
+            <div class="detail-stat">
+                <div class="k">已做题数</div>
+                <div class="v">{{ zone_summary.attempted_count }}</div>
+            </div>
+            <div class="detail-stat">
+                <div class="k">已通过题数</div>
+                <div class="v">{{ zone_summary.passed_count }}</div>
+            </div>
+            <div class="detail-stat">
+                <div class="k">当前待攻克</div>
+                <div class="v">{{ zone_summary.retrying_count }}</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="zone-tabs">
+        {% for item in side_zone_cards %}
+            <a href="{% url 'programming:problem_zone_detail' item.slug %}" class="zone-tab {% if item.is_active %}active{% endif %}">
+                <span class="name">{{ item.name }}</span>
+                <span class="count">{{ item.count }} 题</span>
+            </a>
+        {% endfor %}
+    </section>
+
+    <section class="panel-card">
+        <div class="panel-head">
+            <div>
+                <h2 class="panel-title">专区内轻量筛选</h2>
+                <p class="panel-desc">默认只保留搜索、难度和状态，把不常用的筛选收进高级筛选。</p>
+            </div>
+        </div>
+
+        <form method="get">
+            <div class="filter-grid">
+                <div class="field">
+                    <label>搜索题目</label>
+                    <input type="text" name="q" value="{{ q }}" placeholder="输入题目名、标签、关键字">
+                </div>
+
+                <div class="field">
+                    <label>难度</label>
+                    <select name="difficulty">
+                        <option value="">全部</option>
+                        {% for item in difficulty_options %}
+                            <option value="{{ item.value }}" {% if selected_difficulty == item.value %}selected{% endif %}>{{ item.label }}（{{ item.count }}）</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>我的状态</label>
+                    <select name="progress">
+                        <option value="">全部</option>
+                        <option value="undone" {% if selected_progress == 'undone' %}selected{% endif %}>未开始</option>
+                        <option value="passed" {% if selected_progress == 'passed' %}selected{% endif %}>已通过</option>
+                        <option value="retrying" {% if selected_progress == 'retrying' %}selected{% endif %}>待攻克</option>
+                        <option value="favorite" {% if selected_progress == 'favorite' %}selected{% endif %}>只看收藏</option>
+                    </select>
+                </div>
+            </div>
+
+            <details class="advanced-filters" {% if selected_stage or selected_tag or selected_language %}open{% endif %}>
+                <summary>展开高级筛选</summary>
+                <div class="advanced-grid">
+                    <div class="field">
+                        <label>阶段</label>
+                        <select name="stage">
+                            <option value="">全部</option>
+                            {% for item in stage_options %}
+                                <option value="{{ item.value }}" {% if selected_stage == item.value %}selected{% endif %}>{{ item.label }}（{{ item.count }}）</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>标签</label>
+                        <select name="tag">
+                            <option value="">全部</option>
+                            {% for item in tag_options %}
+                                <option value="{{ item.value }}" {% if selected_tag == item.value %}selected{% endif %}>{{ item.label }}（{{ item.count }}）</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>语言</label>
+                        <select name="language">
+                            <option value="">全部</option>
+                            {% for item in language_options %}
+                                <option value="{{ item.value }}" {% if selected_language == item.value %}selected{% endif %}>{{ item.label }}（{{ item.count }}）</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </details>
+
+            <div class="filter-actions">
+                <button type="submit" class="primary-btn">
+                    <i class="bi bi-funnel-fill"></i>
+                    <span>应用筛选</span>
+                </button>
+                <a href="{{ clear_filters_url }}" class="secondary-btn">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    <span>清空筛选</span>
+                </a>
+                {% if only_favorite %}
+                    <a href="{{ favorite_off_url }}" class="ghost-btn">
+                        <i class="bi bi-heartbreak"></i>
+                        <span>取消只看收藏</span>
+                    </a>
+                {% else %}
+                    <a href="{{ favorite_on_url }}" class="ghost-btn">
+                        <i class="bi bi-heart-fill"></i>
+                        <span>只看收藏</span>
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+
+        {% if has_active_filters %}
+            <div class="active-filters">
+                {% for item in current_filters %}
+                    <span class="filter-chip">{{ item.key }}：{{ item.value }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="panel-card">
+        <div class="list-head">
+            <div>
+                <h2>{{ zone.name }}题目列表</h2>
+                <p>当前共展示 {{ problems|length }} 道题。列表只保留核心信息，模式切换改成卡片底部的轻量按钮。</p>
+            </div>
+        </div>
+
+        {% if problems %}
+            <div class="problem-list">
+                {% for problem in problems %}
+                    <article class="problem-card">
+                        <div class="problem-top">
+                            <a href="{% url 'programming:problem_detail' problem.id %}" class="problem-title">
+                                <i class="bi bi-journal-code"></i>
+                                <span>{{ problem.title }}</span>
+                            </a>
+
+                            <div class="meta-row">
+                                {% if problem.difficulty_label == '简单' or problem.difficulty_label == 'easy' or problem.difficulty_label == 'Easy' %}
+                                    <span class="pill diff-easy">{{ problem.difficulty_label }}</span>
+                                {% elif problem.difficulty_label == '中等' or problem.difficulty_label == 'medium' or problem.difficulty_label == 'Medium' %}
+                                    <span class="pill diff-medium">{{ problem.difficulty_label }}</span>
+                                {% elif problem.difficulty_label == '困难' or problem.difficulty_label == 'hard' or problem.difficulty_label == 'Hard' %}
+                                    <span class="pill diff-hard">{{ problem.difficulty_label }}</span>
+                                {% else %}
+                                    <span class="pill diff-medium">{{ problem.difficulty_label }}</span>
+                                {% endif %}
+
+                                <span class="pill stage">{{ problem.stage_label }}</span>
+                                <span class="pill type">{{ problem.question_type_label }}</span>
+
+                                {% if problem.user_progress_class == 'passed' %}
+                                    <span class="pill progress-passed">{{ problem.user_progress_label }}</span>
+                                {% elif problem.user_progress_class == 'retrying' %}
+                                    <span class="pill progress-retrying">{{ problem.user_progress_label }}</span>
+                                {% elif problem.user_progress_class == 'attempted' %}
+                                    <span class="pill progress-attempted">{{ problem.user_progress_label }}</span>
+                                {% else %}
+                                    <span class="pill progress-undone">{{ problem.user_progress_label }}</span>
+                                {% endif %}
+
+                                {% if problem.is_favorited %}
+                                    <span class="pill favorite"><i class="bi bi-heart-fill"></i> 已收藏</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="problem-body">
+                            <p class="problem-desc">{{ problem.description|truncatechars:150 }}</p>
+
+                            <div class="tag-row">
+                                {% for item in problem.knowledge_point_list|slice:":2" %}
+                                    <span class="tag-chip accent">{{ item }}</span>
+                                {% endfor %}
+                                {% for item in problem.tag_list|slice:":2" %}
+                                    <span class="tag-chip">{{ item }}</span>
+                                {% endfor %}
+                                <span class="tag-chip">分类：{{ problem.category_label }}</span>
+                            </div>
+
+                            <div class="lang-row">
+                                {% for lang in problem.language_list %}
+                                    <span class="lang-chip">{{ lang|upper }}</span>
+                                {% empty %}
+                                    <span class="lang-chip">PYTHON</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="problem-footer">
+                            <div>
+                                <div class="mode-note">当前模式：{{ problem.current_mode_label }}</div>
+                                <div class="mode-inline" style="margin-top: .45rem;">
+                                    <form method="post" action="{{ problem.select_mode_url }}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="mode" value="practice">
+                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                        <button type="submit" class="mode-btn {% if problem.current_mode == 'practice' %}active{% endif %}">练习模式</button>
+                                    </form>
+                                    <form method="post" action="{{ problem.select_mode_url }}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="mode" value="exam">
+                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                        <button type="submit" class="mode-btn {% if problem.current_mode == 'exam' %}active{% endif %}">考试模式</button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="card-actions">
+                                <a href="{% url 'programming:problem_detail' problem.id %}" class="primary-btn">
+                                    <span>进入题目</span>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-box">当前筛选条件下没有匹配题目，换一个条件试试。</div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

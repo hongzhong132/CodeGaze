@@ -1,0 +1,38 @@
+{% extends 'base_common.html' %}
+
+{% block title %}CodeGaze - 后台管理{% endblock %}
+{% block sidebar_tagline %}AI 智眸编程互助平台 · 后台管理端{% endblock %}
+{% block sidebar_hint %}当前为自定义业务后台，聚焦数据维护、题库运营与系统管理{% endblock %}
+{% block footer_subtitle %}Powered by Django & AI · 面向题库维护、用户管理与提交监管{% endblock %}
+
+{% block sidebar_nav %}
+    <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' and request.resolver_match.namespace == 'management' %}active{% endif %}" href="{% url 'management:dashboard' %}">
+        <i class="bi bi-grid-1x2"></i>
+        <span>后台首页</span>
+    </a>
+
+    <a class="nav-link {% if request.resolver_match.url_name in 'problem_list problem_create problem_edit problem_delete' and request.resolver_match.namespace == 'management' %}active{% endif %}" href="{% url 'management:problem_list' %}">
+        <i class="bi bi-journal-code"></i>
+        <span>题库管理</span>
+    </a>
+
+    <a class="nav-link {% if request.resolver_match.url_name == 'user_list' and request.resolver_match.namespace == 'management' %}active{% endif %}" href="{% url 'management:user_list' %}">
+        <i class="bi bi-people"></i>
+        <span>用户管理</span>
+    </a>
+
+    <a class="nav-link {% if request.resolver_match.url_name == 'submission_list' and request.resolver_match.namespace == 'management' %}active{% endif %}" href="{% url 'management:submission_list' %}">
+        <i class="bi bi-clock-history"></i>
+        <span>提交记录</span>
+    </a>
+
+    <a class="nav-link" href="{% url 'teacher:dashboard' %}">
+        <i class="bi bi-bar-chart-line"></i>
+        <span>返回教师端</span>
+    </a>
+
+    <a class="nav-link" href="/admin/" target="_blank">
+        <i class="bi bi-shield-lock"></i>
+        <span>原生 Admin</span>
+    </a>
+{% endblock %}

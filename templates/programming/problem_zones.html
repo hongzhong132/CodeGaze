@@ -1,0 +1,596 @@
+{% extends 'student_base.html' %}
+
+{% block title %}题库分区 - CodeGaze{% endblock %}
+
+{% block extra_css %}
+<style>
+    .zone-page {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0.35rem 0 2rem;
+    }
+
+    .zone-hero {
+        padding: 1.6rem 1.6rem 1.35rem;
+        border-radius: 28px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(240,249,252,0.9));
+        border: 1px solid rgba(148,163,184,0.14);
+        box-shadow: 0 16px 32px rgba(15,23,42,0.06);
+        margin-bottom: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .zone-hero::before {
+        content: "";
+        position: absolute;
+        right: -90px;
+        top: -70px;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: rgba(37, 99, 235, 0.08);
+        filter: blur(70px);
+        pointer-events: none;
+    }
+
+    .zone-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.45rem 0.82rem;
+        border-radius: 999px;
+        background: rgba(14, 165, 233, 0.1);
+        color: #0284c7;
+        font-size: 0.86rem;
+        font-weight: 800;
+        margin-bottom: 0.85rem;
+    }
+
+    .zone-hero h1 {
+        margin: 0 0 0.65rem;
+        font-size: 2rem;
+        line-height: 1.18;
+        color: #0f172a;
+        font-weight: 900;
+        max-width: 880px;
+    }
+
+    .zone-hero p {
+        margin: 0;
+        max-width: 900px;
+        color: #475569;
+        line-height: 1.8;
+        font-size: 0.96rem;
+    }
+
+    .hero-row {
+        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+    }
+
+    .hero-actions,
+    .hero-stats,
+    .strip-actions,
+    .zone-labels,
+    .mini-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.7rem;
+    }
+
+    .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    .hero-stat {
+        padding: 0.92rem 0.95rem;
+        border-radius: 18px;
+        background: rgba(255,255,255,0.84);
+        border: 1px solid rgba(148,163,184,0.12);
+    }
+
+    .hero-stat .label {
+        font-size: 0.82rem;
+        color: #64748b;
+        margin-bottom: 0.22rem;
+    }
+
+    .hero-stat .value {
+        font-size: 1.45rem;
+        color: #0f172a;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .summary-strip {
+        display: grid;
+        grid-template-columns: 1.2fr 0.95fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .strip-card,
+    .zone-card {
+        background: rgba(255,255,255,0.95);
+        border: 1px solid rgba(148,163,184,0.14);
+        border-radius: 24px;
+        box-shadow: 0 14px 28px rgba(15,23,42,0.06);
+        padding: 1.05rem;
+    }
+
+    .strip-card.soft {
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.07), rgba(255,255,255,0.97));
+    }
+
+    .strip-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.9rem;
+        align-items: flex-start;
+        margin-bottom: 0.8rem;
+    }
+
+    .strip-title {
+        display: flex;
+        gap: 0.7rem;
+        align-items: flex-start;
+    }
+
+    .strip-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 15px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(14,165,233,0.1);
+        color: #0284c7;
+        font-size: 1.08rem;
+        flex-shrink: 0;
+    }
+
+    .strip-title h2 {
+        margin: 0 0 0.22rem;
+        font-size: 1.12rem;
+        color: #0f172a;
+        font-weight: 900;
+    }
+
+    .strip-title p {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.88rem;
+        line-height: 1.7;
+    }
+
+    .mini-list,
+    .focus-list,
+    .zone-grid {
+        display: grid;
+        gap: 0.8rem;
+    }
+
+    .mini-list,
+    .focus-list {
+        grid-template-columns: 1fr;
+    }
+
+    .mini-item,
+    .focus-item {
+        border-radius: 18px;
+        border: 1px solid rgba(148,163,184,0.12);
+        background: rgba(255,255,255,0.84);
+        padding: 0.9rem 0.95rem;
+    }
+
+    .mini-item h3,
+    .focus-item h3 {
+        margin: 0 0 0.2rem;
+        color: #0f172a;
+        font-size: 0.98rem;
+        font-weight: 900;
+    }
+
+    .mini-meta,
+    .focus-item p {
+        color: #64748b;
+        font-size: 0.85rem;
+        line-height: 1.7;
+        margin: 0;
+    }
+
+    .focus-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.7rem;
+        align-items: center;
+        margin-bottom: 0.3rem;
+    }
+
+    .status-pill,
+    .zone-label {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.32rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.76rem;
+        font-weight: 800;
+    }
+
+    .status-pill { background: rgba(34, 197, 94, 0.1); color: #15803d; }
+    .zone-label { background: rgba(14,165,233,0.08); color: #0369a1; }
+
+    .zone-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .zone-card {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        padding-top: 1.15rem;
+    }
+
+    .zone-card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 4px;
+    }
+
+    .zone-card.starter::before { background: linear-gradient(90deg, #22c55e, #86efac); }
+    .zone-card.array-string::before { background: linear-gradient(90deg, #06b6d4, #67e8f9); }
+    .zone-card.data-structure::before { background: linear-gradient(90deg, #8b5cf6, #c4b5fd); }
+    .zone-card.search-strategy::before { background: linear-gradient(90deg, #f59e0b, #fcd34d); }
+    .zone-card.advanced::before { background: linear-gradient(90deg, #ef4444, #fda4af); }
+
+    .zone-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.9rem;
+        align-items: flex-start;
+    }
+
+    .zone-title-row {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .zone-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.24rem;
+        background: #f5f9fc;
+        border: 1px solid rgba(148,163,184,0.12);
+        flex-shrink: 0;
+    }
+
+    .zone-card.starter .zone-icon { background: rgba(34,197,94,0.10); color: #15803d; }
+    .zone-card.array-string .zone-icon { background: rgba(6,182,212,0.10); color: #0e7490; }
+    .zone-card.data-structure .zone-icon { background: rgba(139,92,246,0.10); color: #7c3aed; }
+    .zone-card.search-strategy .zone-icon { background: rgba(245,158,11,0.12); color: #b45309; }
+    .zone-card.advanced .zone-icon { background: rgba(239,68,68,0.10); color: #b91c1c; }
+
+    .zone-title h3 {
+        margin: 0 0 0.2rem;
+        color: #0f172a;
+        font-size: 1.2rem;
+        font-weight: 900;
+    }
+
+    .zone-title p {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.9rem;
+        line-height: 1.65;
+    }
+
+    .zone-count {
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    .zone-count .num {
+        color: #0f172a;
+        font-size: 1.7rem;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .zone-count .text {
+        margin-top: 0.2rem;
+        color: #64748b;
+        font-size: 0.82rem;
+    }
+
+    .zone-desc {
+        margin: 0;
+        color: #475569;
+        font-size: 0.94rem;
+        line-height: 1.75;
+    }
+
+    .zone-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.65rem;
+    }
+
+    .zone-metric {
+        border-radius: 16px;
+        background: rgba(245,249,252,0.9);
+        border: 1px solid rgba(148,163,184,0.12);
+        padding: 0.76rem 0.8rem;
+    }
+
+    .zone-metric .k {
+        color: #64748b;
+        font-size: 0.79rem;
+        margin-bottom: 0.18rem;
+    }
+
+    .zone-metric .v {
+        color: #0f172a;
+        font-size: 0.96rem;
+        font-weight: 900;
+    }
+
+    .zone-preview {
+        margin: 0;
+        padding-left: 1rem;
+        color: #475569;
+        line-height: 1.65;
+        font-size: 0.9rem;
+    }
+
+    .zone-footer {
+        margin-top: auto;
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .zone-hint {
+        color: #64748b;
+        font-size: 0.86rem;
+    }
+
+    .empty-state {
+        border-radius: 18px;
+        padding: 1rem;
+        background: rgba(245, 249, 252, 0.92);
+        border: 1px dashed rgba(148, 163, 184, 0.3);
+        color: #64748b;
+        line-height: 1.8;
+    }
+
+    @media (max-width: 1180px) {
+        .hero-stats,
+        .summary-strip,
+        .zone-grid,
+        .zone-metrics {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .zone-hero {
+            padding: 1.25rem 1rem;
+            border-radius: 22px;
+        }
+
+        .zone-hero h1 {
+            font-size: 1.7rem;
+        }
+
+        .strip-head,
+        .zone-head,
+        .zone-footer,
+        .focus-top {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .zone-count {
+            text-align: left;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="zone-page">
+    <section class="zone-hero">
+        <div class="zone-eyebrow">
+            <i class="bi bi-grid-1x2-fill"></i>
+            <span>题库分区学习入口</span>
+        </div>
+
+        <h1>先选方向，再进题目，学习入口更清楚</h1>
+        <p>
+            这一页保留 5 个分区作为主入口，不再把过多推荐信息堆到首屏。你可以先按方向进入专区，再结合推荐页补充“今天先做什么”。
+        </p>
+
+        <div class="hero-row">
+            <div class="hero-actions">
+                <a href="{% url 'programming:problem_list' %}" class="primary-btn">
+                    <i class="bi bi-list-task"></i>
+                    <span>查看全部题目</span>
+                </a>
+                <a href="{% url 'programming:recommendation_home' %}" class="secondary-btn">
+                    <i class="bi bi-stars"></i>
+                    <span>查看学习推荐</span>
+                </a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="label">总题目数</div>
+                    <div class="value">{{ total_problem_count }}</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="label">分区数量</div>
+                    <div class="value">{{ total_zone_count }}</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="label">已尝试题数</div>
+                    <div class="value">{{ total_attempted }}</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="label">已通过题数</div>
+                    <div class="value">{{ total_passed }}</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="summary-strip">
+        <article class="strip-card soft">
+            <div class="strip-head">
+                <div class="strip-title">
+                    <div class="strip-icon"><i class="bi bi-stars"></i></div>
+                    <div>
+                        <h2>今日训练摘要</h2>
+                        <p>首页只保留轻量推荐，把“推荐页”作为深入入口。</p>
+                    </div>
+                </div>
+                <a href="{% url 'programming:recommendation_home' %}" class="secondary-btn">
+                    <span>进入推荐页</span>
+                </a>
+            </div>
+
+            <div class="zone-labels" style="margin-bottom: .75rem;">
+                <span class="zone-label">已做 {{ recommend_summary.attempted_count }} 题</span>
+                <span class="zone-label">已通过 {{ recommend_summary.passed_count }} 题</span>
+                <span class="zone-label">待攻克 {{ recommend_summary.needs_work_count }} 题</span>
+            </div>
+
+            {% if today_recommendations %}
+                <div class="mini-list">
+                    {% for item in today_recommendations|slice:":2" %}
+                        <div class="mini-item">
+                            <h3>{{ item.title }}</h3>
+                            <p class="mini-meta">{{ item.zone_name }} · {{ item.difficulty }} · {{ item.estimated_minutes }} 分钟 · {{ item.reason }}</p>
+                            <div class="mini-actions">
+                                <a href="{{ item.detail_url }}" class="secondary-btn"><span>去做题</span></a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">先从任意分区做几题，系统就会逐渐给出更准确的推荐。</div>
+            {% endif %}
+        </article>
+
+        <article class="strip-card">
+            <div class="strip-head">
+                <div class="strip-title">
+                    <div class="strip-icon"><i class="bi bi-bullseye"></i></div>
+                    <div>
+                        <h2>当前应关注的方向</h2>
+                        <p>把补强建议压缩成轻量列表，避免首屏再堆大卡片。</p>
+                    </div>
+                </div>
+            </div>
+
+            {% if focus_zones %}
+                <div class="focus-list">
+                    {% for zone in focus_zones|slice:":2" %}
+                        <a href="{{ zone.zone_url }}" class="focus-item">
+                            <div class="focus-top">
+                                <h3>{{ zone.name }}</h3>
+                                <span class="status-pill">{{ zone.action_label }}</span>
+                            </div>
+                            <p>{{ zone.reason }}</p>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">当前还没有足够的数据识别重点分区，先从任一分区开始练习即可。</div>
+            {% endif %}
+        </article>
+    </section>
+
+    <section class="zone-grid">
+        {% for zone in zone_cards %}
+            <article class="zone-card {{ zone.accent }}">
+                <div class="zone-head">
+                    <div class="zone-title-row">
+                        <div class="zone-icon">
+                            <i class="bi {{ zone.icon }}"></i>
+                        </div>
+                        <div class="zone-title">
+                            <h3>{{ zone.name }}</h3>
+                            <p>{{ zone.subtitle }}</p>
+                        </div>
+                    </div>
+
+                    <div class="zone-count">
+                        <div class="num">{{ zone.problem_count }}</div>
+                        <div class="text">道题目</div>
+                    </div>
+                </div>
+
+                <p class="zone-desc">{{ zone.description }}</p>
+
+                <div class="zone-metrics">
+                    <div class="zone-metric">
+                        <div class="k">难度分布</div>
+                        <div class="v">简 {{ zone.easy_count }} / 中 {{ zone.medium_count }} / 难 {{ zone.hard_count }}</div>
+                    </div>
+                    <div class="zone-metric">
+                        <div class="k">我的进度</div>
+                        <div class="v">已做 {{ zone.attempted_count }} / 通过 {{ zone.passed_count }}</div>
+                    </div>
+                    <div class="zone-metric">
+                        <div class="k">当前待攻克</div>
+                        <div class="v">{{ zone.retrying_count }} 题</div>
+                    </div>
+                </div>
+
+                <div class="zone-labels">
+                    {% for label in zone.hot_labels|slice:":4" %}
+                        <span class="zone-label">{{ label }}</span>
+                    {% empty %}
+                        <span class="zone-label">待补充标签</span>
+                    {% endfor %}
+                </div>
+
+                <ul class="zone-preview">
+                    {% for title in zone.preview_titles|slice:":2" %}
+                        <li>{{ title }}</li>
+                    {% empty %}
+                        <li>当前分区暂时还没有题目</li>
+                    {% endfor %}
+                </ul>
+
+                <div class="zone-footer">
+                    <div class="zone-hint">进入专区后可再按难度、状态和关键词轻量筛选。</div>
+                    <a href="{% url 'programming:problem_zone_detail' zone.slug %}" class="primary-btn">
+                        <span>进入专区</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+        {% endfor %}
+    </section>
+</div>
+{% endblock %}

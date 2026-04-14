@@ -1,0 +1,744 @@
+{% extends 'teacher_base.html' %}
+{% block title %}题目分析 - CodeGaze{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+  <style>
+    .page-shell {
+      max-width: 1500px;
+      margin: 0 auto;
+    }
+
+    .chart-panel {
+      width: 100%;
+    }
+
+    .chart-panel--category {
+      height: 500px;
+    }
+
+    .chart-panel--graph {
+      height: 600px;
+    }
+
+    .section-note {
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .risk-item {
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    .risk-item:last-child {
+      border-bottom: none;
+    }
+
+    .risk-progress-wrap {
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(148, 163, 184, 0.16);
+    }
+
+    .risk-progress-inner {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(248, 113, 113, 0.85), rgba(245, 158, 11, 0.9));
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .analysis-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: #334155;
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.1);
+    }
+
+    .hidden-data-source {
+      display: none;
+    }
+
+    .compact-card {
+      height: auto;
+    }
+
+    .glass-card {
+      overflow: hidden;
+    }
+
+    .filter-card .form-control,
+    .filter-card .form-select,
+    .filter-card .btn {
+      min-height: 42px;
+    }
+
+    .summary-table-wrap {
+      max-height: 430px;
+      overflow-y: auto;
+      overflow-x: auto;
+      padding-right: 2px;
+    }
+
+    .risk-list-wrap {
+      max-height: 430px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 4px;
+    }
+
+    .detail-table-wrap {
+      max-height: 720px;
+      overflow-y: auto;
+      overflow-x: auto;
+      padding-right: 2px;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    @media (max-width: 1400px) {
+      .chart-panel--graph {
+        height: 540px;
+      }
+
+      .page-shell {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 1200px) {
+      .chart-panel--category {
+        height: 430px;
+      }
+
+      .chart-panel--graph {
+        height: 460px;
+      }
+
+      .summary-table-wrap,
+      .risk-list-wrap,
+      .detail-table-wrap {
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .chart-panel--category,
+      .chart-panel--graph {
+        height: 340px;
+      }
+    }
+  </style>
+
+  <div class="page-shell">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+      <div>
+        <h2 class="fw-bold mb-1">题目分析</h2>
+        <div class="text-muted">查看题目提交情况、高风险题目、分类分布与关系图谱</div>
+      </div>
+      <span class="soft-chip">
+        <i class="bi bi-bar-chart"></i>
+        当前共分析 {{ problem_count }} 道题
+      </span>
+    </div>
+
+    <div class="glass-card p-4 mb-4 filter-card">
+      <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label text-muted small mb-2">搜索题目</label>
+          <input
+            type="text"
+            name="keyword"
+            class="form-control"
+            placeholder="输入题目名称"
+            value="{{ current_filters.keyword }}"
+          >
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label text-muted small mb-2">分类筛选</label>
+          <select name="category" class="form-select">
+            <option value="">全部分类</option>
+            {% for item in category_choices %}
+              <option value="{{ item }}" {% if current_filters.category == item %}selected{% endif %}>
+                {{ item }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label text-muted small mb-2">难度筛选</label>
+          <select name="difficulty" class="form-select">
+            <option value="">全部难度</option>
+            {% for item in difficulty_choices %}
+              <option value="{{ item }}" {% if current_filters.difficulty == item %}selected{% endif %}>
+                {{ item }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label text-muted small mb-2">排序方式</label>
+          <select name="sort" class="form-select">
+            <option value="wrong_desc" {% if current_filters.sort == 'wrong_desc' %}selected{% endif %}>按错误次数</option>
+            <option value="submit_desc" {% if current_filters.sort == 'submit_desc' %}selected{% endif %}>按提交次数</option>
+            <option value="accept_asc" {% if current_filters.sort == 'accept_asc' %}selected{% endif %}>按通过率升序</option>
+            <option value="accept_desc" {% if current_filters.sort == 'accept_desc' %}selected{% endif %}>按通过率降序</option>
+            <option value="id_asc" {% if current_filters.sort == 'id_asc' %}selected{% endif %}>按题目 ID</option>
+          </select>
+        </div>
+
+        <div class="col-md-2 d-grid gap-2">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-search"></i>
+            筛选结果
+          </button>
+          <a href="{% url 'teacher:problem_analysis' %}" class="btn btn-outline-secondary">
+            重置
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-sm-6 col-xl-3">
+        <div class="glass-card p-4 h-100">
+          <div class="text-muted small mb-2">题目总数</div>
+          <h3 class="mb-1 fw-bold">{{ problem_count }}</h3>
+          <div class="text-muted small">当前筛选条件下的题目数量</div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="glass-card p-4 h-100">
+          <div class="text-muted small mb-2">活跃题目数</div>
+          <h3 class="mb-1 fw-bold">{{ active_problem_count }}</h3>
+          <div class="text-muted small">至少有一次学生提交的题目</div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="glass-card p-4 h-100">
+          <div class="text-muted small mb-2">平均通过率</div>
+          <h3 class="mb-1 fw-bold">{{ average_accept_rate }}%</h3>
+          <div class="text-muted small">基于活跃题目计算得到</div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="glass-card p-4 h-100">
+          <div class="text-muted small mb-2">高风险题目数</div>
+          <h3 class="mb-1 fw-bold">{{ high_risk_problem_count }}</h3>
+          <div class="text-muted small">错误高或通过率偏低，建议优先关注</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+        <div>
+          <h5 class="fw-bold mb-1">分析概览</h5>
+          <div class="section-note">从分类维度快速观察当前训练热点和主要风险来源</div>
+        </div>
+      </div>
+
+      <div class="chip-row mb-3">
+        {% for item in top_categories %}
+          <span class="analysis-chip">
+            <i class="bi bi-diagram-3"></i>
+            {{ item.category }} · {{ item.count }} 题
+          </span>
+        {% empty %}
+          <span class="text-muted small">暂无分类统计</span>
+        {% endfor %}
+      </div>
+
+      <div class="text-muted">{{ summary_text }}</div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-xxl-6">
+        <div class="glass-card p-4 h-100">
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <div>
+              <h5 class="fw-bold mb-1">分类风险分布图</h5>
+              <div class="section-note">按分类查看题目数量、提交活跃度和错误集中度</div>
+            </div>
+            <span class="soft-chip">
+              <i class="bi bi-pie-chart"></i>
+              分类画像
+            </span>
+          </div>
+
+          <div id="category-summary-chart" class="chart-panel chart-panel--category"></div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xxl-6">
+        <div class="glass-card p-4 h-100">
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <div>
+              <h5 class="fw-bold mb-1">题目关系图谱</h5>
+              <div class="section-note">从“分类—题目”关系观察高风险题与高热度题分布</div>
+            </div>
+            <span class="soft-chip">
+              <i class="bi bi-share"></i>
+              关系图
+            </span>
+          </div>
+
+          <div id="problem-graph-chart" class="chart-panel chart-panel--graph"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-xl-4">
+        <div class="glass-card p-4 compact-card h-100">
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <div>
+              <h5 class="fw-bold mb-1">分类汇总</h5>
+              <div class="section-note">按分类查看题目规模、活跃题量、总提交与总错误</div>
+            </div>
+            <span class="soft-chip">
+              <i class="bi bi-grid-1x2"></i>
+              汇总表
+            </span>
+          </div>
+
+          <div class="summary-table-wrap">
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>分类</th>
+                    <th>题目数</th>
+                    <th>活跃题数</th>
+                    <th>总提交</th>
+                    <th>总错误</th>
+                    <th>分类通过率</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in category_summary %}
+                  <tr>
+                    <td class="fw-semibold">{{ item.category }}</td>
+                    <td>{{ item.problem_count }}</td>
+                    <td>{{ item.active_problem_count }}</td>
+                    <td>{{ item.total_submissions }}</td>
+                    <td>{{ item.wrong_count }}</td>
+                    <td>{{ item.accept_rate }}%</td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="6" class="text-center text-muted py-4">暂无分类汇总数据</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-8">
+        <div class="glass-card p-4 compact-card h-100">
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <div>
+              <h5 class="fw-bold mb-1">高风险题目关注区</h5>
+              <div class="section-note">优先展示错误次数高、通过率低或待攻克人数偏多的题目</div>
+            </div>
+            <span class="soft-chip">
+              <i class="bi bi-exclamation-diamond"></i>
+              重点关注
+            </span>
+          </div>
+
+          <div class="risk-list-wrap">
+            {% for item in problems|slice:":8" %}
+              {% if item.total_submissions > 0 %}
+              <div class="risk-item">
+                <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-2">
+                  <div>
+                    <div class="fw-semibold">{{ item.problem.title }}</div>
+                    <div class="text-muted small mt-1">
+                      {{ item.category }} · {{ item.difficulty }} · 提交 {{ item.total_submissions }} 次
+                    </div>
+                  </div>
+                  <div class="text-end">
+                    <div class="mb-2">
+                      <span class="badge rounded-pill px-3 py-2 {{ item.risk_badge_class }}">
+                        {{ item.risk_level }}
+                      </span>
+                    </div>
+                    <div class="small text-muted">通过率 {{ item.accept_rate }}%</div>
+                  </div>
+                </div>
+
+                <div class="risk-progress-wrap mb-2">
+                  <div
+                    class="risk-progress-inner js-risk-bar"
+                    data-risk="{{ item.wrong_count }}"
+                    data-total="{% if item.total_submissions > 0 %}{{ item.total_submissions }}{% else %}1{% endif %}"
+                  ></div>
+                </div>
+
+                <div class="d-flex justify-content-between small text-muted">
+                  <span>错误 {{ item.wrong_count }} 次</span>
+                  <span>待攻克 {{ item.needs_work_users }} 人</span>
+                </div>
+              </div>
+              {% endif %}
+            {% empty %}
+            <div class="text-center text-muted py-4">暂无高风险题目数据</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card p-4">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+        <div>
+          <h5 class="mb-1 fw-bold">题目明细</h5>
+          <div class="text-muted small">支持从提交热度、错误次数和通过率三个维度观察题目情况</div>
+        </div>
+      </div>
+
+      <div class="detail-table-wrap">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>题目</th>
+                <th>分类</th>
+                <th>难度</th>
+                <th>热度</th>
+                <th>风险等级</th>
+                <th>提交次数</th>
+                <th>通过次数</th>
+                <th>错误次数</th>
+                <th>通过人数</th>
+                <th>待攻克人数</th>
+                <th>通过率</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in problems %}
+              <tr
+                {% if item.risk_level == '高风险' %}
+                  class="table-danger-subtle"
+                {% elif item.risk_level == '中风险' %}
+                  class="table-warning-subtle"
+                {% endif %}
+              >
+                <td>{{ item.problem.id }}</td>
+                <td class="fw-semibold">{{ item.problem.title }}</td>
+                <td>{{ item.category }}</td>
+                <td>{{ item.difficulty }}</td>
+                <td>
+                  <span class="badge rounded-pill px-3 py-2 {{ item.heat_badge_class }}">
+                    {{ item.heat_level }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge rounded-pill px-3 py-2 {{ item.risk_badge_class }}">
+                    {{ item.risk_level }}
+                  </span>
+                </td>
+                <td>{{ item.total_submissions }}</td>
+                <td>{{ item.accepted_count }}</td>
+                <td>{{ item.wrong_count }}</td>
+                <td>{{ item.passed_users }}</td>
+                <td>
+                  <span class="badge rounded-pill text-dark" style="background: rgba(245, 158, 11, 0.18);">
+                    {{ item.needs_work_users }}
+                  </span>
+                </td>
+                <td class="fw-semibold">{{ item.accept_rate }}%</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="12" class="text-center text-muted py-4">暂无题目分析数据</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="category-summary-source" class="hidden-data-source">
+      {% for item in category_summary %}
+      <div
+        class="js-category-item"
+        data-category="{{ item.category|escape }}"
+        data-problem-count="{{ item.problem_count }}"
+        data-active-problem-count="{{ item.active_problem_count }}"
+        data-total-submissions="{{ item.total_submissions }}"
+        data-wrong-count="{{ item.wrong_count }}"
+        data-accept-rate="{{ item.accept_rate }}"
+      ></div>
+      {% endfor %}
+    </div>
+
+    <div id="problem-graph-source" class="hidden-data-source">
+      {% for item in problems|slice:":16" %}
+        {% if item.total_submissions > 0 %}
+        <div
+          class="js-problem-item"
+          data-id="{{ item.problem.id }}"
+          data-title="{{ item.problem.title|escape }}"
+          data-category="{{ item.category|escape }}"
+          data-difficulty="{{ item.difficulty|escape }}"
+          data-total-submissions="{{ item.total_submissions }}"
+          data-accepted-count="{{ item.accepted_count }}"
+          data-wrong-count="{{ item.wrong_count }}"
+          data-passed-users="{{ item.passed_users }}"
+          data-needs-work-users="{{ item.needs_work_users }}"
+          data-accept-rate="{{ item.accept_rate }}"
+          data-heat-level="{{ item.heat_level|escape }}"
+          data-risk-level="{{ item.risk_level|escape }}"
+        ></div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script>
+  (function () {
+    function toNumber(value, defaultValue) {
+      const num = Number(value);
+      return Number.isFinite(num) ? num : (defaultValue || 0);
+    }
+
+    function truncateText(text, limit) {
+      if (!text) return "";
+      return text.length > limit ? text.slice(0, limit - 1) + "…" : text;
+    }
+
+    const categorySummaryData = Array.from(
+      document.querySelectorAll("#category-summary-source .js-category-item")
+    ).map(function (el) {
+      return {
+        category: el.dataset.category || "",
+        problemCount: toNumber(el.dataset.problemCount, 0),
+        activeProblemCount: toNumber(el.dataset.activeProblemCount, 0),
+        totalSubmissions: toNumber(el.dataset.totalSubmissions, 0),
+        wrongCount: toNumber(el.dataset.wrongCount, 0),
+        acceptRate: toNumber(el.dataset.acceptRate, 0)
+      };
+    });
+
+    const problemRows = Array.from(
+      document.querySelectorAll("#problem-graph-source .js-problem-item")
+    ).map(function (el) {
+      return {
+        id: toNumber(el.dataset.id, 0),
+        title: el.dataset.title || "",
+        category: el.dataset.category || "未分类",
+        difficulty: el.dataset.difficulty || "未设置",
+        totalSubmissions: toNumber(el.dataset.totalSubmissions, 0),
+        acceptedCount: toNumber(el.dataset.acceptedCount, 0),
+        wrongCount: toNumber(el.dataset.wrongCount, 0),
+        passedUsers: toNumber(el.dataset.passedUsers, 0),
+        needsWorkUsers: toNumber(el.dataset.needsWorkUsers, 0),
+        acceptRate: toNumber(el.dataset.acceptRate, 0),
+        heatLevel: el.dataset.heatLevel || "",
+        riskLevel: el.dataset.riskLevel || ""
+      };
+    });
+
+    document.querySelectorAll(".js-risk-bar").forEach(function (el) {
+      const risk = toNumber(el.dataset.risk, 0);
+      const total = Math.max(toNumber(el.dataset.total, 1), 1);
+      const width = Math.max(6, Math.min(100, (risk / total) * 100));
+      el.style.width = width + "%";
+    });
+
+    const categoryChartDom = document.getElementById("category-summary-chart");
+    const graphChartDom = document.getElementById("problem-graph-chart");
+
+    let categoryChart = null;
+    let graphChart = null;
+
+    if (categoryChartDom && categorySummaryData.length) {
+      categoryChart = echarts.init(categoryChartDom);
+      categoryChart.setOption({
+        tooltip: {
+          trigger: "axis",
+          axisPointer: {
+            type: "shadow"
+          }
+        },
+        legend: {
+          top: 0
+        },
+        grid: {
+          left: 50,
+          right: 20,
+          top: 52,
+          bottom: 20,
+          containLabel: true
+        },
+        xAxis: {
+          type: "value"
+        },
+        yAxis: {
+          type: "category",
+          data: categorySummaryData.map(function (item) {
+            return item.category;
+          }),
+          axisLabel: {
+            fontSize: 12
+          }
+        },
+        series: [
+          {
+            name: "题目数",
+            type: "bar",
+            data: categorySummaryData.map(function (item) {
+              return item.problemCount;
+            }),
+            barMaxWidth: 22
+          },
+          {
+            name: "总错误",
+            type: "bar",
+            data: categorySummaryData.map(function (item) {
+              return item.wrongCount;
+            }),
+            barMaxWidth: 22
+          },
+          {
+            name: "活跃题数",
+            type: "bar",
+            data: categorySummaryData.map(function (item) {
+              return item.activeProblemCount;
+            }),
+            barMaxWidth: 22
+          }
+        ]
+      });
+    } else if (categoryChartDom) {
+      categoryChartDom.innerHTML =
+        '<div class="d-flex align-items-center justify-content-center h-100 text-muted">暂无可绘制的分类图表数据</div>';
+    }
+
+    if (graphChartDom && problemRows.length) {
+      const categoryMap = new Map();
+      const nodes = [];
+      const links = [];
+      const categories = [
+        { name: "分类" },
+        { name: "题目" }
+      ];
+
+      problemRows.forEach(function (item) {
+        if (!categoryMap.has(item.category)) {
+          const categoryId = "category_" + item.category;
+          categoryMap.set(item.category, categoryId);
+
+          nodes.push({
+            id: categoryId,
+            name: item.category,
+            category: 0,
+            symbolSize: 56,
+            value: item.totalSubmissions
+          });
+        }
+
+        const problemId = "problem_" + item.id;
+        nodes.push({
+          id: problemId,
+          name: truncateText(item.title, 12),
+          category: 1,
+          symbolSize: Math.max(28, Math.min(70, 28 + item.wrongCount * 2)),
+          value: item.wrongCount
+        });
+
+        links.push({
+          source: categoryMap.get(item.category),
+          target: problemId,
+          value: item.wrongCount
+        });
+      });
+
+      graphChart = echarts.init(graphChartDom);
+      graphChart.setOption({
+        tooltip: {
+          trigger: "item"
+        },
+        legend: [
+          {
+            bottom: 0
+          }
+        ],
+        series: [
+          {
+            type: "graph",
+            layout: "force",
+            roam: true,
+            draggable: true,
+            data: nodes,
+            links: links,
+            categories: categories,
+            force: {
+              repulsion: 420,
+              edgeLength: [100, 210],
+              gravity: 0.035
+            },
+            label: {
+              show: true,
+              position: "right",
+              color: "#334155",
+              fontSize: 12
+            },
+            lineStyle: {
+              opacity: 0.58,
+              width: 1.9
+            },
+            emphasis: {
+              focus: "adjacency",
+              lineStyle: {
+                width: 2.8
+              }
+            }
+          }
+        ]
+      });
+    } else if (graphChartDom) {
+      graphChartDom.innerHTML =
+        '<div class="d-flex align-items-center justify-content-center h-100 text-muted">暂无可绘制的题目关系图数据</div>';
+    }
+
+    window.addEventListener("resize", function () {
+      if (categoryChart) {
+        categoryChart.resize();
+      }
+      if (graphChart) {
+        graphChart.resize();
+      }
+    });
+  })();
+</script>
+{% endblock %}

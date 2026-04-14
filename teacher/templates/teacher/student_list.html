@@ -1,0 +1,135 @@
+{% extends 'teacher_base.html' %}
+{% block title %}学生画像 - CodeGaze{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">学生画像</h2>
+      <div class="text-muted">从提交表现、通过率和待攻克题数快速定位需要重点关注的学生</div>
+    </div>
+    <div class="soft-chip">
+      <i class="bi bi-people"></i>
+      共 {{ students|length }} 名学生
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+      <div class="glass-card p-4 h-100">
+        <div class="text-muted small mb-2">学生总数</div>
+        <h3 class="mb-0 fw-bold">{{ students|length }}</h3>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="glass-card p-4 h-100">
+        <div class="text-muted small mb-2">总提交次数</div>
+        <h3 class="mb-0 fw-bold">
+          {% with total=0 %}
+            {% for item in students %}
+              {% if forloop.first %}{{ item.total_submissions }}{% endif %}
+            {% empty %}0{% endfor %}
+          {% endwith %}
+        </h3>
+        <div class="text-muted small mt-2">列表页建议后续由后端补充真实汇总字段</div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="glass-card p-4 h-100">
+        <div class="text-muted small mb-2">待重点关注学生</div>
+        <h3 class="mb-0 fw-bold text-warning-emphasis">
+          {% for item in students %}
+            {% if item.needs_work_count > 0 %}
+              {{ forloop.counter0|add:1 }}
+            {% endif %}
+          {% empty %}0{% endfor %}
+        </h3>
+        <div class="text-muted small mt-2">待攻克题数大于 0 的学生建议优先查看</div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="glass-card p-4 h-100">
+        <div class="text-muted small mb-2">建议下一步</div>
+        <div class="fw-semibold">完善学生详情页与推荐联动</div>
+        <div class="text-muted small mt-2">从学生画像跳转到个人分析与推荐</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass-card p-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+      <div>
+        <h5 class="fw-bold mb-1">学生学习概览</h5>
+        <div class="text-muted small">先看整体，再进入详情页查看薄弱分类、待攻克题目和最近提交记录</div>
+      </div>
+      <div class="soft-chip">
+        <i class="bi bi-funnel"></i>
+        当前版本为基础画像页，可在下一阶段补充搜索、筛选与排序
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table align-middle table-hover mb-0">
+        <thead>
+          <tr>
+            <th style="min-width: 70px;">ID</th>
+            <th style="min-width: 160px;">学生</th>
+            <th style="min-width: 110px;">总提交</th>
+            <th style="min-width: 120px;">通过率</th>
+            <th style="min-width: 120px;">已通过题数</th>
+            <th style="min-width: 120px;">待攻克题数</th>
+            <th style="min-width: 100px;">收藏数</th>
+            <th style="min-width: 120px;">关注状态</th>
+            <th style="min-width: 120px;">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in students %}
+          <tr>
+            <td class="fw-semibold">{{ item.student.id }}</td>
+            <td>
+              <div class="fw-semibold">{{ item.student.username }}</div>
+              <div class="text-muted small">学习画像入口</div>
+            </td>
+            <td>{{ item.total_submissions }}</td>
+            <td>
+              <span class="badge rounded-pill text-dark" style="background: rgba(59, 130, 246, 0.14);">
+                {{ item.accept_rate }}%
+              </span>
+            </td>
+            <td>{{ item.passed_problems }}</td>
+            <td>
+              <span class="badge rounded-pill text-dark" style="background: rgba(245, 158, 11, 0.18);">
+                {{ item.needs_work_count }}
+              </span>
+            </td>
+            <td>{{ item.favorite_count }}</td>
+            <td>
+              {% if item.needs_work_count >= 5 %}
+                <span class="badge rounded-pill text-dark" style="background: rgba(239, 68, 68, 0.16);">重点关注</span>
+              {% elif item.needs_work_count >= 1 %}
+                <span class="badge rounded-pill text-dark" style="background: rgba(245, 158, 11, 0.18);">建议跟进</span>
+              {% else %}
+                <span class="badge rounded-pill text-dark" style="background: rgba(16, 185, 129, 0.16);">表现稳定</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'teacher:student_detail' item.student.id %}" class="btn btn-sm btn-primary">
+                查看详情
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="9" class="text-center py-5">
+              <div class="text-muted mb-2">暂无学生数据</div>
+              <div class="small text-muted">请先确认学生账号、角色字段与提交记录是否已经正确关联</div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

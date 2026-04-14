@@ -1,0 +1,51 @@
+{% extends 'management_base.html' %}
+
+{% block content %}
+<style>
+    .confirm-card {
+        max-width: 760px;
+        margin: 4rem auto 0;
+        padding: 2rem;
+        text-align: center;
+    }
+    .confirm-icon {
+        width: 82px;
+        height: 82px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(244, 63, 94, 0.12);
+        color: #e11d48;
+        font-size: 2rem;
+    }
+    .confirm-title {
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
+    }
+    .confirm-subtitle {
+        color: #64748b;
+        line-height: 1.8;
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<section class="glass-card confirm-card">
+    <div class="confirm-icon">
+        <i class="bi bi-trash3"></i>
+    </div>
+    <div class="confirm-title">确认删除题目？</div>
+    <p class="confirm-subtitle">
+        你即将删除题目 <strong>《{{ problem.title }}》</strong>。<br>
+        这个操作会连同关联提交、讨论、收藏等数据一起受影响，请确认后再执行。
+    </p>
+
+    <form method="post" class="d-flex justify-content-center gap-2 flex-wrap">
+        {% csrf_token %}
+        <button class="primary-btn" type="submit">确认删除</button>
+        <a class="secondary-btn" href="{% url 'management:problem_list' %}">返回</a>
+    </form>
+</section>
+{% endblock %}

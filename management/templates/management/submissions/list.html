@@ -1,0 +1,147 @@
+{% extends 'management_base.html' %}
+
+{% block content %}
+<style>
+    .page-hero, .filter-card, .table-card {
+        padding: 1.4rem;
+        margin-bottom: 1rem;
+    }
+    .page-title {
+        font-size: 2rem;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        margin-bottom: 0.3rem;
+    }
+    .page-subtitle {
+        color: #64748b;
+        margin-bottom: 0;
+    }
+    .summary-card {
+        padding: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    .summary-label {
+        color: #64748b;
+        font-weight: 700;
+        margin-bottom: 0.45rem;
+    }
+    .summary-value {
+        font-size: 1.9rem;
+        font-weight: 900;
+        line-height: 1;
+    }
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.32rem 0.62rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        background: rgba(14, 165, 233, 0.08);
+        color: #0369a1;
+    }
+</style>
+
+<section class="glass-card page-hero">
+    <div class="page-title">提交记录</div>
+    <p class="page-subtitle">先把提交记录集中进自定义后台，后续你可以继续扩展“异常提交、错题高发记录、考试模式监测”等页面。</p>
+</section>
+
+<section class="glass-card summary-card">
+    <div class="summary-label">当前筛选结果</div>
+    <div class="summary-value">{{ submission_total }}</div>
+</section>
+
+<section class="glass-card filter-card">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-lg-4">
+            <label class="form-label fw-bold">关键词</label>
+            <input type="text" class="form-control" name="q" value="{{ keyword }}" placeholder="题目名 / 用户名 / 代码片段">
+        </div>
+        <div class="col-lg-2">
+            <label class="form-label fw-bold">状态</label>
+            <select class="form-select" name="status">
+                <option value="">全部状态</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-lg-2">
+            <label class="form-label fw-bold">语言</label>
+            <select class="form-select" name="language">
+                <option value="">全部语言</option>
+                {% for value, label in language_choices %}
+                    <option value="{{ value }}" {% if language == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-lg-2">
+            <label class="form-label fw-bold">模式</label>
+            <select class="form-select" name="mode">
+                <option value="">全部模式</option>
+                {% for value, label in mode_choices %}
+                    <option value="{{ value }}" {% if mode == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-lg-2">
+            <button class="primary-btn w-100" type="submit"><i class="bi bi-search"></i> 查询</button>
+        </div>
+    </form>
+</section>
+
+<section class="glass-card table-card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>题目</th>
+                    <th>用户</th>
+                    <th>语言 / 模式</th>
+                    <th>判题状态</th>
+                    <th>运行信息</th>
+                    <th>提交时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in page_obj %}
+                    <tr>
+                        <td>#{{ item.id }}</td>
+                        <td>
+                            <div class="fw-bold">{{ item.problem.title }}</div>
+                            <div class="text-muted small">题目 ID：{{ item.problem_id }}</div>
+                        </td>
+                        <td>{{ item.user.username|default:"匿名用户" }}</td>
+                        <td>
+                            <div>{{ item.get_language_display }}</div>
+                            <div class="text-muted small">{{ item.get_mode_display }}</div>
+                        </td>
+                        <td><span class="status-pill">{{ item.get_status_display }}</span></td>
+                        <td>
+                            <div>{{ item.execution_time|default:0 }} ms</div>
+                            <div class="text-muted small">{{ item.execution_memory|default:0 }} KB</div>
+                        </td>
+                        <td>{{ item.submitted_at|date:"Y-m-d H:i:s" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7" class="text-center text-muted py-4">暂无提交记录</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap mt-4">
+        <div class="text-muted small">第 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 页</div>
+        <div class="d-flex gap-2">
+            {% if page_obj.has_previous %}
+                <a class="secondary-btn" href="?page={{ page_obj.previous_page_number }}&q={{ keyword }}&status={{ status }}&language={{ language }}&mode={{ mode }}">上一页</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+                <a class="secondary-btn" href="?page={{ page_obj.next_page_number }}&q={{ keyword }}&status={{ status }}&language={{ language }}&mode={{ mode }}">下一页</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

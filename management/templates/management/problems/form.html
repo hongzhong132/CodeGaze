@@ -1,0 +1,437 @@
+{% extends 'management_base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'management/css/problem-form.css' %}">
+
+<section class="glass-card editor-hero">
+    <div class="editor-hero__main">
+        <div class="editor-breadcrumb">
+            <span>后台管理</span>
+            <i class="bi bi-chevron-right"></i>
+            <span>题库管理</span>
+            <i class="bi bi-chevron-right"></i>
+            <span>{% if is_create %}新增题目{% else %}编辑题目{% endif %}</span>
+        </div>
+        <h1 class="editor-title">{{ page_title }}</h1>
+        <p class="editor-subtitle">
+            {% if is_create %}
+                这次把题目录入页改成了更接近“业务后台”的写题台，而不是一大堆平铺表单。
+            {% else %}
+                当前正在编辑题目：<strong>{{ problem.title }}</strong>
+                <span class="editor-inline-meta">· 最近更新 {{ problem.updated_at|date:"Y-m-d H:i" }}</span>
+            {% endif %}
+        </p>
+    </div>
+    <div class="editor-hero__actions">
+        <a class="secondary-btn" href="{% url 'management:problem_list' %}">
+            <i class="bi bi-arrow-left"></i>
+            返回题库管理
+        </a>
+        {% if not is_create and problem %}
+        <a class="ghost-btn danger-outline" href="{% url 'management:problem_delete' problem.pk %}">
+            <i class="bi bi-trash3"></i>
+            删除题目
+        </a>
+        {% endif %}
+    </div>
+</section>
+
+<form method="post" class="problem-editor-form" novalidate>
+    {% csrf_token %}
+    <div class="d-none">
+        {{ form.question_type }}
+    </div>
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger shadow-sm mb-3 rounded-4">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <section class="editor-type-switch glass-card">
+        <div class="editor-section-head compact">
+            <div>
+                <div class="section-eyebrow">题型切换</div>
+                <h2>先选题目形式，再填对应内容</h2>
+            </div>
+            {% if form.question_type.errors %}
+                <div class="text-danger small fw-semibold">{{ form.question_type.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="type-switch-grid">
+            {% for card in question_type_cards %}
+            <button
+                type="button"
+                class="type-switch-card {% if current_question_type == card.value %}is-active{% endif %}"
+                data-type-switch="{{ card.value }}"
+            >
+                <div class="type-switch-card__icon"><i class="bi {{ card.icon }}"></i></div>
+                <div class="type-switch-card__content">
+                    <div class="type-switch-card__title">{{ card.label }}</div>
+                    <div class="type-switch-card__desc">{{ card.headline }}</div>
+                </div>
+                <div class="type-switch-card__check"><i class="bi bi-check-circle-fill"></i></div>
+            </button>
+            {% endfor %}
+        </div>
+    </section>
+
+    <div class="problem-editor-layout">
+        <div class="problem-editor-main">
+            <section class="glass-card editor-card">
+                <div class="editor-section-head">
+                    <div>
+                        <div class="section-eyebrow">Step 1</div>
+                        <h2>基础信息</h2>
+                    </div>
+                    <p>先把题目本身的信息定下来，后续推荐、检索、分析都会依赖这里的结构化字段。</p>
+                </div>
+
+                <div class="editor-grid">
+                    <div class="editor-field span-8">
+                        <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                        {{ form.title }}
+                        {% if form.title.help_text %}<div class="field-help">{{ form.title.help_text }}</div>{% endif %}
+                        {{ form.title.errors }}
+                    </div>
+
+                    <div class="editor-field span-2">
+                        <label for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+                        {{ form.category }}
+                        {{ form.category.errors }}
+                    </div>
+
+                    <div class="editor-field span-2">
+                        <label for="{{ form.difficulty.id_for_label }}">{{ form.difficulty.label }}</label>
+                        {{ form.difficulty }}
+                        {{ form.difficulty.errors }}
+                    </div>
+
+                    <div class="editor-field span-12">
+                        <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                        {{ form.description }}
+                        <div class="field-help">支持 Markdown / MathJax。建议写清题意、边界、返回要求，便于学生理解与后续题解生成。</div>
+                        {{ form.description.errors }}
+                    </div>
+                </div>
+            </section>
+
+            <section class="glass-card editor-card">
+                <div class="editor-section-head">
+                    <div>
+                        <div class="section-eyebrow">Step 2</div>
+                        <h2>教学属性与运营信息</h2>
+                    </div>
+                    <p>这些字段决定了教师端筛选、推荐策略和题库运营方式，不再只是“能存进去”就行。</p>
+                </div>
+
+                <div class="editor-grid">
+                    <div class="editor-field span-3">
+                        <label for="{{ form.recommend_stage.id_for_label }}">{{ form.recommend_stage.label }}</label>
+                        {{ form.recommend_stage }}
+                        {{ form.recommend_stage.errors }}
+                    </div>
+                    <div class="editor-field span-3">
+                        <label for="{{ form.estimated_minutes.id_for_label }}">{{ form.estimated_minutes.label }}</label>
+                        {{ form.estimated_minutes }}
+                        <div class="field-help">建议按正常学生完成本题所需时长填写。</div>
+                        {{ form.estimated_minutes.errors }}
+                    </div>
+                    <div class="editor-field span-3">
+                        <label for="{{ form.time_limit.id_for_label }}">{{ form.time_limit.label }}</label>
+                        {{ form.time_limit }}
+                        {{ form.time_limit.errors }}
+                    </div>
+                    <div class="editor-field span-3">
+                        <label for="{{ form.memory_limit.id_for_label }}">{{ form.memory_limit.label }}</label>
+                        {{ form.memory_limit }}
+                        {{ form.memory_limit.errors }}
+                    </div>
+
+                    <div class="editor-field span-6">
+                        <label for="{{ form.knowledge_points.id_for_label }}">{{ form.knowledge_points.label }}</label>
+                        {{ form.knowledge_points }}
+                        <div class="field-help">多个值用英文逗号分隔，建议写教学层面的知识点，例如：哈希表,拓扑排序,环检测。</div>
+                        {{ form.knowledge_points.errors }}
+                    </div>
+                    <div class="editor-field span-6">
+                        <label for="{{ form.tags.id_for_label }}">{{ form.tags.label }}</label>
+                        {{ form.tags }}
+                        <div class="field-help">适合写算法标签或检索词，例如：图,入度,有向无环图。</div>
+                        {{ form.tags.errors }}
+                    </div>
+
+                    <div class="editor-field span-6">
+                        <label for="{{ form.supported_languages.id_for_label }}">{{ form.supported_languages.label }}</label>
+                        {{ form.supported_languages }}
+                        <div class="field-help">建议保持统一规范，如 python,c,cpp,java。</div>
+                        {{ form.supported_languages.errors }}
+                    </div>
+                    <div class="editor-field span-6">
+                        <label for="{{ form.source.id_for_label }}">{{ form.source.label }}</label>
+                        {{ form.source }}
+                        {{ form.source.errors }}
+                    </div>
+                </div>
+            </section>
+
+            <section class="glass-card editor-card">
+                <div class="editor-section-head">
+                    <div>
+                        <div class="section-eyebrow">Step 3</div>
+                        <h2>题型专属配置</h2>
+                    </div>
+                    <p>根据题目形式切换显示内容。函数补全题重“函数签名 + JSON 示例”，标准输入输出题重“输入输出规范 + 样例”。</p>
+                </div>
+
+                <div class="type-panel {% if current_question_type != 'function' %}is-hidden{% endif %}" data-type-panel="function">
+                    <div class="type-panel__header">
+                        <div class="type-badge function"><i class="bi bi-braces-asterisk"></i> 函数补全模式</div>
+                        <p>更适合日常算法训练、结构化评测、前端直接渲染参数与返回值。</p>
+                    </div>
+                    <div class="editor-grid">
+                        <div class="editor-field span-6" data-question-scope="function">
+                            <label for="{{ form.function_name.id_for_label }}">{{ form.function_name.label }}</label>
+                            {{ form.function_name }}
+                            {{ form.function_name.errors }}
+                        </div>
+                        <div class="editor-field span-6" data-question-scope="function">
+                            <label for="{{ form.param_names.id_for_label }}">{{ form.param_names.label }}</label>
+                            {{ form.param_names }}
+                            <div class="field-help">例如：nums,target 或 head,k。系统会按逗号拆分参数。</div>
+                            {{ form.param_names.errors }}
+                        </div>
+                        <div class="editor-field span-6" data-question-scope="function">
+                            <label for="{{ form.input_example.id_for_label }}">{{ form.input_example.label }}</label>
+                            {{ form.input_example }}
+                            <div class="field-help">{{ form.input_example.help_text }}</div>
+                            {{ form.input_example.errors }}
+                        </div>
+                        <div class="editor-field span-6" data-question-scope="function">
+                            <label for="{{ form.output_example.id_for_label }}">{{ form.output_example.label }}</label>
+                            {{ form.output_example }}
+                            <div class="field-help">{{ form.output_example.help_text }}</div>
+                            {{ form.output_example.errors }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="type-panel {% if current_question_type != 'acm' %}is-hidden{% endif %}" data-type-panel="acm">
+                    <div class="type-panel__header">
+                        <div class="type-badge acm"><i class="bi bi-terminal"></i> 标准输入输出模式</div>
+                        <p>更贴近竞赛/OJ 场景。输入格式、输出格式、样例一定要完整，否则学生端体验会很差。</p>
+                    </div>
+                    <div class="editor-grid">
+                        <div class="editor-field span-6" data-question-scope="acm">
+                            <label for="{{ form.input_format.id_for_label }}">{{ form.input_format.label }}</label>
+                            {{ form.input_format }}
+                            {{ form.input_format.errors }}
+                        </div>
+                        <div class="editor-field span-6" data-question-scope="acm">
+                            <label for="{{ form.output_format.id_for_label }}">{{ form.output_format.label }}</label>
+                            {{ form.output_format }}
+                            {{ form.output_format.errors }}
+                        </div>
+                        <div class="editor-field span-12" data-question-scope="acm">
+                            <label for="{{ form.data_range.id_for_label }}">{{ form.data_range.label }}</label>
+                            {{ form.data_range }}
+                            <div class="field-help">建议明确 n、数组长度、值范围以及复杂度暗示。</div>
+                            {{ form.data_range.errors }}
+                        </div>
+                        <div class="editor-field span-6" data-question-scope="acm">
+                            <label for="{{ form.sample_input.id_for_label }}">{{ form.sample_input.label }}</label>
+                            {{ form.sample_input }}
+                            {{ form.sample_input.errors }}
+                        </div>
+                        <div class="editor-field span-6" data-question-scope="acm">
+                            <label for="{{ form.sample_output.id_for_label }}">{{ form.sample_output.label }}</label>
+                            {{ form.sample_output }}
+                            {{ form.sample_output.errors }}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="glass-card editor-card">
+                <div class="editor-section-head">
+                    <div>
+                        <div class="section-eyebrow">Step 4</div>
+                        <h2>判题与题解资源</h2>
+                    </div>
+                    <p>测试用例决定判题稳定性，题解和视频决定学生做完题后的复盘体验。</p>
+                </div>
+
+                <div class="editor-grid">
+                    <div class="editor-field span-12">
+                        <label for="{{ form.test_cases.id_for_label }}">{{ form.test_cases.label }}</label>
+                        {{ form.test_cases }}
+                        <div class="field-help">{{ form.test_cases.help_text }}</div>
+                        {{ form.test_cases.errors }}
+                    </div>
+                    <div class="editor-field span-8">
+                        <label for="{{ form.solution_text.id_for_label }}">{{ form.solution_text.label }}</label>
+                        {{ form.solution_text }}
+                        {{ form.solution_text.errors }}
+                    </div>
+                    <div class="editor-field span-4">
+                        <label for="{{ form.video_url.id_for_label }}">{{ form.video_url.label }}</label>
+                        {{ form.video_url }}
+                        <div class="field-help">可选，用于接入讲解视频或录屏链接。</div>
+                        {{ form.video_url.errors }}
+                    </div>
+                </div>
+            </section>
+
+            <section class="editor-action-bar glass-card">
+                <div class="editor-action-bar__info">
+                    <div class="editor-action-bar__title">检查完成后保存</div>
+                    <p>保存后，题库管理、教师分析页、学生端题目详情都会使用这些字段。</p>
+                </div>
+                <div class="editor-action-bar__buttons">
+                    <button class="primary-btn" type="submit">
+                        <i class="bi bi-check2-circle"></i>
+                        {% if is_create %}保存题目并继续编辑{% else %}保存当前修改{% endif %}
+                    </button>
+                    <a class="secondary-btn" href="{% url 'management:problem_list' %}">取消</a>
+                </div>
+            </section>
+        </div>
+
+        <aside class="problem-editor-side">
+            <div class="glass-card side-card sticky-card">
+                <div class="side-card__head">
+                    <div>
+                        <div class="section-eyebrow">当前概览</div>
+                        <h3>题目运营信息</h3>
+                    </div>
+                    {% if not is_create and problem %}
+                        <span class="status-pill">ID {{ problem.id }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="summary-chip-group">
+                    <span class="summary-chip"><i class="bi bi-diagram-3"></i> {{ editor_overview.category_label }}</span>
+                    <span class="summary-chip"><i class="bi bi-speedometer"></i> {{ editor_overview.difficulty_label }}</span>
+                    <span class="summary-chip"><i class="bi bi-stars"></i> {{ editor_overview.stage_label }}</span>
+                    <span class="summary-chip"><i class="bi bi-bookmark"></i> {{ current_type_card.label }}</span>
+                </div>
+
+                <div class="side-stats-grid">
+                    <div class="mini-stat">
+                        <span class="mini-stat__label">知识点</span>
+                        <strong>{{ editor_overview.knowledge_points_count }}</strong>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-stat__label">算法标签</span>
+                        <strong>{{ editor_overview.tags_count }}</strong>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-stat__label">支持语言</span>
+                        <strong>{{ editor_overview.languages_count }}</strong>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-stat__label">题目来源</span>
+                        <strong class="mini-stat__text">{{ editor_overview.source_label }}</strong>
+                    </div>
+                </div>
+
+                {% if not is_create and problem %}
+                <div class="side-divider"></div>
+                <div class="side-card__head compact-head">
+                    <h3>线上表现</h3>
+                </div>
+                <div class="side-stats-grid performance-grid">
+                    <div class="mini-stat highlight">
+                        <span class="mini-stat__label">总提交</span>
+                        <strong>{{ problem_metrics.submission_count }}</strong>
+                    </div>
+                    <div class="mini-stat success">
+                        <span class="mini-stat__label">通过人数</span>
+                        <strong>{{ problem_metrics.accepted_count }}</strong>
+                    </div>
+                    <div class="mini-stat full-width">
+                        <span class="mini-stat__label">通过率</span>
+                        <strong>{{ problem_metrics.acceptance_rate }}%</strong>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="glass-card side-card type-tip-card {% if current_question_type != 'function' %}is-hidden{% endif %}" data-type-panel="function">
+                <div class="side-card__head compact-head">
+                    <h3><i class="bi bi-braces-asterisk"></i> 函数补全写题提示</h3>
+                </div>
+                <p class="side-description">这类题最怕函数签名和 JSON 结构不统一，后续学生提交、评测映射都会受影响。</p>
+                <ul class="check-list">
+                    <li>函数名要与判题逻辑一致。</li>
+                    <li>参数名顺序要与输入示例保持一致。</li>
+                    <li>输入/输出示例尽量写成 JSON，不要混杂自然语言。</li>
+                </ul>
+                <div class="sample-box">
+                    <div class="sample-box__title">推荐输入示例</div>
+                    <pre>{{ json_examples.function_input }}</pre>
+                </div>
+            </div>
+
+            <div class="glass-card side-card type-tip-card {% if current_question_type != 'acm' %}is-hidden{% endif %}" data-type-panel="acm">
+                <div class="side-card__head compact-head">
+                    <h3><i class="bi bi-terminal"></i> 标准输入输出写题提示</h3>
+                </div>
+                <p class="side-description">这类题核心不是“字段填满”，而是输入输出格式是否足够清楚，样例是否能帮助学生快速理解题面。</p>
+                <ul class="check-list">
+                    <li>输入格式、输出格式、样例输入、样例输出尽量都提供。</li>
+                    <li>数据范围最好配合复杂度提示一起写。</li>
+                    <li>测试用例建议覆盖空输入、极值、重复值等边界。</li>
+                </ul>
+                <div class="sample-box">
+                    <div class="sample-box__title">推荐测试用例格式</div>
+                    <pre>{{ json_examples.acm_test_cases }}</pre>
+                </div>
+            </div>
+
+            <div class="glass-card side-card">
+                <div class="side-card__head compact-head">
+                    <h3><i class="bi bi-bezier2"></i> 测试用例建议</h3>
+                </div>
+                <ul class="check-list">
+                    <li>至少准备 1 组基础用例 + 1 组边界用例。</li>
+                    <li>函数补全题建议 expected 直接写返回值。</li>
+                    <li>标准输入输出题建议 expected 保持为字符串输出。</li>
+                </ul>
+                <div class="sample-box">
+                    <div class="sample-box__title">通用 JSON 模板</div>
+                    <pre>{{ json_examples.test_cases }}</pre>
+                </div>
+            </div>
+        </aside>
+    </div>
+</form>
+
+<script>
+    (function () {
+        const typeSelector = document.getElementById('id_question_type');
+        if (!typeSelector) return;
+
+        const switchCards = Array.from(document.querySelectorAll('[data-type-switch]'));
+        const typePanels = Array.from(document.querySelectorAll('[data-type-panel]'));
+
+        function applyType(type) {
+            typeSelector.value = type;
+
+            switchCards.forEach((card) => {
+                card.classList.toggle('is-active', card.dataset.typeSwitch === type);
+            });
+
+            typePanels.forEach((panel) => {
+                panel.classList.toggle('is-hidden', panel.dataset.typePanel !== type);
+            });
+        }
+
+        switchCards.forEach((card) => {
+            card.addEventListener('click', () => applyType(card.dataset.typeSwitch));
+        });
+
+        applyType(typeSelector.value || '{{ current_question_type }}');
+    })();
+</script>
+{% endblock %}

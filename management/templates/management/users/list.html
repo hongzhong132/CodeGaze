@@ -1,0 +1,181 @@
+{% extends 'management_base.html' %}
+
+{% block content %}
+<style>
+    .page-hero, .filter-card, .table-card {
+        padding: 1.4rem;
+        margin-bottom: 1rem;
+    }
+    .page-title {
+        font-size: 2rem;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        margin-bottom: 0.3rem;
+    }
+    .page-subtitle {
+        color: #64748b;
+        margin-bottom: 0;
+    }
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    .summary-box {
+        padding: 1.2rem;
+    }
+    .summary-label {
+        color: #64748b;
+        font-weight: 700;
+        margin-bottom: 0.45rem;
+    }
+    .summary-value {
+        font-size: 1.85rem;
+        font-weight: 900;
+        line-height: 1;
+    }
+    .role-pill, .status-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.32rem 0.62rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 800;
+    }
+    .role-pill {
+        background: rgba(14, 165, 233, 0.08);
+        color: #0369a1;
+    }
+    .status-pill.active {
+        background: rgba(34, 197, 94, 0.12);
+        color: #15803d;
+    }
+    .status-pill.inactive {
+        background: rgba(244, 63, 94, 0.12);
+        color: #e11d48;
+    }
+    @media (max-width: 900px) {
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<section class="glass-card page-hero">
+    <div class="page-title">用户管理</div>
+    <p class="page-subtitle">这里先完成用户查看与筛选。后续你可以继续加“禁用、重置密码、角色变更”等操作。</p>
+</section>
+
+<section class="summary-grid">
+    <div class="glass-card summary-box">
+        <div class="summary-label">用户总数</div>
+        <div class="summary-value">{{ user_total }}</div>
+    </div>
+    <div class="glass-card summary-box">
+        <div class="summary-label">学生人数</div>
+        <div class="summary-value">{{ student_total }}</div>
+    </div>
+    <div class="glass-card summary-box">
+        <div class="summary-label">教师人数</div>
+        <div class="summary-value">{{ teacher_total }}</div>
+    </div>
+</section>
+
+<section class="glass-card filter-card">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-lg-5">
+            <label class="form-label fw-bold">关键词</label>
+            <input type="text" class="form-control" name="q" value="{{ keyword }}" placeholder="用户名 / 邮箱 / 真实姓名 / 学号 / 工号">
+        </div>
+        <div class="col-lg-3">
+            <label class="form-label fw-bold">角色</label>
+            <select class="form-select" name="role">
+                <option value="">全部角色</option>
+                <option value="student" {% if role == 'student' %}selected{% endif %}>学生</option>
+                <option value="teacher" {% if role == 'teacher' %}selected{% endif %}>教师</option>
+            </select>
+        </div>
+        <div class="col-lg-2">
+            <label class="form-label fw-bold">状态</label>
+            <select class="form-select" name="is_active">
+                <option value="">全部状态</option>
+                <option value="1" {% if is_active == '1' %}selected{% endif %}>启用</option>
+                <option value="0" {% if is_active == '0' %}selected{% endif %}>禁用</option>
+            </select>
+        </div>
+        <div class="col-lg-2">
+            <button class="primary-btn w-100" type="submit"><i class="bi bi-search"></i> 查询</button>
+        </div>
+    </form>
+</section>
+
+<section class="glass-card table-card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>账号信息</th>
+                    <th>角色</th>
+                    <th>学号 / 工号</th>
+                    <th>提交次数</th>
+                    <th>注册时间</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user_obj in page_obj %}
+                    <tr>
+                        <td>#{{ user_obj.id }}</td>
+                        <td>
+                            <div class="fw-bold">{{ user_obj.username }}</div>
+                            <div class="text-muted small">{{ user_obj.email|default:"未填写邮箱" }}</div>
+                            <div class="text-muted small">{{ user_obj.safe_profile.real_name|default:"未填写真实姓名" }}</div>
+                        </td>
+                        <td>
+                            {% if user_obj.safe_profile %}
+                                <span class="role-pill">{{ user_obj.safe_profile.get_role_display }}</span>
+                            {% else %}
+                                <span class="text-muted">未配置资料</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user_obj.safe_profile.role == 'student' %}
+                                {{ user_obj.safe_profile.student_no|default:"-" }}
+                            {% elif user_obj.safe_profile.role == 'teacher' %}
+                                {{ user_obj.safe_profile.teacher_no|default:"-" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>{{ user_obj.submission_total }}</td>
+                        <td>{{ user_obj.date_joined|date:"Y-m-d H:i" }}</td>
+                        <td>
+                            {% if user_obj.is_active %}
+                                <span class="status-pill active">启用中</span>
+                            {% else %}
+                                <span class="status-pill inactive">已禁用</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7" class="text-center text-muted py-4">暂无用户数据</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap mt-4">
+        <div class="text-muted small">第 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 页</div>
+        <div class="d-flex gap-2">
+            {% if page_obj.has_previous %}
+                <a class="secondary-btn" href="?page={{ page_obj.previous_page_number }}&q={{ keyword }}&role={{ role }}&is_active={{ is_active }}">上一页</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+                <a class="secondary-btn" href="?page={{ page_obj.next_page_number }}&q={{ keyword }}&role={{ role }}&is_active={{ is_active }}">下一页</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

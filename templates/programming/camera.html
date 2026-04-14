@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'student_base.html' %}
 {% block title %}智能人脸检测 - CodeGaze{% endblock %}
 
 {% block extra_css %}
@@ -39,7 +39,7 @@
     .camera-shell {
         position: relative;
         z-index: 1;
-        max-width: 1280px;
+        max-width: 1500px;
         margin: 0 auto;
     }
 
@@ -114,7 +114,7 @@
     .camera-overview {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 1rem;
+        gap: 1.05rem;
         margin-bottom: 1.25rem;
     }
 
@@ -169,8 +169,8 @@
 
     .camera-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.7fr) minmax(340px, 0.98fr);
-        gap: 1.2rem;
+        grid-template-columns: minmax(0, 1.56fr) minmax(380px, 0.96fr);
+        gap: 1.25rem;
         align-items: start;
     }
 
@@ -184,11 +184,11 @@
     }
 
     .camera-panel {
-        padding: 1.2rem;
+        padding: 1.25rem;
     }
 
     .side-panel {
-        padding: 1rem;
+        padding: 1.08rem;
     }
 
     .section-head {
@@ -612,6 +612,12 @@
         font-size: 0.92rem;
         font-weight: 700;
         text-align: right;
+    }
+
+    @media (max-width: 1280px) {
+        .camera-grid {
+            grid-template-columns: minmax(0, 1.28fr) minmax(340px, 0.92fr);
+        }
     }
 
     @media (max-width: 1200px) {

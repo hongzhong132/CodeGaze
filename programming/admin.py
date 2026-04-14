@@ -1,24 +1,21 @@
-from django.contrib import admin
-from django import forms
-from django.contrib import messages
 from collections import defaultdict
 
-from .models import CodeProblem, CodeSubmission, ProblemDiscussion, ProblemFavorite
+from django import forms
+from django.contrib import admin, messages
+
 from .forms import CodeSubmissionAdminForm
+from .models import CodeProblem, CodeSubmission, ProblemDiscussion, ProblemFavorite
 
 
-# ==============================
-# 自定义表单：为 CodeProblem 的 test_cases 提供更好的编辑控件
-# ==============================
 class CodeProblemForm(forms.ModelForm):
     class Meta:
         model = CodeProblem
         fields = '__all__'
         widgets = {
             'test_cases': forms.Textarea(attrs={
-                'rows': 8,
+                'rows': 12,
                 'style': 'font-family: monospace; font-size: 12px;',
-                'placeholder': '[{"input": "1 2", "output": "3"}]'
+                'placeholder': '[{"input": [1, 2], "expected": 3}]'
             }),
             'description': forms.Textarea(attrs={
                 'rows': 8,
@@ -48,16 +45,24 @@ class CodeProblemForm(forms.ModelForm):
                 'rows': 4,
                 'style': 'font-family: monospace;'
             }),
+            'tags': forms.TextInput(attrs={
+                'placeholder': '数组,哈希表,双指针'
+            }),
+            'knowledge_points': forms.TextInput(attrs={
+                'placeholder': '前缀和,边界处理,滑动窗口'
+            }),
+            'supported_languages': forms.TextInput(attrs={
+                'placeholder': 'python,c,cpp,java'
+            }),
+            'param_names': forms.TextInput(attrs={
+                'placeholder': 'nums,target'
+            }),
         }
 
 
-# ==============================
-# 清理重复题目的 Action
-# ==============================
 def clean_duplicate_problems(modeladmin, request, queryset):
     """
     清理整个数据库中标题重复的题目，仅保留每个标题中 ID 最小的一个。
-    注意：此操作不可逆，请先备份数据库。
     """
     title_map = defaultdict(list)
     for p in CodeProblem.objects.all():
@@ -82,9 +87,6 @@ def clean_duplicate_problems(modeladmin, request, queryset):
 clean_duplicate_problems.short_description = "清理重复题目（保留每个标题ID最小的记录）"
 
 
-# ==============================
-# CodeProblem 管理
-# ==============================
 @admin.register(CodeProblem)
 class CodeProblemAdmin(admin.ModelAdmin):
     form = CodeProblemForm
@@ -93,30 +95,74 @@ class CodeProblemAdmin(admin.ModelAdmin):
         'id',
         'title',
         'difficulty',
+        'category',
+        'recommend_stage',
         'source',
         'accepted_count',
         'submission_count',
+        'acceptance_rate_display',
         'favorite_count',
         'created_at',
-        'updated_at',
     )
-    list_filter = ('difficulty', 'source', 'created_at', 'updated_at')
-    search_fields = ('title', 'description', 'tags', 'source')
-    list_editable = ('difficulty',)
+    list_filter = (
+        'difficulty',
+        'category',
+        'recommend_stage',
+        'question_type',
+        'source',
+        'created_at',
+    )
+    search_fields = (
+        'title',
+        'description',
+        'tags',
+        'knowledge_points',
+        'source',
+        'function_name',
+    )
+    list_editable = ('difficulty', 'category', 'recommend_stage')
     actions = [clean_duplicate_problems]
 
     fieldsets = (
         ('📌 基础信息', {
-            'fields': ('title', 'difficulty', 'source', 'tags'),
-            'description': '题目的基本元数据。'
+            'fields': (
+                'title',
+                'difficulty',
+                'category',
+                'recommend_stage',
+                'question_type',
+                'source',
+            ),
+            'description': '题目的核心元信息。'
+        }),
+        ('🏷️ 分类与标签', {
+            'fields': (
+                'tags',
+                'knowledge_points',
+                'supported_languages',
+                'estimated_minutes',
+            ),
+            'description': '这里的数据会直接影响后续分类筛选、教师端统计和个性化推荐。'
         }),
         ('🧩 函数补全配置', {
-            'fields': ('function_name', 'param_names', 'input_example', 'output_example'),
+            'fields': (
+                'function_name',
+                'param_names',
+                'input_example',
+                'output_example',
+            ),
             'classes': ('collapse',),
             'description': '用于函数补全模式的函数定义与示例配置。'
         }),
         ('📝 题目描述', {
-            'fields': ('description', 'input_format', 'output_format', 'data_range', 'sample_input', 'sample_output'),
+            'fields': (
+                'description',
+                'input_format',
+                'output_format',
+                'data_range',
+                'sample_input',
+                'sample_output',
+            ),
             'classes': ('collapse',)
         }),
         ('⚙️ 判题配置', {
@@ -142,10 +188,11 @@ class CodeProblemAdmin(admin.ModelAdmin):
         return obj.favorited_users.count()
     favorite_count.short_description = "收藏数"
 
+    def acceptance_rate_display(self, obj):
+        return f"{obj.acceptance_rate}%"
+    acceptance_rate_display.short_description = "通过率"
 
-# ==============================
-# CodeSubmission 管理
-# ==============================
+
 @admin.register(CodeSubmission)
 class CodeSubmissionAdmin(admin.ModelAdmin):
     form = CodeSubmissionAdminForm
@@ -153,6 +200,7 @@ class CodeSubmissionAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'problem_title',
+        'problem_category',
         'user_username',
         'mode',
         'status',
@@ -161,7 +209,14 @@ class CodeSubmissionAdmin(admin.ModelAdmin):
         'memory_usage',
         'submitted_at',
     )
-    list_filter = ('mode', 'status', 'language', 'submitted_at', 'problem__difficulty')
+    list_filter = (
+        'mode',
+        'status',
+        'language',
+        'submitted_at',
+        'problem__difficulty',
+        'problem__category',
+    )
     search_fields = ('user__username', 'problem__title', 'code')
 
     readonly_fields = (
@@ -195,6 +250,10 @@ class CodeSubmissionAdmin(admin.ModelAdmin):
     problem_title.short_description = "题目"
     problem_title.admin_order_field = 'problem__title'
 
+    def problem_category(self, obj):
+        return obj.problem.category if obj.problem else "-"
+    problem_category.short_description = "分类"
+
     def user_username(self, obj):
         return obj.user.username if obj.user else "Anonymous"
     user_username.short_description = "用户"
@@ -209,13 +268,10 @@ class CodeSubmissionAdmin(admin.ModelAdmin):
     execution_time_display.short_description = "耗时"
 
 
-# ==============================
-# ProblemDiscussion 管理
-# ==============================
 @admin.register(ProblemDiscussion)
 class ProblemDiscussionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'problem_title', 'user_username', 'title_preview', 'created_at')
-    list_filter = ('created_at', 'problem__difficulty')
+    list_display = ('id', 'problem_title', 'problem_category', 'user_username', 'title_preview', 'created_at')
+    list_filter = ('created_at', 'problem__difficulty', 'problem__category')
     search_fields = ('title', 'content', 'user__username', 'problem__title')
 
     readonly_fields = ('problem', 'user', 'created_at', 'updated_at')
@@ -233,6 +289,10 @@ class ProblemDiscussionAdmin(admin.ModelAdmin):
         return obj.problem.title if obj.problem else "-"
     problem_title.short_description = "关联题目"
 
+    def problem_category(self, obj):
+        return obj.problem.category if obj.problem else "-"
+    problem_category.short_description = "题目分类"
+
     def user_username(self, obj):
         return obj.user.username if obj.user else "Anonymous"
     user_username.short_description = "作者"
@@ -244,13 +304,10 @@ class ProblemDiscussionAdmin(admin.ModelAdmin):
     title_preview.short_description = "标题"
 
 
-# ==============================
-# ProblemFavorite 管理
-# ==============================
 @admin.register(ProblemFavorite)
 class ProblemFavoriteAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'problem', 'created_at')
-    list_filter = ('created_at', 'problem__difficulty')
+    list_display = ('id', 'user', 'problem', 'problem_category', 'created_at')
+    list_filter = ('created_at', 'problem__difficulty', 'problem__category')
     search_fields = ('user__username', 'problem__title')
     readonly_fields = ('created_at',)
 
@@ -259,3 +316,7 @@ class ProblemFavoriteAdmin(admin.ModelAdmin):
             'fields': ('user', 'problem', 'created_at')
         }),
     )
+
+    def problem_category(self, obj):
+        return obj.problem.category if obj.problem else "-"
+    problem_category.short_description = "题目分类"

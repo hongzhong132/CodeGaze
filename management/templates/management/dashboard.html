@@ -1,0 +1,299 @@
+{% extends 'management_base.html' %}
+
+{% block content %}
+<style>
+    .hero-card {
+        padding: 1.8rem;
+        margin-bottom: 1.4rem;
+    }
+    .hero-title {
+        font-size: 2.25rem;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        margin-bottom: 0.45rem;
+    }
+    .hero-desc {
+        color: #64748b;
+        margin-bottom: 0;
+        line-height: 1.7;
+    }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.2rem;
+    }
+    .stat-card {
+        padding: 1.35rem 1.3rem;
+    }
+    .stat-label {
+        color: #64748b;
+        font-weight: 700;
+        font-size: 0.92rem;
+        margin-bottom: 0.5rem;
+    }
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 900;
+        line-height: 1;
+        margin-bottom: 0.35rem;
+    }
+    .stat-sub {
+        color: #94a3b8;
+        font-size: 0.88rem;
+    }
+    .panel-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 1rem;
+    }
+    .panel-card {
+        padding: 1.45rem;
+        margin-bottom: 1rem;
+    }
+    .panel-title {
+        font-size: 1.1rem;
+        font-weight: 900;
+        margin-bottom: 0.2rem;
+    }
+    .panel-subtitle {
+        color: #64748b;
+        font-size: 0.92rem;
+        margin-bottom: 1rem;
+    }
+    .mini-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .mini-table th, .mini-table td {
+        padding: 0.78rem 0.3rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+        text-align: left;
+        font-size: 0.93rem;
+    }
+    .mini-table th {
+        color: #64748b;
+        font-weight: 800;
+    }
+    .bar-list {
+        display: grid;
+        gap: 0.8rem;
+    }
+    .bar-item-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.35rem;
+        font-size: 0.92rem;
+        font-weight: 800;
+    }
+   .bar-track {
+    width: 100%;
+}
+
+.bar-progress {
+    width: 100%;
+    height: 10px;
+    display: block;
+    border: none;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #edf4f8;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.bar-progress::-webkit-progress-bar {
+    background: #edf4f8;
+    border-radius: 999px;
+}
+
+.bar-progress::-webkit-progress-value {
+    background: linear-gradient(90deg, #06b6d4, #2563eb);
+    border-radius: 999px;
+}
+
+.bar-progress::-moz-progress-bar {
+    background: linear-gradient(90deg, #06b6d4, #2563eb);
+    border-radius: 999px;
+}
+    .danger-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.34rem 0.7rem;
+        border-radius: 999px;
+        background: rgba(244, 63, 94, 0.1);
+        color: #e11d48;
+        font-size: 0.82rem;
+        font-weight: 800;
+    }
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.32rem 0.62rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        background: rgba(14, 165, 233, 0.08);
+        color: #0369a1;
+    }
+    @media (max-width: 1100px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .panel-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<section class="glass-card hero-card">
+    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+        <div>
+            <div class="hero-title">后台首页</div>
+            <p class="hero-desc">这里是你自己的业务后台，不再按 Django 原生模型分组，而是按平台运营视角统一管理用户、题库与提交数据。</p>
+        </div>
+        <div class="soft-chip"><i class="bi bi-calendar-check"></i> 最近 7 天新增提交 {{ new_submissions_7d }} 条</div>
+    </div>
+</section>
+
+<section class="stats-grid">
+    <div class="glass-card stat-card">
+        <div class="stat-label">平台用户总数</div>
+        <div class="stat-value">{{ total_users }}</div>
+        <div class="stat-sub">学生 {{ total_students }} 人 · 教师 {{ total_teachers }} 人</div>
+    </div>
+    <div class="glass-card stat-card">
+        <div class="stat-label">题库总量</div>
+        <div class="stat-value">{{ total_problems }}</div>
+        <div class="stat-sub">最近 7 天新增用户 {{ new_users_7d }} 人</div>
+    </div>
+    <div class="glass-card stat-card">
+        <div class="stat-label">提交记录</div>
+        <div class="stat-value">{{ total_submissions }}</div>
+        <div class="stat-sub">讨论 {{ total_discussions }} 条 · 收藏 {{ total_favorites }} 条</div>
+    </div>
+    <div class="glass-card stat-card">
+        <div class="stat-label">快捷入口</div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a class="primary-btn" href="{% url 'management:problem_list' %}"><i class="bi bi-plus-circle"></i> 管理题目</a>
+            <a class="secondary-btn" href="{% url 'management:user_list' %}"><i class="bi bi-people"></i> 查看用户</a>
+        </div>
+    </div>
+</section>
+
+<section class="panel-grid">
+    <div>
+        <div class="glass-card panel-card">
+            <div class="panel-title">题目分类分布</div>
+            <div class="panel-subtitle">用更直观的方式看当前题库结构</div>
+            <div class="bar-list">
+                {% for item in category_stats %}
+                    <div>
+                        <div class="bar-item-head">
+                            <span>{{ item.category }}</span>
+                            <span>{{ item.total }} 题</span>
+                        </div>
+<div class="bar-track">
+    <progress
+        class="bar-progress"
+        value="{{ item.total }}"
+        max="{{ total_problems|default:1 }}"
+    ></progress>
+</div>
+                    </div>
+                {% empty %}
+                    <div class="text-muted">暂无分类数据</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="glass-card panel-card">
+            <div class="panel-title">最近新增题目</div>
+            <div class="panel-subtitle">优先检查刚导入或刚编辑的题目内容</div>
+            <table class="mini-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>题目</th>
+                        <th>分类</th>
+                        <th>难度</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for problem in recent_problems %}
+                        <tr>
+                            <td>{{ problem.id }}</td>
+                            <td>{{ problem.title }}</td>
+                            <td>{{ problem.category }}</td>
+                            <td>{{ problem.get_difficulty_display }}</td>
+                            <td>
+                                <a class="ghost-btn" href="{% url 'management:problem_edit' problem.id %}">编辑</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5" class="text-muted">暂无题目数据</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div>
+        <div class="glass-card panel-card">
+            <div class="panel-title">题目难度统计</div>
+            <div class="panel-subtitle">便于判断题库梯度是否均衡</div>
+            <div class="d-flex gap-2 flex-wrap">
+                {% for item in difficulty_stats %}
+                    <span class="soft-chip">{{ item.difficulty|upper }} · {{ item.total }} 题</span>
+                {% empty %}
+                    <span class="text-muted">暂无难度数据</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="glass-card panel-card">
+            <div class="panel-title">高风险题目</div>
+            <div class="panel-subtitle">这里按错误提交量优先展示，便于你继续优化题面和分类</div>
+            <div class="d-flex flex-column gap-3">
+                {% for problem in high_risk_problems %}
+                    <div class="d-flex justify-content-between align-items-center gap-3">
+                        <div>
+                            <div class="fw-bold">{{ problem.title }}</div>
+                            <div class="text-muted small">{{ problem.category }} · 总提交 {{ problem.submission_count }}</div>
+                        </div>
+                        <span class="danger-chip"><i class="bi bi-exclamation-triangle"></i> 错误 {{ problem.wrong_count }}</span>
+                    </div>
+                {% empty %}
+                    <div class="text-muted">暂无风险题目</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="glass-card panel-card">
+            <div class="panel-title">最近提交</div>
+            <div class="panel-subtitle">快速看到平台的最新使用情况</div>
+            <div class="d-flex flex-column gap-3">
+                {% for item in recent_submissions %}
+                    <div class="d-flex justify-content-between align-items-center gap-3">
+                        <div>
+                            <div class="fw-bold">{{ item.problem.title }}</div>
+                            <div class="text-muted small">{{ item.user.username|default:"匿名用户" }} · {{ item.get_language_display }}</div>
+                        </div>
+                        <span class="status-pill">{{ item.get_status_display }}</span>
+                    </div>
+                {% empty %}
+                    <div class="text-muted">暂无提交记录</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

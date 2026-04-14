@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户注册 - CodeGaze</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(6, 182, 212, 0.12), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(2, 132, 199, 0.10), transparent 30%),
+                linear-gradient(135deg, #f5fafe 0%, #eaf6fa 50%, #f0f8fb 100%);
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .register-shell {
+            width: 100%;
+            max-width: 1120px;
+            display: grid;
+            grid-template-columns: 1.08fr 0.92fr;
+            gap: 28px;
+            align-items: stretch;
+        }
+        .register-side, .register-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(8, 145, 178, 0.10);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 20px 45px rgba(66, 153, 225, 0.10), inset 0 0 0 1px rgba(255, 255, 255, 0.30);
+        }
+        .register-side {
+            padding: 40px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .register-card {
+            padding: 34px 30px 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .brand-top { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
+        .brand-icon {
+            width: 62px; height: 62px; border-radius: 18px; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.14), rgba(2, 132, 199, 0.08));
+            color: #0891b2; font-size: 1.7rem;
+        }
+        .brand-text h1 { margin: 0; font-size: 2.15rem; font-weight: 800; color: #0891b2; }
+        .brand-text p { margin: 6px 0 0; color: #64748b; font-size: 0.95rem; }
+        .welcome-title { margin: 18px 0 14px; font-size: 2.4rem; line-height: 1.15; font-weight: 800; color: #0f172a; }
+        .welcome-desc { margin: 0; color: #64748b; font-size: 1rem; line-height: 1.9; max-width: 560px; }
+        .feature-list { margin: 28px 0 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+        .feature-item {
+            display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; border-radius: 20px;
+            background: rgba(240, 248, 251, 0.72); border: 1px solid rgba(148, 163, 184, 0.10);
+        }
+        .feature-icon {
+            width: 42px; height: 42px; flex-shrink: 0; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+            background: rgba(8, 145, 178, 0.08); color: #0891b2; font-size: 1rem;
+        }
+        .feature-text strong { display: block; margin-bottom: 4px; color: #0f172a; font-size: 0.96rem; }
+        .feature-text span { color: #64748b; font-size: 0.88rem; line-height: 1.7; }
+        .bottom-note {
+            margin-top: 28px; padding: 16px 18px; border-radius: 20px;
+            background: linear-gradient(135deg, rgba(8, 145, 178, 0.07), rgba(2, 132, 199, 0.04));
+            border: 1px solid rgba(8, 145, 178, 0.08); color: #475569; font-size: 0.9rem; line-height: 1.8;
+        }
+        .register-badge {
+            display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px;
+            background: rgba(8, 145, 178, 0.08); color: #0f766e; font-size: 0.83rem; font-weight: 700;
+            border: 1px solid rgba(8, 145, 178, 0.10); margin-bottom: 18px; width: fit-content;
+        }
+        .register-title { margin: 0; font-size: 2rem; font-weight: 800; color: #0f172a; }
+        .register-subtitle { margin: 12px 0 0; color: #64748b; font-size: 0.95rem; line-height: 1.8; }
+        .error-box, .success-box {
+            margin-top: 18px; padding: 14px 16px; border-radius: 16px; font-size: 0.9rem; line-height: 1.6;
+        }
+        .error-box {
+            border: 1px solid rgba(239, 68, 68, 0.14);
+            background: rgba(254, 242, 242, 0.90);
+            color: #b91c1c;
+        }
+        .success-box {
+            border: 1px solid rgba(16, 185, 129, 0.14);
+            background: rgba(236, 253, 245, 0.95);
+            color: #047857;
+        }
+        .register-form { margin-top: 22px; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; margin-bottom: 8px; color: #334155; font-size: 0.92rem; font-weight: 700; }
+        .input-wrap { position: relative; }
+        .input-icon {
+            position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+            color: #94a3b8; font-size: 1rem; pointer-events: none;
+        }
+        .form-input {
+            width: 100%; height: 54px; border-radius: 16px; border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(248, 252, 255, 0.96); padding: 0 16px 0 46px; font-size: 0.95rem; color: #0f172a;
+            outline: none; transition: all 0.25s ease;
+        }
+        .form-input:focus {
+            background: #ffffff; border-color: rgba(8, 145, 178, 0.28); box-shadow: 0 0 0 4px rgba(8, 145, 178, 0.08);
+        }
+        .password-input { padding-right: 48px; }
+        .toggle-password {
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            width: 34px; height: 34px; border: none; background: transparent; color: #94a3b8;
+            border-radius: 10px; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .toggle-password:hover { background: rgba(8, 145, 178, 0.08); color: #0891b2; }
+        .inline-error { margin-top: 6px; color: #dc2626; font-size: 0.82rem; line-height: 1.45; }
+        .submit-btn {
+            width: 100%; height: 56px; border: none; border-radius: 16px; font-size: 1rem; font-weight: 800;
+            color: #ffffff; background: linear-gradient(90deg, #0891b2, #0284c7);
+            box-shadow: 0 10px 22px rgba(8, 145, 178, 0.20); transition: all 0.25s ease;
+        }
+        .submit-btn:hover {
+            transform: translateY(-1px); background: linear-gradient(90deg, #0f766e, #0891b2);
+        }
+        .register-footer {
+            margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(148, 163, 184, 0.12);
+            text-align: center; color: #64748b; font-size: 0.9rem; line-height: 1.7;
+        }
+        .register-footer a {
+            color: #0891b2;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        .register-footer a:hover { color: #0f766e; }
+        @media (max-width: 992px) {
+            .register-shell { grid-template-columns: 1fr; }
+            .register-side { padding: 30px 24px; }
+            .register-card { padding: 28px 22px 24px; }
+        }
+        @media (max-width: 768px) {
+            body { padding: 14px; }
+            .register-side, .register-card { border-radius: 24px; }
+            .welcome-title { font-size: 2rem; }
+            .register-title { font-size: 1.6rem; }
+            .brand-text h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-shell">
+        <section class="register-side">
+            <div>
+                <div class="brand-top">
+                    <div class="brand-icon">
+                        <i class="bi bi-code-slash"></i>
+                    </div>
+                    <div class="brand-text">
+                        <h1>CodeGaze</h1>
+                        <p>AI 智眸编程互助平台</p>
+                    </div>
+                </div>
+
+                <h2 class="welcome-title">创建你的学生账号</h2>
+                <p class="welcome-desc">
+                    通过邮箱、账号和密码即可完成注册。注册成功后系统会自动创建学生身份，
+                    后续登录会自动进入学生端页面。
+                </p>
+
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <div class="feature-icon"><i class="bi bi-envelope-check"></i></div>
+                        <div class="feature-text">
+                            <strong>邮箱唯一</strong>
+                            <span>每个邮箱只能注册一次，用于账号信息保存与后续找回扩展。</span>
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon"><i class="bi bi-person-badge"></i></div>
+                        <div class="feature-text">
+                            <strong>账号自主创建</strong>
+                            <span>用户可自行设置登录账号和密码，后续直接使用该账号登录系统。</span>
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon"><i class="bi bi-mortarboard"></i></div>
+                        <div class="feature-text">
+                            <strong>默认注册为学生</strong>
+                            <span>普通注册入口仅创建学生账号，教师账号仍由后台统一管理。</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bottom-note">
+                <i class="bi bi-info-circle me-1"></i>
+                当前注册入口面向普通学生用户开放。教师账号建议由管理员统一创建和分配。
+            </div>
+        </section>
+
+        <section class="register-card">
+            <div class="register-badge">
+                <i class="bi bi-person-plus"></i>
+                <span>账号注册入口</span>
+            </div>
+
+            <h2 class="register-title">用户注册</h2>
+            <p class="register-subtitle">请填写邮箱、账号和密码，注册成功后返回登录页面即可进入系统。</p>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="{% if message.tags == 'success' %}success-box{% else %}error-box{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if form.non_field_errors %}
+                <div class="error-box">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" class="register-form">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label class="form-label" for="id_email">邮箱</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="bi bi-envelope"></i></span>
+                        <input type="email" name="email" id="id_email" class="form-input" placeholder="请输入邮箱" value="{{ form.email.value|default:'' }}" autocomplete="email">
+                    </div>
+                    {% if form.email.errors %}
+                        <div class="inline-error">{{ form.email.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="id_username">账号</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="bi bi-person"></i></span>
+                        <input type="text" name="username" id="id_username" class="form-input" placeholder="请输入账号" value="{{ form.username.value|default:'' }}" autocomplete="username">
+                    </div>
+                    {% if form.username.errors %}
+                        <div class="inline-error">{{ form.username.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="id_password1">密码</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="bi bi-lock"></i></span>
+                        <input type="password" name="password1" id="id_password1" class="form-input password-input" placeholder="请输入密码" autocomplete="new-password">
+                        <button type="button" class="toggle-password" data-target="id_password1" aria-label="显示或隐藏密码">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    {% if form.password1.errors %}
+                        <div class="inline-error">{{ form.password1.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="id_password2">确认密码</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="bi bi-shield-lock"></i></span>
+                        <input type="password" name="password2" id="id_password2" class="form-input password-input" placeholder="请再次输入密码" autocomplete="new-password">
+                        <button type="button" class="toggle-password" data-target="id_password2" aria-label="显示或隐藏密码">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    {% if form.password2.errors %}
+                        <div class="inline-error">{{ form.password2.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="bi bi-person-plus me-2"></i>
+                    立即注册
+                </button>
+            </form>
+
+            <div class="register-footer">
+                已有账号？
+                <a href="{% url 'accounts:login' %}">返回登录</a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const buttons = document.querySelectorAll('.toggle-password');
+            buttons.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    if (!input) return;
+
+                    const isPassword = input.type === 'password';
+                    input.type = isPassword ? 'text' : 'password';
+                    this.innerHTML = isPassword ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

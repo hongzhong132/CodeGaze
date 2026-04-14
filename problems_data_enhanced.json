@@ -1,0 +1,3727 @@
+[
+  {
+    "id": 1,
+    "title": "A + B Problem",
+    "description": "给定两个整数 A 和 B，输出它们的和。",
+    "function_name": "add",
+    "param_names": [
+      "a",
+      "b"
+    ],
+    "input_example": {
+      "a": 1,
+      "b": 2
+    },
+    "output_example": 3,
+    "input_format": "输入两个整数 a 和 b。",
+    "output_format": "输出它们的和。",
+    "data_range": "-10^9 <= a,b <= 10^9",
+    "sample_input": "1\n2",
+    "sample_output": "3",
+    "test_cases": [
+      {
+        "input": [
+          1,
+          2
+        ],
+        "expected": 3
+      },
+      {
+        "input": [
+          -1,
+          1
+        ],
+        "expected": 0
+      },
+      {
+        "input": [
+          100,
+          200
+        ],
+        "expected": 300
+      }
+    ],
+    "solution_text": "直接返回 a+b。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "基础",
+    "tags": [
+      "入门",
+      "模拟"
+    ],
+    "knowledge_points": [
+      "输入输出",
+      "基础语法"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 5,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 2,
+    "title": "判断奇偶",
+    "description": "给定一个整数 n，判断它是奇数还是偶数。偶数返回 'even'，奇数返回 'odd'。",
+    "function_name": "judgeParity",
+    "param_names": [
+      "n"
+    ],
+    "input_example": {
+      "n": 7
+    },
+    "output_example": "odd",
+    "input_format": "输入一个整数 n。",
+    "output_format": "输出 odd 或 even。",
+    "data_range": "|n| <= 10^9",
+    "sample_input": "7",
+    "sample_output": "odd",
+    "test_cases": [
+      {
+        "input": [
+          7
+        ],
+        "expected": "odd"
+      },
+      {
+        "input": [
+          12
+        ],
+        "expected": "even"
+      },
+      {
+        "input": [
+          0
+        ],
+        "expected": "even"
+      }
+    ],
+    "solution_text": "使用 n % 2 判断。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "基础",
+    "tags": [
+      "入门",
+      "数学"
+    ],
+    "knowledge_points": [
+      "取模",
+      "条件判断"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 5,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 3,
+    "title": "数组最大值",
+    "description": "给定整数数组 nums，返回数组中的最大值。",
+    "function_name": "findMax",
+    "param_names": [
+      "nums"
+    ],
+    "input_example": {
+      "nums": [
+        1,
+        3,
+        2
+      ]
+    },
+    "output_example": 3,
+    "input_format": "输入一个整数数组 nums。",
+    "output_format": "输出数组最大值。",
+    "data_range": "1 <= n <= 10^5",
+    "sample_input": "[1,3,2]",
+    "sample_output": "3",
+    "test_cases": [
+      {
+        "input": [
+          [
+            1,
+            3,
+            2
+          ]
+        ],
+        "expected": 3
+      },
+      {
+        "input": [
+          [
+            -5,
+            -2,
+            -8
+          ]
+        ],
+        "expected": -2
+      }
+    ],
+    "solution_text": "线性扫描。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "数组",
+    "tags": [
+      "数组",
+      "遍历"
+    ],
+    "knowledge_points": [
+      "线性扫描",
+      "边界处理"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 8,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 4,
+    "title": "数组元素求和",
+    "description": "给定整数数组 nums，返回数组元素之和。",
+    "function_name": "sumArray",
+    "param_names": [
+      "nums"
+    ],
+    "input_example": {
+      "nums": [
+        1,
+        2,
+        3
+      ]
+    },
+    "output_example": 6,
+    "input_format": "输入一个整数数组。",
+    "output_format": "输出数组和。",
+    "data_range": "1 <= n <= 10^5",
+    "sample_input": "[1,2,3]",
+    "sample_output": "6",
+    "test_cases": [
+      {
+        "input": [
+          [
+            1,
+            2,
+            3
+          ]
+        ],
+        "expected": 6
+      },
+      {
+        "input": [
+          [
+            -1,
+            1,
+            5
+          ]
+        ],
+        "expected": 5
+      }
+    ],
+    "solution_text": "遍历累加。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "数组",
+    "tags": [
+      "数组",
+      "前缀和"
+    ],
+    "knowledge_points": [
+      "遍历",
+      "累加"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 8,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 5,
+    "title": "两数之和",
+    "description": "给定数组 nums 和目标值 target，返回和为 target 的两个下标。",
+    "function_name": "twoSum",
+    "param_names": [
+      "nums",
+      "target"
+    ],
+    "input_example": {
+      "nums": [
+        2,
+        7,
+        11,
+        15
+      ],
+      "target": 9
+    },
+    "output_example": [
+      0,
+      1
+    ],
+    "input_format": "输入整数数组 nums 和整数 target。",
+    "output_format": "输出满足要求的两个下标。",
+    "data_range": "2 <= n <= 10^4",
+    "sample_input": "[2,7,11,15]\n9",
+    "sample_output": "[0,1]",
+    "test_cases": [
+      {
+        "input": [
+          [
+            2,
+            7,
+            11,
+            15
+          ],
+          9
+        ],
+        "expected": [
+          0,
+          1
+        ]
+      },
+      {
+        "input": [
+          [
+            3,
+            2,
+            4
+          ],
+          6
+        ],
+        "expected": [
+          1,
+          2
+        ]
+      }
+    ],
+    "solution_text": "哈希表记录已访问元素。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "哈希",
+    "tags": [
+      "数组",
+      "哈希表"
+    ],
+    "knowledge_points": [
+      "哈希表",
+      "查找"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 12,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 6,
+    "title": "移动零",
+    "description": "将数组中的所有 0 移动到末尾，同时保持非零元素相对顺序。",
+    "function_name": "moveZeroes",
+    "param_names": [
+      "nums"
+    ],
+    "input_example": {
+      "nums": [
+        0,
+        1,
+        0,
+        3,
+        12
+      ]
+    },
+    "output_example": [
+      1,
+      3,
+      12,
+      0,
+      0
+    ],
+    "input_format": "输入整数数组 nums。",
+    "output_format": "输出处理后的数组。",
+    "data_range": "1 <= n <= 10^5",
+    "sample_input": "[0,1,0,3,12]",
+    "sample_output": "[1,3,12,0,0]",
+    "test_cases": [
+      {
+        "input": [
+          [
+            0,
+            1,
+            0,
+            3,
+            12
+          ]
+        ],
+        "expected": [
+          1,
+          3,
+          12,
+          0,
+          0
+        ]
+      },
+      {
+        "input": [
+          [
+            0
+          ]
+        ],
+        "expected": [
+          0
+        ]
+      }
+    ],
+    "solution_text": "双指针原地覆盖。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "双指针",
+    "tags": [
+      "数组",
+      "双指针"
+    ],
+    "knowledge_points": [
+      "双指针",
+      "原地修改"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 10,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 7,
+    "title": "合并有序数组",
+    "description": "给定两个升序数组 nums1 和 nums2，返回合并后的升序数组。",
+    "function_name": "mergeSortedArrays",
+    "param_names": [
+      "nums1",
+      "nums2"
+    ],
+    "input_example": {
+      "nums1": [
+        1,
+        2,
+        4
+      ],
+      "nums2": [
+        1,
+        3,
+        4
+      ]
+    },
+    "output_example": [
+      1,
+      1,
+      2,
+      3,
+      4,
+      4
+    ],
+    "input_format": "输入两个升序数组。",
+    "output_format": "输出合并后的升序数组。",
+    "data_range": "1 <= n,m <= 10^4",
+    "sample_input": "[1,2,4]\n[1,3,4]",
+    "sample_output": "[1,1,2,3,4,4]",
+    "test_cases": [
+      {
+        "input": [
+          [
+            1,
+            2,
+            4
+          ],
+          [
+            1,
+            3,
+            4
+          ]
+        ],
+        "expected": [
+          1,
+          1,
+          2,
+          3,
+          4,
+          4
+        ]
+      },
+      {
+        "input": [
+          [],
+          [
+            0
+          ]
+        ],
+        "expected": [
+          0
+        ]
+      }
+    ],
+    "solution_text": "双指针归并。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "双指针",
+    "tags": [
+      "数组",
+      "双指针",
+      "排序"
+    ],
+    "knowledge_points": [
+      "归并思想",
+      "双指针"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 12,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 8,
+    "title": "反转字符串",
+    "description": "给定字符串 s，返回反转后的字符串。",
+    "function_name": "reverseString",
+    "param_names": [
+      "s"
+    ],
+    "input_example": {
+      "s": "hello"
+    },
+    "output_example": "olleh",
+    "input_format": "输入一个字符串。",
+    "output_format": "输出反转后的字符串。",
+    "data_range": "1 <= |s| <= 10^5",
+    "sample_input": "hello",
+    "sample_output": "olleh",
+    "test_cases": [
+      {
+        "input": [
+          "hello"
+        ],
+        "expected": "olleh"
+      },
+      {
+        "input": [
+          "abc"
+        ],
+        "expected": "cba"
+      }
+    ],
+    "solution_text": "双指针交换或切片。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "字符串",
+    "tags": [
+      "字符串",
+      "双指针"
+    ],
+    "knowledge_points": [
+      "字符串操作"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 6,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 9,
+    "title": "回文字符串判断",
+    "description": "判断字符串 s 是否为回文串。",
+    "function_name": "isPalindromeString",
+    "param_names": [
+      "s"
+    ],
+    "input_example": {
+      "s": "level"
+    },
+    "output_example": true,
+    "input_format": "输入一个字符串。",
+    "output_format": "输出 true 或 false。",
+    "data_range": "1 <= |s| <= 10^5",
+    "sample_input": "level",
+    "sample_output": "true",
+    "test_cases": [
+      {
+        "input": [
+          "level"
+        ],
+        "expected": true
+      },
+      {
+        "input": [
+          "abca"
+        ],
+        "expected": false
+      }
+    ],
+    "solution_text": "首尾双指针比较。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "字符串",
+    "tags": [
+      "字符串",
+      "双指针"
+    ],
+    "knowledge_points": [
+      "回文判断"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 8,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 10,
+    "title": "无重复字符的最长子串",
+    "description": "返回不含重复字符的最长子串长度。",
+    "function_name": "lengthOfLongestSubstring",
+    "param_names": [
+      "s"
+    ],
+    "input_example": {
+      "s": "abcabcbb"
+    },
+    "output_example": 3,
+    "input_format": "输入字符串 s。",
+    "output_format": "输出最长长度。",
+    "data_range": "0 <= |s| <= 5*10^4",
+    "sample_input": "abcabcbb",
+    "sample_output": "3",
+    "test_cases": [
+      {
+        "input": [
+          "abcabcbb"
+        ],
+        "expected": 3
+      },
+      {
+        "input": [
+          "bbbbb"
+        ],
+        "expected": 1
+      },
+      {
+        "input": [
+          "pwwkew"
+        ],
+        "expected": 3
+      }
+    ],
+    "solution_text": "滑动窗口 + 哈希集合。",
+    "video_url": "",
+    "difficulty": "medium",
+    "category": "字符串",
+    "tags": [
+      "字符串",
+      "滑动窗口",
+      "哈希表"
+    ],
+    "knowledge_points": [
+      "滑动窗口",
+      "去重"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 18,
+    "recommend_stage": "提升",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 11,
+    "title": "有效的括号",
+    "description": "判断括号字符串是否有效。",
+    "function_name": "isValid",
+    "param_names": [
+      "s"
+    ],
+    "input_example": {
+      "s": "()[]{}"
+    },
+    "output_example": true,
+    "input_format": "输入括号字符串。",
+    "output_format": "输出 true 或 false。",
+    "data_range": "1 <= |s| <= 10^4",
+    "sample_input": "()[]{}",
+    "sample_output": "true",
+    "test_cases": [
+      {
+        "input": [
+          "()[]{}"
+        ],
+        "expected": true
+      },
+      {
+        "input": [
+          "(]"
+        ],
+        "expected": false
+      },
+      {
+        "input": [
+          "{[]}"
+        ],
+        "expected": true
+      }
+    ],
+    "solution_text": "用栈匹配括号。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "栈",
+    "tags": [
+      "栈",
+      "字符串"
+    ],
+    "knowledge_points": [
+      "栈匹配"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 10,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 12,
+    "title": "最小栈模拟",
+    "description": "给定操作序列 ops 和对应值 values，输出每次 getMin 的结果。操作只包含 push、pop、getMin。",
+    "function_name": "simulateMinStack",
+    "param_names": [
+      "ops",
+      "values"
+    ],
+    "input_example": {
+      "ops": [
+        "push",
+        "push",
+        "getMin",
+        "pop",
+        "getMin"
+      ],
+      "values": [
+        -2,
+        0,
+        null,
+        null,
+        null
+      ]
+    },
+    "output_example": [
+      -2,
+      -2
+    ],
+    "input_format": "输入操作数组和对应值数组。",
+    "output_format": "输出每次 getMin 的结果数组。",
+    "data_range": "操作数 <= 10^4",
+    "sample_input": "[\"push\",\"push\",\"getMin\",\"pop\",\"getMin\"]\n[-2,0,null,null,null]",
+    "sample_output": "[-2,-2]",
+    "test_cases": [
+      {
+        "input": [
+          [
+            "push",
+            "push",
+            "getMin",
+            "pop",
+            "getMin"
+          ],
+          [
+            -2,
+            0,
+            null,
+            null,
+            null
+          ]
+        ],
+        "expected": [
+          -2,
+          -2
+        ]
+      }
+    ],
+    "solution_text": "使用两个栈，一个维护最小值。",
+    "video_url": "",
+    "difficulty": "medium",
+    "category": "栈",
+    "tags": [
+      "栈",
+      "设计"
+    ],
+    "knowledge_points": [
+      "辅助栈"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 20,
+    "recommend_stage": "提升",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 13,
+    "title": "二分查找",
+    "description": "在有序数组中查找 target，找到返回下标，否则返回 -1。",
+    "function_name": "search",
+    "param_names": [
+      "nums",
+      "target"
+    ],
+    "input_example": {
+      "nums": [
+        -1,
+        0,
+        3,
+        5,
+        9,
+        12
+      ],
+      "target": 9
+    },
+    "output_example": 4,
+    "input_format": "输入升序数组 nums 和 target。",
+    "output_format": "输出 target 下标。",
+    "data_range": "1 <= n <= 10^4",
+    "sample_input": "[-1,0,3,5,9,12]\n9",
+    "sample_output": "4",
+    "test_cases": [
+      {
+        "input": [
+          [
+            -1,
+            0,
+            3,
+            5,
+            9,
+            12
+          ],
+          9
+        ],
+        "expected": 4
+      },
+      {
+        "input": [
+          [
+            -1,
+            0,
+            3,
+            5,
+            9,
+            12
+          ],
+          2
+        ],
+        "expected": -1
+      }
+    ],
+    "solution_text": "经典二分。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "二分",
+    "tags": [
+      "数组",
+      "二分查找"
+    ],
+    "knowledge_points": [
+      "二分边界"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 10,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 14,
+    "title": "搜索插入位置",
+    "description": "在有序数组中找到 target 应插入的位置。",
+    "function_name": "searchInsert",
+    "param_names": [
+      "nums",
+      "target"
+    ],
+    "input_example": {
+      "nums": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "target": 5
+    },
+    "output_example": 2,
+    "input_format": "输入升序数组和目标值。",
+    "output_format": "输出插入位置。",
+    "data_range": "1 <= n <= 10^4",
+    "sample_input": "[1,3,5,6]\n5",
+    "sample_output": "2",
+    "test_cases": [
+      {
+        "input": [
+          [
+            1,
+            3,
+            5,
+            6
+          ],
+          5
+        ],
+        "expected": 2
+      },
+      {
+        "input": [
+          [
+            1,
+            3,
+            5,
+            6
+          ],
+          2
+        ],
+        "expected": 1
+      },
+      {
+        "input": [
+          [
+            1,
+            3,
+            5,
+            6
+          ],
+          7
+        ],
+        "expected": 4
+      }
+    ],
+    "solution_text": "lower_bound 模板题。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "二分",
+    "tags": [
+      "数组",
+      "二分查找"
+    ],
+    "knowledge_points": [
+      "二分边界"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 10,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 15,
+    "title": "平方根整数部分",
+    "description": "返回非负整数 x 的平方根的整数部分。",
+    "function_name": "mySqrt",
+    "param_names": [
+      "x"
+    ],
+    "input_example": {
+      "x": 8
+    },
+    "output_example": 2,
+    "input_format": "输入非负整数 x。",
+    "output_format": "输出平方根整数部分。",
+    "data_range": "0 <= x <= 2^31-1",
+    "sample_input": "8",
+    "sample_output": "2",
+    "test_cases": [
+      {
+        "input": [
+          4
+        ],
+        "expected": 2
+      },
+      {
+        "input": [
+          8
+        ],
+        "expected": 2
+      },
+      {
+        "input": [
+          0
+        ],
+        "expected": 0
+      }
+    ],
+    "solution_text": "二分查找答案。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "二分",
+    "tags": [
+      "二分查找",
+      "数学"
+    ],
+    "knowledge_points": [
+      "答案二分"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 12,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 16,
+    "title": "买卖股票的最佳时机",
+    "description": "只允许买卖一次，返回最大利润。",
+    "function_name": "maxProfit",
+    "param_names": [
+      "prices"
+    ],
+    "input_example": {
+      "prices": [
+        7,
+        1,
+        5,
+        3,
+        6,
+        4
+      ]
+    },
+    "output_example": 5,
+    "input_format": "输入价格数组。",
+    "output_format": "输出最大利润。",
+    "data_range": "1 <= n <= 10^5",
+    "sample_input": "[7,1,5,3,6,4]",
+    "sample_output": "5",
+    "test_cases": [
+      {
+        "input": [
+          [
+            7,
+            1,
+            5,
+            3,
+            6,
+            4
+          ]
+        ],
+        "expected": 5
+      },
+      {
+        "input": [
+          [
+            7,
+            6,
+            4,
+            3,
+            1
+          ]
+        ],
+        "expected": 0
+      }
+    ],
+    "solution_text": "维护最低买入价。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "贪心",
+    "tags": [
+      "数组",
+      "贪心"
+    ],
+    "knowledge_points": [
+      "最值维护"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 10,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 17,
+    "title": "分发饼干",
+    "description": "给定孩子胃口 g 和饼干尺寸 s，求最多满足多少个孩子。",
+    "function_name": "findContentChildren",
+    "param_names": [
+      "g",
+      "s"
+    ],
+    "input_example": {
+      "g": [
+        1,
+        2,
+        3
+      ],
+      "s": [
+        1,
+        1
+      ]
+    },
+    "output_example": 1,
+    "input_format": "输入两个整数数组 g 和 s。",
+    "output_format": "输出最多满足的孩子数量。",
+    "data_range": "1 <= n,m <= 3*10^4",
+    "sample_input": "[1,2,3]\n[1,1]",
+    "sample_output": "1",
+    "test_cases": [
+      {
+        "input": [
+          [
+            1,
+            2,
+            3
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "expected": 1
+      },
+      {
+        "input": [
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            2,
+            3
+          ]
+        ],
+        "expected": 2
+      }
+    ],
+    "solution_text": "排序后双指针贪心。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "贪心",
+    "tags": [
+      "贪心",
+      "排序"
+    ],
+    "knowledge_points": [
+      "局部最优"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 12,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 18,
+    "title": "跳跃游戏",
+    "description": "判断是否能到达最后一个位置。",
+    "function_name": "canJump",
+    "param_names": [
+      "nums"
+    ],
+    "input_example": {
+      "nums": [
+        2,
+        3,
+        1,
+        1,
+        4
+      ]
+    },
+    "output_example": true,
+    "input_format": "输入整数数组 nums。",
+    "output_format": "输出 true 或 false。",
+    "data_range": "1 <= n <= 10^4",
+    "sample_input": "[2,3,1,1,4]",
+    "sample_output": "true",
+    "test_cases": [
+      {
+        "input": [
+          [
+            2,
+            3,
+            1,
+            1,
+            4
+          ]
+        ],
+        "expected": true
+      },
+      {
+        "input": [
+          [
+            3,
+            2,
+            1,
+            0,
+            4
+          ]
+        ],
+        "expected": false
+      }
+    ],
+    "solution_text": "维护最远可达位置。",
+    "video_url": "",
+    "difficulty": "medium",
+    "category": "贪心",
+    "tags": [
+      "贪心",
+      "数组"
+    ],
+    "knowledge_points": [
+      "覆盖范围"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 15,
+    "recommend_stage": "提升",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 19,
+    "title": "爬楼梯",
+    "description": "返回到达楼顶的方法数。",
+    "function_name": "climbStairs",
+    "param_names": [
+      "n"
+    ],
+    "input_example": {
+      "n": 5
+    },
+    "output_example": 8,
+    "input_format": "输入整数 n。",
+    "output_format": "输出方案数。",
+    "data_range": "1 <= n <= 45",
+    "sample_input": "5",
+    "sample_output": "8",
+    "test_cases": [
+      {
+        "input": [
+          2
+        ],
+        "expected": 2
+      },
+      {
+        "input": [
+          3
+        ],
+        "expected": 3
+      },
+      {
+        "input": [
+          5
+        ],
+        "expected": 8
+      }
+    ],
+    "solution_text": "一维 DP / 斐波那契。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "动态规划",
+    "tags": [
+      "动态规划"
+    ],
+    "knowledge_points": [
+      "状态转移"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 10,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 20,
+    "title": "打家劫舍",
+    "description": "不能偷相邻房屋，返回最大金额。",
+    "function_name": "rob",
+    "param_names": [
+      "nums"
+    ],
+    "input_example": {
+      "nums": [
+        2,
+        7,
+        9,
+        3,
+        1
+      ]
+    },
+    "output_example": 12,
+    "input_format": "输入整数数组 nums。",
+    "output_format": "输出最大金额。",
+    "data_range": "1 <= n <= 100",
+    "sample_input": "[2,7,9,3,1]",
+    "sample_output": "12",
+    "test_cases": [
+      {
+        "input": [
+          [
+            1,
+            2,
+            3,
+            1
+          ]
+        ],
+        "expected": 4
+      },
+      {
+        "input": [
+          [
+            2,
+            7,
+            9,
+            3,
+            1
+          ]
+        ],
+        "expected": 12
+      }
+    ],
+    "solution_text": "dp[i]=max(dp[i-1],dp[i-2]+nums[i])。",
+    "video_url": "",
+    "difficulty": "medium",
+    "category": "动态规划",
+    "tags": [
+      "动态规划",
+      "数组"
+    ],
+    "knowledge_points": [
+      "线性DP"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 18,
+    "recommend_stage": "提升",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 21,
+    "title": "最大子数组和",
+    "description": "返回最大连续子数组和。",
+    "function_name": "maxSubArray",
+    "param_names": [
+      "nums"
+    ],
+    "input_example": {
+      "nums": [
+        -2,
+        1,
+        -3,
+        4,
+        -1,
+        2,
+        1,
+        -5,
+        4
+      ]
+    },
+    "output_example": 6,
+    "input_format": "输入整数数组 nums。",
+    "output_format": "输出最大连续和。",
+    "data_range": "1 <= n <= 10^5",
+    "sample_input": "[-2,1,-3,4,-1,2,1,-5,4]",
+    "sample_output": "6",
+    "test_cases": [
+      {
+        "input": [
+          [
+            -2,
+            1,
+            -3,
+            4,
+            -1,
+            2,
+            1,
+            -5,
+            4
+          ]
+        ],
+        "expected": 6
+      },
+      {
+        "input": [
+          [
+            1
+          ]
+        ],
+        "expected": 1
+      }
+    ],
+    "solution_text": "Kadane 算法。",
+    "video_url": "",
+    "difficulty": "medium",
+    "category": "动态规划",
+    "tags": [
+      "数组",
+      "动态规划"
+    ],
+    "knowledge_points": [
+      "子问题最优"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 16,
+    "recommend_stage": "提升",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 22,
+    "title": "零钱兑换",
+    "description": "给定硬币面额和金额，返回最少硬币数，无法凑出返回 -1。",
+    "function_name": "coinChange",
+    "param_names": [
+      "coins",
+      "amount"
+    ],
+    "input_example": {
+      "coins": [
+        1,
+        2,
+        5
+      ],
+      "amount": 11
+    },
+    "output_example": 3,
+    "input_format": "输入硬币数组和金额。",
+    "output_format": "输出最少硬币数。",
+    "data_range": "1 <= amount <= 10^4",
+    "sample_input": "[1,2,5]\n11",
+    "sample_output": "3",
+    "test_cases": [
+      {
+        "input": [
+          [
+            1,
+            2,
+            5
+          ],
+          11
+        ],
+        "expected": 3
+      },
+      {
+        "input": [
+          [
+            2
+          ],
+          3
+        ],
+        "expected": -1
+      }
+    ],
+    "solution_text": "完全背包型动态规划。",
+    "video_url": "",
+    "difficulty": "medium",
+    "category": "动态规划",
+    "tags": [
+      "动态规划",
+      "完全背包"
+    ],
+    "knowledge_points": [
+      "最值DP"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 22,
+    "recommend_stage": "进阶",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 23,
+    "title": "最长公共前缀",
+    "description": "返回字符串数组的最长公共前缀。",
+    "function_name": "longestCommonPrefix",
+    "param_names": [
+      "strs"
+    ],
+    "input_example": {
+      "strs": [
+        "flower",
+        "flow",
+        "flight"
+      ]
+    },
+    "output_example": "fl",
+    "input_format": "输入字符串数组 strs。",
+    "output_format": "输出最长公共前缀。",
+    "data_range": "1 <= n <= 200",
+    "sample_input": "[\"flower\",\"flow\",\"flight\"]",
+    "sample_output": "fl",
+    "test_cases": [
+      {
+        "input": [
+          [
+            "flower",
+            "flow",
+            "flight"
+          ]
+        ],
+        "expected": "fl"
+      },
+      {
+        "input": [
+          [
+            "dog",
+            "racecar",
+            "car"
+          ]
+        ],
+        "expected": ""
+      }
+    ],
+    "solution_text": "横向比较或纵向扫描。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "字符串",
+    "tags": [
+      "字符串"
+    ],
+    "knowledge_points": [
+      "公共前缀"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 8,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 24,
+    "title": "字母异位词分组",
+    "description": "将字母异位词分组后返回。",
+    "function_name": "groupAnagrams",
+    "param_names": [
+      "strs"
+    ],
+    "input_example": {
+      "strs": [
+        "eat",
+        "tea",
+        "tan",
+        "ate",
+        "nat",
+        "bat"
+      ]
+    },
+    "output_example": [
+      [
+        "eat",
+        "tea",
+        "ate"
+      ],
+      [
+        "tan",
+        "nat"
+      ],
+      [
+        "bat"
+      ]
+    ],
+    "input_format": "输入字符串数组 strs。",
+    "output_format": "输出分组后的二维数组。",
+    "data_range": "1 <= n <= 10^4",
+    "sample_input": "[\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]",
+    "sample_output": "[[\"eat\",\"tea\",\"ate\"],[\"tan\",\"nat\"],[\"bat\"]]",
+    "test_cases": [
+      {
+        "input": [
+          [
+            "eat",
+            "tea",
+            "tan",
+            "ate",
+            "nat",
+            "bat"
+          ]
+        ],
+        "expected": [
+          [
+            "eat",
+            "tea",
+            "ate"
+          ],
+          [
+            "tan",
+            "nat"
+          ],
+          [
+            "bat"
+          ]
+        ]
+      }
+    ],
+    "solution_text": "排序后的字符串作为哈希键。",
+    "video_url": "",
+    "difficulty": "medium",
+    "category": "哈希",
+    "tags": [
+      "哈希表",
+      "字符串"
+    ],
+    "knowledge_points": [
+      "分组哈希"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 20,
+    "recommend_stage": "提升",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 25,
+    "title": "只出现一次的数字",
+    "description": "除一个元素外其余都出现两次，找出这个元素。",
+    "function_name": "singleNumber",
+    "param_names": [
+      "nums"
+    ],
+    "input_example": {
+      "nums": [
+        4,
+        1,
+        2,
+        1,
+        2
+      ]
+    },
+    "output_example": 4,
+    "input_format": "输入整数数组 nums。",
+    "output_format": "输出只出现一次的数字。",
+    "data_range": "1 <= n <= 3*10^4",
+    "sample_input": "[4,1,2,1,2]",
+    "sample_output": "4",
+    "test_cases": [
+      {
+        "input": [
+          [
+            2,
+            2,
+            1
+          ]
+        ],
+        "expected": 1
+      },
+      {
+        "input": [
+          [
+            4,
+            1,
+            2,
+            1,
+            2
+          ]
+        ],
+        "expected": 4
+      }
+    ],
+    "solution_text": "利用异或性质。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "哈希",
+    "tags": [
+      "位运算",
+      "哈希思想"
+    ],
+    "knowledge_points": [
+      "异或"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 8,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 26,
+    "title": "快乐数",
+    "description": "判断一个数是否为快乐数。",
+    "function_name": "isHappy",
+    "param_names": [
+      "n"
+    ],
+    "input_example": {
+      "n": 19
+    },
+    "output_example": true,
+    "input_format": "输入整数 n。",
+    "output_format": "输出 true 或 false。",
+    "data_range": "1 <= n <= 2^31-1",
+    "sample_input": "19",
+    "sample_output": "true",
+    "test_cases": [
+      {
+        "input": [
+          19
+        ],
+        "expected": true
+      },
+      {
+        "input": [
+          2
+        ],
+        "expected": false
+      }
+    ],
+    "solution_text": "用哈希集合检测循环。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "哈希",
+    "tags": [
+      "哈希表",
+      "数学"
+    ],
+    "knowledge_points": [
+      "循环检测"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 10,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 27,
+    "title": "反转链表（数组模拟）",
+    "description": "用数组表示单链表 next 索引，返回反转后的节点值顺序。",
+    "function_name": "reverseLinkedListValues",
+    "param_names": [
+      "values"
+    ],
+    "input_example": {
+      "values": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "output_example": [
+      5,
+      4,
+      3,
+      2,
+      1
+    ],
+    "input_format": "输入链表节点值数组。",
+    "output_format": "输出反转后的节点值数组。",
+    "data_range": "1 <= n <= 10^4",
+    "sample_input": "[1,2,3,4,5]",
+    "sample_output": "[5,4,3,2,1]",
+    "test_cases": [
+      {
+        "input": [
+          [
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        ],
+        "expected": [
+          5,
+          4,
+          3,
+          2,
+          1
+        ]
+      },
+      {
+        "input": [
+          [
+            1,
+            2
+          ]
+        ],
+        "expected": [
+          2,
+          1
+        ]
+      }
+    ],
+    "solution_text": "这里用数组简化链表题，考察逆序思路。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "链表",
+    "tags": [
+      "链表",
+      "模拟"
+    ],
+    "knowledge_points": [
+      "链表反转"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 10,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 28,
+    "title": "链表中间节点（数组模拟）",
+    "description": "给定链表值数组，返回中间节点值。",
+    "function_name": "middleNodeValue",
+    "param_names": [
+      "values"
+    ],
+    "input_example": {
+      "values": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "output_example": 3,
+    "input_format": "输入链表节点值数组。",
+    "output_format": "输出中间节点值。",
+    "data_range": "1 <= n <= 10^5",
+    "sample_input": "[1,2,3,4,5]",
+    "sample_output": "3",
+    "test_cases": [
+      {
+        "input": [
+          [
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        ],
+        "expected": 3
+      },
+      {
+        "input": [
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        ],
+        "expected": 4
+      }
+    ],
+    "solution_text": "快慢指针思想映射到数组。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "链表",
+    "tags": [
+      "链表",
+      "双指针"
+    ],
+    "knowledge_points": [
+      "快慢指针"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 8,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 29,
+    "title": "括号生成",
+    "description": "给定 n，生成所有合法括号组合。",
+    "function_name": "generateParenthesis",
+    "param_names": [
+      "n"
+    ],
+    "input_example": {
+      "n": 3
+    },
+    "output_example": [
+      "((()))",
+      "(()())",
+      "(())()",
+      "()(())",
+      "()()()"
+    ],
+    "input_format": "输入整数 n。",
+    "output_format": "输出所有合法括号组合数组。",
+    "data_range": "1 <= n <= 8",
+    "sample_input": "3",
+    "sample_output": "[\"((()))\",\"(()())\",\"(())()\",\"()(())\",\"()()()\"]",
+    "test_cases": [
+      {
+        "input": [
+          3
+        ],
+        "expected": [
+          "((()))",
+          "(()())",
+          "(())()",
+          "()(())",
+          "()()()"
+        ]
+      }
+    ],
+    "solution_text": "回溯生成所有可能。",
+    "video_url": "",
+    "difficulty": "medium",
+    "category": "回溯",
+    "tags": [
+      "回溯",
+      "字符串"
+    ],
+    "knowledge_points": [
+      "递归搜索"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 20,
+    "recommend_stage": "提升",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 30,
+    "title": "全排列",
+    "description": "返回数组 nums 的所有排列。",
+    "function_name": "permute",
+    "param_names": [
+      "nums"
+    ],
+    "input_example": {
+      "nums": [
+        1,
+        2,
+        3
+      ]
+    },
+    "output_example": [
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        1,
+        3,
+        2
+      ],
+      [
+        2,
+        1,
+        3
+      ],
+      [
+        2,
+        3,
+        1
+      ],
+      [
+        3,
+        1,
+        2
+      ],
+      [
+        3,
+        2,
+        1
+      ]
+    ],
+    "input_format": "输入整数数组 nums。",
+    "output_format": "输出全排列二维数组。",
+    "data_range": "1 <= n <= 6",
+    "sample_input": "[1,2,3]",
+    "sample_output": "[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]",
+    "test_cases": [
+      {
+        "input": [
+          [
+            1,
+            2,
+            3
+          ]
+        ],
+        "expected": [
+          [
+            1,
+            2,
+            3
+          ],
+          [
+            1,
+            3,
+            2
+          ],
+          [
+            2,
+            1,
+            3
+          ],
+          [
+            2,
+            3,
+            1
+          ],
+          [
+            3,
+            1,
+            2
+          ],
+          [
+            3,
+            2,
+            1
+          ]
+        ]
+      }
+    ],
+    "solution_text": "经典回溯 + used 数组。",
+    "video_url": "",
+    "difficulty": "medium",
+    "category": "回溯",
+    "tags": [
+      "回溯",
+      "排列"
+    ],
+    "knowledge_points": [
+      "搜索树"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 22,
+    "recommend_stage": "提升",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 31,
+    "title": "组合总和",
+    "description": "从 candidates 中选择若干数使和为 target，可重复选择。",
+    "function_name": "combinationSum",
+    "param_names": [
+      "candidates",
+      "target"
+    ],
+    "input_example": {
+      "candidates": [
+        2,
+        3,
+        6,
+        7
+      ],
+      "target": 7
+    },
+    "output_example": [
+      [
+        2,
+        2,
+        3
+      ],
+      [
+        7
+      ]
+    ],
+    "input_format": "输入数组 candidates 和 target。",
+    "output_format": "输出所有组合。",
+    "data_range": "1 <= n <= 30",
+    "sample_input": "[2,3,6,7]\n7",
+    "sample_output": "[[2,2,3],[7]]",
+    "test_cases": [
+      {
+        "input": [
+          [
+            2,
+            3,
+            6,
+            7
+          ],
+          7
+        ],
+        "expected": [
+          [
+            2,
+            2,
+            3
+          ],
+          [
+            7
+          ]
+        ]
+      }
+    ],
+    "solution_text": "回溯搜索，注意去重与剪枝。",
+    "video_url": "",
+    "difficulty": "medium",
+    "category": "回溯",
+    "tags": [
+      "回溯",
+      "剪枝"
+    ],
+    "knowledge_points": [
+      "组合搜索"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 24,
+    "recommend_stage": "进阶",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 32,
+    "title": "二叉树最大深度（数组层序表示）",
+    "description": "用层序数组表示二叉树，null 表示空节点，求最大深度。",
+    "function_name": "maxDepthArrayTree",
+    "param_names": [
+      "nodes"
+    ],
+    "input_example": {
+      "nodes": [
+        3,
+        9,
+        20,
+        null,
+        null,
+        15,
+        7
+      ]
+    },
+    "output_example": 3,
+    "input_format": "输入层序数组 nodes。",
+    "output_format": "输出树的最大深度。",
+    "data_range": "节点数 <= 10^4",
+    "sample_input": "[3,9,20,null,null,15,7]",
+    "sample_output": "3",
+    "test_cases": [
+      {
+        "input": [
+          [
+            3,
+            9,
+            20,
+            null,
+            null,
+            15,
+            7
+          ]
+        ],
+        "expected": 3
+      },
+      {
+        "input": [
+          []
+        ],
+        "expected": 0
+      }
+    ],
+    "solution_text": "可用队列 BFS 或 DFS。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "树",
+    "tags": [
+      "树",
+      "DFS",
+      "BFS"
+    ],
+    "knowledge_points": [
+      "树深度"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 14,
+    "recommend_stage": "提升",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 33,
+    "title": "对称二叉树（数组层序表示）",
+    "description": "判断一棵二叉树是否轴对称。",
+    "function_name": "isSymmetricArrayTree",
+    "param_names": [
+      "nodes"
+    ],
+    "input_example": {
+      "nodes": [
+        1,
+        2,
+        2,
+        3,
+        4,
+        4,
+        3
+      ]
+    },
+    "output_example": true,
+    "input_format": "输入层序数组 nodes。",
+    "output_format": "输出 true 或 false。",
+    "data_range": "节点数 <= 10^4",
+    "sample_input": "[1,2,2,3,4,4,3]",
+    "sample_output": "true",
+    "test_cases": [
+      {
+        "input": [
+          [
+            1,
+            2,
+            2,
+            3,
+            4,
+            4,
+            3
+          ]
+        ],
+        "expected": true
+      },
+      {
+        "input": [
+          [
+            1,
+            2,
+            2,
+            null,
+            3,
+            null,
+            3
+          ]
+        ],
+        "expected": false
+      }
+    ],
+    "solution_text": "递归判断镜像结构。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "树",
+    "tags": [
+      "树",
+      "递归"
+    ],
+    "knowledge_points": [
+      "镜像树"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 16,
+    "recommend_stage": "提升",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 34,
+    "title": "岛屿数量",
+    "description": "给定 0/1 网格，返回岛屿数量。",
+    "function_name": "numIslands",
+    "param_names": [
+      "grid"
+    ],
+    "input_example": {
+      "grid": [
+        [
+          "1",
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "1",
+          "0",
+          "1"
+        ]
+      ]
+    },
+    "output_example": 3,
+    "input_format": "输入二维字符网格。",
+    "output_format": "输出岛屿数量。",
+    "data_range": "1 <= m,n <= 300",
+    "sample_input": "[[\"1\",\"1\",\"0\"],[\"0\",\"1\",\"0\"],[\"1\",\"0\",\"1\"]]",
+    "sample_output": "3",
+    "test_cases": [
+      {
+        "input": [
+          [
+            [
+              "1",
+              "1",
+              "0"
+            ],
+            [
+              "0",
+              "1",
+              "0"
+            ],
+            [
+              "1",
+              "0",
+              "1"
+            ]
+          ]
+        ],
+        "expected": 3
+      },
+      {
+        "input": [
+          [
+            [
+              "1",
+              "1",
+              "1"
+            ],
+            [
+              "0",
+              "1",
+              "0"
+            ],
+            [
+              "1",
+              "1",
+              "1"
+            ]
+          ]
+        ],
+        "expected": 1
+      }
+    ],
+    "solution_text": "DFS/BFS 淹没岛屿。",
+    "video_url": "",
+    "difficulty": "medium",
+    "category": "图",
+    "tags": [
+      "图",
+      "DFS",
+      "BFS"
+    ],
+    "knowledge_points": [
+      "连通块"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 22,
+    "recommend_stage": "进阶",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 35,
+    "title": "图的路径是否存在",
+    "description": "给定 n 个点和无向边，判断 source 到 destination 是否连通。",
+    "function_name": "validPath",
+    "param_names": [
+      "n",
+      "edges",
+      "source",
+      "destination"
+    ],
+    "input_example": {
+      "n": 3,
+      "edges": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "source": 0,
+      "destination": 2
+    },
+    "output_example": true,
+    "input_format": "输入点数、边集、起点和终点。",
+    "output_format": "输出 true 或 false。",
+    "data_range": "1 <= n <= 2*10^5",
+    "sample_input": "3\n[[0,1],[1,2],[2,0]]\n0\n2",
+    "sample_output": "true",
+    "test_cases": [
+      {
+        "input": [
+          3,
+          [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          0,
+          2
+        ],
+        "expected": true
+      },
+      {
+        "input": [
+          6,
+          [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              3,
+              5
+            ],
+            [
+              5,
+              4
+            ],
+            [
+              4,
+              3
+            ]
+          ],
+          0,
+          5
+        ],
+        "expected": false
+      }
+    ],
+    "solution_text": "建图后 DFS / 并查集。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "图",
+    "tags": [
+      "图",
+      "DFS",
+      "并查集"
+    ],
+    "knowledge_points": [
+      "图连通性"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 18,
+    "recommend_stage": "提升",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 36,
+    "title": "斐波那契数",
+    "description": "返回第 n 个斐波那契数。",
+    "function_name": "fib",
+    "param_names": [
+      "n"
+    ],
+    "input_example": {
+      "n": 6
+    },
+    "output_example": 8,
+    "input_format": "输入整数 n。",
+    "output_format": "输出 fib(n)。",
+    "data_range": "0 <= n <= 30",
+    "sample_input": "6",
+    "sample_output": "8",
+    "test_cases": [
+      {
+        "input": [
+          2
+        ],
+        "expected": 1
+      },
+      {
+        "input": [
+          3
+        ],
+        "expected": 2
+      },
+      {
+        "input": [
+          6
+        ],
+        "expected": 8
+      }
+    ],
+    "solution_text": "递推即可。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "数学",
+    "tags": [
+      "数学",
+      "动态规划"
+    ],
+    "knowledge_points": [
+      "递推"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 6,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 37,
+    "title": "求幂函数",
+    "description": "实现 pow(x, n)，返回 x 的 n 次幂。",
+    "function_name": "myPow",
+    "param_names": [
+      "x",
+      "n"
+    ],
+    "input_example": {
+      "x": 2.0,
+      "n": 10
+    },
+    "output_example": 1024.0,
+    "input_format": "输入浮点数 x 和整数 n。",
+    "output_format": "输出 x^n。",
+    "data_range": "-100.0 < x < 100.0",
+    "sample_input": "2.0\n10",
+    "sample_output": "1024.0",
+    "test_cases": [
+      {
+        "input": [
+          2.0,
+          10
+        ],
+        "expected": 1024.0
+      },
+      {
+        "input": [
+          2.1,
+          3
+        ],
+        "expected": 9.261
+      },
+      {
+        "input": [
+          2.0,
+          -2
+        ],
+        "expected": 0.25
+      }
+    ],
+    "solution_text": "快速幂。",
+    "video_url": "",
+    "difficulty": "medium",
+    "category": "数学",
+    "tags": [
+      "数学",
+      "分治"
+    ],
+    "knowledge_points": [
+      "快速幂"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 18,
+    "recommend_stage": "提升",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 38,
+    "title": "多数元素",
+    "description": "找出出现次数大于 n/2 的元素。",
+    "function_name": "majorityElement",
+    "param_names": [
+      "nums"
+    ],
+    "input_example": {
+      "nums": [
+        3,
+        2,
+        3
+      ]
+    },
+    "output_example": 3,
+    "input_format": "输入整数数组 nums。",
+    "output_format": "输出多数元素。",
+    "data_range": "1 <= n <= 5*10^4",
+    "sample_input": "[3,2,3]",
+    "sample_output": "3",
+    "test_cases": [
+      {
+        "input": [
+          [
+            3,
+            2,
+            3
+          ]
+        ],
+        "expected": 3
+      },
+      {
+        "input": [
+          [
+            2,
+            2,
+            1,
+            1,
+            1,
+            2,
+            2
+          ]
+        ],
+        "expected": 2
+      }
+    ],
+    "solution_text": "Boyer-Moore 投票算法。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "数组",
+    "tags": [
+      "数组",
+      "贪心"
+    ],
+    "knowledge_points": [
+      "投票算法"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 12,
+    "recommend_stage": "提升",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 39,
+    "title": "长度最小的子数组",
+    "description": "给定正整数数组和 target，返回和至少为 target 的最短连续子数组长度。",
+    "function_name": "minSubArrayLen",
+    "param_names": [
+      "target",
+      "nums"
+    ],
+    "input_example": {
+      "target": 7,
+      "nums": [
+        2,
+        3,
+        1,
+        2,
+        4,
+        3
+      ]
+    },
+    "output_example": 2,
+    "input_format": "输入 target 和正整数数组 nums。",
+    "output_format": "输出最短长度。",
+    "data_range": "1 <= n <= 10^5",
+    "sample_input": "7\n[2,3,1,2,4,3]",
+    "sample_output": "2",
+    "test_cases": [
+      {
+        "input": [
+          7,
+          [
+            2,
+            3,
+            1,
+            2,
+            4,
+            3
+          ]
+        ],
+        "expected": 2
+      },
+      {
+        "input": [
+          4,
+          [
+            1,
+            4,
+            4
+          ]
+        ],
+        "expected": 1
+      },
+      {
+        "input": [
+          11,
+          [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        ],
+        "expected": 0
+      }
+    ],
+    "solution_text": "滑动窗口。",
+    "video_url": "",
+    "difficulty": "medium",
+    "category": "双指针",
+    "tags": [
+      "数组",
+      "滑动窗口",
+      "双指针"
+    ],
+    "knowledge_points": [
+      "窗口收缩"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 18,
+    "recommend_stage": "提升",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 40,
+    "title": "课程表",
+    "description": "给定课程总数和先修关系，判断能否完成所有课程。",
+    "function_name": "canFinish",
+    "param_names": [
+      "numCourses",
+      "prerequisites"
+    ],
+    "input_example": {
+      "numCourses": 2,
+      "prerequisites": [
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "output_example": true,
+    "input_format": "输入课程数和先修关系列表。",
+    "output_format": "输出 true 或 false。",
+    "data_range": "1 <= numCourses <= 2000",
+    "sample_input": "2\n[[1,0]]",
+    "sample_output": "true",
+    "test_cases": [
+      {
+        "input": [
+          2,
+          [
+            [
+              1,
+              0
+            ]
+          ]
+        ],
+        "expected": true
+      },
+      {
+        "input": [
+          2,
+          [
+            [
+              1,
+              0
+            ],
+            [
+              0,
+              1
+            ]
+          ]
+        ],
+        "expected": false
+      }
+    ],
+    "solution_text": "拓扑排序判断是否有环。",
+    "video_url": "",
+    "difficulty": "medium",
+    "category": "图",
+    "tags": [
+      "图",
+      "拓扑排序"
+    ],
+    "knowledge_points": [
+      "有向图",
+      "入度"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 24,
+    "recommend_stage": "进阶",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 41,
+    "title": "交换两个整数",
+    "description": "给定两个整数 a 和 b，返回交换后的结果。",
+    "function_name": "swapNumbers",
+    "param_names": [
+      "a",
+      "b"
+    ],
+    "input_example": {
+      "a": 3,
+      "b": 5
+    },
+    "output_example": [
+      5,
+      3
+    ],
+    "input_format": "输入两个整数 a 和 b。",
+    "output_format": "输出交换后的两个整数数组 [b,a]。",
+    "data_range": "-10^9 <= a,b <= 10^9",
+    "sample_input": "3\n5",
+    "sample_output": "[5,3]",
+    "test_cases": [
+      {
+        "input": [
+          3,
+          5
+        ],
+        "expected": [
+          5,
+          3
+        ]
+      },
+      {
+        "input": [
+          -1,
+          4
+        ],
+        "expected": [
+          4,
+          -1
+        ]
+      }
+    ],
+    "solution_text": "直接按顺序返回 [b, a]。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "基础",
+    "tags": [
+      "入门",
+      "模拟"
+    ],
+    "knowledge_points": [
+      "函数返回",
+      "基础语法"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 5,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 42,
+    "title": "求三个数最大值",
+    "description": "给定三个整数 a、b、c，返回其中的最大值。",
+    "function_name": "maxOfThree",
+    "param_names": [
+      "a",
+      "b",
+      "c"
+    ],
+    "input_example": {
+      "a": 3,
+      "b": 7,
+      "c": 5
+    },
+    "output_example": 7,
+    "input_format": "输入三个整数 a、b、c。",
+    "output_format": "输出其中的最大值。",
+    "data_range": "-10^9 <= a,b,c <= 10^9",
+    "sample_input": "3\n7\n5",
+    "sample_output": "7",
+    "test_cases": [
+      {
+        "input": [
+          3,
+          7,
+          5
+        ],
+        "expected": 7
+      },
+      {
+        "input": [
+          -1,
+          -9,
+          -3
+        ],
+        "expected": -1
+      },
+      {
+        "input": [
+          4,
+          4,
+          2
+        ],
+        "expected": 4
+      }
+    ],
+    "solution_text": "逐个比较或直接调用语言内置 max。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "基础",
+    "tags": [
+      "入门",
+      "条件判断"
+    ],
+    "knowledge_points": [
+      "比较大小",
+      "分支判断"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 5,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 43,
+    "title": "杨辉三角",
+    "description": "给定整数 numRows，返回杨辉三角的前 numRows 行。",
+    "function_name": "generatePascal",
+    "param_names": [
+      "numRows"
+    ],
+    "input_example": {
+      "numRows": 5
+    },
+    "output_example": [
+      [
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        2,
+        1
+      ],
+      [
+        1,
+        3,
+        3,
+        1
+      ],
+      [
+        1,
+        4,
+        6,
+        4,
+        1
+      ]
+    ],
+    "input_format": "输入一个整数 numRows。",
+    "output_format": "输出前 numRows 行杨辉三角二维数组。",
+    "data_range": "1 <= numRows <= 20",
+    "sample_input": "5",
+    "sample_output": "[[1],[1,1],[1,2,1],[1,3,3,1],[1,4,6,4,1]]",
+    "test_cases": [
+      {
+        "input": [
+          1
+        ],
+        "expected": [
+          [
+            1
+          ]
+        ]
+      },
+      {
+        "input": [
+          5
+        ],
+        "expected": [
+          [
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            2,
+            1
+          ],
+          [
+            1,
+            3,
+            3,
+            1
+          ],
+          [
+            1,
+            4,
+            6,
+            4,
+            1
+          ]
+        ]
+      }
+    ],
+    "solution_text": "逐行构造，首尾为 1，中间元素由上一行相邻两数之和得到。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "数组",
+    "tags": [
+      "数组",
+      "模拟",
+      "递推"
+    ],
+    "knowledge_points": [
+      "二维数组",
+      "递推"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 12,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 44,
+    "title": "删除有序数组中的重复项",
+    "description": "给定一个非递减有序数组 nums，返回去重后数组中不同元素的个数。",
+    "function_name": "removeDuplicates",
+    "param_names": [
+      "nums"
+    ],
+    "input_example": {
+      "nums": [
+        1,
+        1,
+        2
+      ]
+    },
+    "output_example": 2,
+    "input_format": "输入一个非递减有序整数数组 nums。",
+    "output_format": "输出去重后不同元素的个数。",
+    "data_range": "1 <= n <= 3*10^4",
+    "sample_input": "[1,1,2]",
+    "sample_output": "2",
+    "test_cases": [
+      {
+        "input": [
+          [
+            1,
+            1,
+            2
+          ]
+        ],
+        "expected": 2
+      },
+      {
+        "input": [
+          [
+            0,
+            0,
+            1,
+            1,
+            1,
+            2,
+            2,
+            3,
+            3,
+            4
+          ]
+        ],
+        "expected": 5
+      }
+    ],
+    "solution_text": "使用快慢指针统计不同元素个数。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "双指针",
+    "tags": [
+      "数组",
+      "双指针",
+      "去重"
+    ],
+    "knowledge_points": [
+      "快慢指针",
+      "原地处理"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 10,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 45,
+    "title": "合并两个有序链表（数组模拟）",
+    "description": "给定两个升序链表的节点值数组 list1 和 list2，返回合并后的升序节点值数组。",
+    "function_name": "mergeTwoSortedListsValues",
+    "param_names": [
+      "list1",
+      "list2"
+    ],
+    "input_example": {
+      "list1": [
+        1,
+        2,
+        4
+      ],
+      "list2": [
+        1,
+        3,
+        4
+      ]
+    },
+    "output_example": [
+      1,
+      1,
+      2,
+      3,
+      4,
+      4
+    ],
+    "input_format": "输入两个升序数组 list1 和 list2，分别表示两个链表的节点值。",
+    "output_format": "输出合并后的升序数组。",
+    "data_range": "0 <= n,m <= 10^4",
+    "sample_input": "[1,2,4]\n[1,3,4]",
+    "sample_output": "[1,1,2,3,4,4]",
+    "test_cases": [
+      {
+        "input": [
+          [
+            1,
+            2,
+            4
+          ],
+          [
+            1,
+            3,
+            4
+          ]
+        ],
+        "expected": [
+          1,
+          1,
+          2,
+          3,
+          4,
+          4
+        ]
+      },
+      {
+        "input": [
+          [],
+          []
+        ],
+        "expected": []
+      },
+      {
+        "input": [
+          [],
+          [
+            0
+          ]
+        ],
+        "expected": [
+          0
+        ]
+      }
+    ],
+    "solution_text": "使用双指针依次比较两个数组当前元素，合并到结果数组中。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "链表",
+    "tags": [
+      "链表",
+      "数组模拟",
+      "双指针"
+    ],
+    "knowledge_points": [
+      "链表合并",
+      "双指针"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 12,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 46,
+    "title": "递归求和",
+    "description": "给定整数 n，使用递归思想返回 1 到 n 的和。",
+    "function_name": "recursiveSum",
+    "param_names": [
+      "n"
+    ],
+    "input_example": {
+      "n": 5
+    },
+    "output_example": 15,
+    "input_format": "输入一个正整数 n。",
+    "output_format": "输出 1 到 n 的和。",
+    "data_range": "1 <= n <= 1000",
+    "sample_input": "5",
+    "sample_output": "15",
+    "test_cases": [
+      {
+        "input": [
+          1
+        ],
+        "expected": 1
+      },
+      {
+        "input": [
+          5
+        ],
+        "expected": 15
+      },
+      {
+        "input": [
+          10
+        ],
+        "expected": 55
+      }
+    ],
+    "solution_text": "递归定义 f(n)=n+f(n-1)，边界为 f(1)=1。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "数学",
+    "tags": [
+      "入门",
+      "递归",
+      "数学"
+    ],
+    "knowledge_points": [
+      "递归定义",
+      "边界条件"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 8,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 47,
+    "title": "统计元音字母个数",
+    "description": "给定字符串 s，返回其中元音字母 a、e、i、o、u（不区分大小写）的个数。",
+    "function_name": "countVowels",
+    "param_names": [
+      "s"
+    ],
+    "input_example": {
+      "s": "CodeGaze"
+    },
+    "output_example": 4,
+    "input_format": "输入一个字符串 s。",
+    "output_format": "输出元音字母个数。",
+    "data_range": "1 <= |s| <= 10^5",
+    "sample_input": "CodeGaze",
+    "sample_output": "4",
+    "test_cases": [
+      {
+        "input": [
+          "CodeGaze"
+        ],
+        "expected": 4
+      },
+      {
+        "input": [
+          "rhythm"
+        ],
+        "expected": 0
+      },
+      {
+        "input": [
+          "AEiou"
+        ],
+        "expected": 5
+      }
+    ],
+    "solution_text": "遍历字符串，统计字符是否在元音集合中。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "字符串",
+    "tags": [
+      "字符串",
+      "遍历",
+      "入门"
+    ],
+    "knowledge_points": [
+      "字符判断",
+      "字符串遍历"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 6,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 48,
+    "title": "反转整数",
+    "description": "给定一个 32 位有符号整数 x，返回将数字部分反转后的结果；如果反转后超出 32 位有符号整数范围则返回 0。",
+    "function_name": "reverseInteger",
+    "param_names": [
+      "x"
+    ],
+    "input_example": {
+      "x": 123
+    },
+    "output_example": 321,
+    "input_format": "输入一个整数 x。",
+    "output_format": "输出反转后的整数，若溢出则输出 0。",
+    "data_range": "-2^31 <= x <= 2^31-1",
+    "sample_input": "123",
+    "sample_output": "321",
+    "test_cases": [
+      {
+        "input": [
+          123
+        ],
+        "expected": 321
+      },
+      {
+        "input": [
+          -123
+        ],
+        "expected": -321
+      },
+      {
+        "input": [
+          1534236469
+        ],
+        "expected": 0
+      }
+    ],
+    "solution_text": "转字符串或数学方式反转，并判断是否越界。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "数学",
+    "tags": [
+      "数学",
+      "模拟",
+      "边界处理"
+    ],
+    "knowledge_points": [
+      "整数处理",
+      "溢出判断"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 10,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  },
+  {
+    "id": 49,
+    "title": "最长连续递增序列",
+    "description": "给定一个未排序整数数组 nums，返回最长连续递增子数组的长度。",
+    "function_name": "findLengthOfLCIS",
+    "param_names": [
+      "nums"
+    ],
+    "input_example": {
+      "nums": [
+        1,
+        3,
+        5,
+        4,
+        7
+      ]
+    },
+    "output_example": 3,
+    "input_format": "输入整数数组 nums。",
+    "output_format": "输出最长连续递增子数组长度。",
+    "data_range": "1 <= n <= 10^4",
+    "sample_input": "[1,3,5,4,7]",
+    "sample_output": "3",
+    "test_cases": [
+      {
+        "input": [
+          [
+            1,
+            3,
+            5,
+            4,
+            7
+          ]
+        ],
+        "expected": 3
+      },
+      {
+        "input": [
+          [
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        ],
+        "expected": 1
+      },
+      {
+        "input": [
+          [
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        ],
+        "expected": 5
+      }
+    ],
+    "solution_text": "线性扫描，当前元素大于前一个元素则递增段长度加一，否则重置。",
+    "video_url": "",
+    "difficulty": "easy",
+    "category": "数组",
+    "tags": [
+      "数组",
+      "遍历",
+      "动态维护"
+    ],
+    "knowledge_points": [
+      "线性扫描",
+      "连续子数组"
+    ],
+    "supported_languages": [
+      "python",
+      "c",
+      "cpp",
+      "java"
+    ],
+    "estimated_minutes": 8,
+    "recommend_stage": "入门",
+    "question_type": "function",
+    "time_limit": 1,
+    "memory_limit": 128,
+    "source": "CodeGaze题库"
+  }
+]

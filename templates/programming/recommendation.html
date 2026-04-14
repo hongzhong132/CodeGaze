@@ -1,0 +1,1036 @@
+{% extends 'student_base.html' %}
+
+{% block title %}学习推荐 - CodeGaze{% endblock %}
+
+{% block extra_css %}
+<style>
+    .rec-page {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 0.35rem 0 2rem;
+    }
+
+    .rec-hero {
+        padding: 1.65rem 1.6rem 1.3rem;
+        border-radius: 28px;
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(255, 255, 255, 0.98));
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        box-shadow: 0 16px 32px rgba(15, 23, 42, 0.06);
+        margin-bottom: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .rec-hero::before {
+        content: "";
+        position: absolute;
+        right: -80px;
+        top: -80px;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: rgba(37, 99, 235, 0.08);
+        filter: blur(70px);
+        pointer-events: none;
+    }
+
+    .rec-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.45rem 0.82rem;
+        border-radius: 999px;
+        background: rgba(14, 165, 233, 0.1);
+        color: #0284c7;
+        font-size: 0.86rem;
+        font-weight: 800;
+        margin-bottom: 0.85rem;
+    }
+
+    .rec-hero h1 {
+        margin: 0 0 0.65rem;
+        font-size: 2.05rem;
+        line-height: 1.18;
+        color: #0f172a;
+        font-weight: 900;
+        max-width: 920px;
+    }
+
+    .rec-hero p {
+        margin: 0;
+        max-width: 980px;
+        color: #475569;
+        line-height: 1.8;
+        font-size: 0.96rem;
+    }
+
+    .hero-row {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.8rem;
+        justify-content: space-between;
+        align-items: end;
+        flex-wrap: wrap;
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 0.7rem;
+        flex-wrap: wrap;
+    }
+
+    .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    .hero-stat {
+        padding: 0.9rem 0.95rem;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.86);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .hero-stat .label {
+        font-size: 0.82rem;
+        color: #64748b;
+        margin-bottom: 0.22rem;
+    }
+
+    .hero-stat .value {
+        font-size: 1.42rem;
+        color: #0f172a;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .rec-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.75fr) 340px;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        align-items: start;
+    }
+
+    .panel {
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        border-radius: 24px;
+        box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
+        padding: 1.1rem;
+    }
+
+    .panel + .panel {
+        margin-top: 1rem;
+    }
+
+    .panel-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: flex-start;
+        margin-bottom: 0.95rem;
+    }
+
+    .panel-head-main {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+
+    .panel-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 15px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(14, 165, 233, 0.1);
+        color: #0284c7;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .panel-title h2 {
+        margin: 0 0 0.24rem;
+        font-size: 1.15rem;
+        color: #0f172a;
+        font-weight: 900;
+    }
+
+    .panel-title p {
+        margin: 0;
+        color: #64748b;
+        line-height: 1.7;
+        font-size: 0.9rem;
+    }
+
+    .graph-panel {
+        padding-bottom: 0.9rem;
+    }
+
+    .graph-toolbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.85rem;
+        align-items: center;
+    }
+
+    .legend-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .legend-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.42rem;
+        padding: 0.42rem 0.7rem;
+        border-radius: 999px;
+        background: rgba(248, 250, 252, 0.95);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        color: #334155;
+        font-size: 0.8rem;
+        font-weight: 800;
+    }
+
+    .legend-dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background: #38bdf8;
+    }
+
+    .graph-stage-note {
+        color: #64748b;
+        font-size: 0.82rem;
+        line-height: 1.6;
+    }
+
+    .graph-wrap {
+        height: 580px;
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(248, 250, 252, 0.85), rgba(255, 255, 255, 0.96));
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        overflow: hidden;
+    }
+
+    #knowledgeGraph {
+        width: 100%;
+        height: 100%;
+    }
+
+    .chart-fallback {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    .graph-footnote {
+        margin-top: 0.8rem;
+        padding: 0.8rem 0.95rem;
+        border-radius: 16px;
+        background: rgba(248, 250, 252, 0.92);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        color: #64748b;
+        font-size: 0.86rem;
+        line-height: 1.7;
+    }
+
+    .insight-stack {
+        display: grid;
+        gap: 0.65rem;
+    }
+
+    .insight-card,
+    .path-card,
+    .tip-card,
+    .focus-item,
+    .snapshot-card {
+        border-radius: 18px;
+        padding: 0.82rem 0.9rem;
+        background: rgba(248, 250, 252, 0.95);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .insight-card h3,
+    .path-title,
+    .tip-title,
+    .focus-item-name {
+        margin: 0;
+        color: #0f172a;
+        font-size: 0.98rem;
+        font-weight: 900;
+    }
+
+    .insight-card p,
+    .path-detail,
+    .tip-card li,
+    .focus-item p,
+    .snapshot-card p {
+        margin: 0.22rem 0 0;
+        color: #64748b;
+        font-size: 0.88rem;
+        line-height: 1.75;
+    }
+
+    .kv-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.55rem;
+        margin-top: 0.75rem;
+    }
+
+    .kv-item {
+        padding: 0.7rem 0.8rem;
+        border-radius: 14px;
+        background: #fff;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .kv-item .k {
+        font-size: 0.78rem;
+        color: #64748b;
+        margin-bottom: 0.2rem;
+    }
+
+    .kv-item .v {
+        color: #0f172a;
+        font-size: 0.96rem;
+        font-weight: 900;
+        line-height: 1.35;
+    }
+
+    .path-list {
+        display: grid;
+        gap: 0.7rem;
+        margin-top: 0.75rem;
+    }
+
+    .path-card {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .path-index {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #fff;
+        font-size: 0.86rem;
+        font-weight: 900;
+    }
+
+    .path-index.priority { background: #f97316; }
+    .path-index.steady { background: #8b5cf6; }
+    .path-index.advance { background: #22c55e; }
+
+    .path-subtitle {
+        margin-top: 0.14rem;
+        color: #475569;
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+
+    .tip-card ul {
+        margin: 0.7rem 0 0;
+        padding-left: 1.15rem;
+    }
+
+    .tip-card li + li {
+        margin-top: 0.45rem;
+    }
+
+    .focus-list {
+        display: grid;
+        gap: 0.7rem;
+    }
+
+    .focus-item,
+    .snapshot-card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .focus-item-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.7rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .pill-row,
+    .tag-row,
+    .problem-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+    }
+
+    .pill,
+    .tag-chip,
+    .route-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.34rem 0.62rem;
+        border-radius: 999px;
+        font-size: 0.76rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .pill.status { background: rgba(14, 165, 233, 0.1); color: #0369a1; }
+    .pill.zone { background: rgba(99, 102, 241, 0.1); color: #4338ca; }
+    .pill.bucket { background: rgba(34, 197, 94, 0.1); color: #15803d; }
+    .tag-chip { background: rgba(15, 23, 42, 0.05); color: #475569; }
+
+    .route-chip.priority { background: rgba(249, 115, 22, 0.12); color: #c2410c; }
+    .route-chip.steady { background: rgba(139, 92, 246, 0.12); color: #6d28d9; }
+    .route-chip.advance { background: rgba(34, 197, 94, 0.12); color: #15803d; }
+
+    .heat-track {
+        width: 100%;
+        height: 8px;
+        border-radius: 999px;
+        background: rgba(226, 232, 240, 0.95);
+        overflow: hidden;
+        margin-top: 0.6rem;
+    }
+
+    .heat-fill {
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #38bdf8, #6366f1, #f97316);
+        transition: width 0.6s ease;
+    }
+
+    .snapshot-panel {
+        margin-bottom: 1rem;
+    }
+
+    .snapshot-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    .today-grid,
+    .section-grid {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .today-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .section-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .problem-card {
+        border-radius: 20px;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        background: #fff;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+    }
+
+    .problem-card.weakness { background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(255,255,255,0.98)); }
+    .problem-card.improvement { background: linear-gradient(135deg, rgba(34, 197, 94, 0.05), rgba(255,255,255,0.98)); }
+    .problem-card.challenge { background: linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(255,255,255,0.98)); }
+
+    .problem-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.6rem;
+        align-items: flex-start;
+    }
+
+    .problem-name {
+        margin: 0;
+        color: #0f172a;
+        font-size: 1.02rem;
+        font-weight: 900;
+        line-height: 1.35;
+    }
+
+    .problem-meta {
+        margin-top: 0.18rem;
+        color: #64748b;
+        font-size: 0.84rem;
+        line-height: 1.65;
+    }
+
+    .problem-reason {
+        margin: 0;
+        color: #475569;
+        line-height: 1.75;
+        font-size: 0.9rem;
+    }
+
+    .problem-actions {
+        margin-top: auto;
+    }
+
+    .mini-card {
+        border-radius: 20px;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        background: rgba(255, 255, 255, 0.96);
+        padding: 0.95rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+    }
+
+    .mini-card h3 {
+        margin: 0;
+        color: #0f172a;
+        font-size: 1rem;
+        font-weight: 900;
+    }
+
+    .mini-meta {
+        color: #64748b;
+        font-size: 0.84rem;
+        line-height: 1.7;
+    }
+
+    .empty-state {
+        border-radius: 18px;
+        padding: 1rem;
+        background: rgba(245, 249, 252, 0.92);
+        border: 1px dashed rgba(148, 163, 184, 0.3);
+        color: #64748b;
+        line-height: 1.8;
+    }
+
+    @media (max-width: 1240px) {
+        .rec-layout,
+        .today-grid,
+        .section-grid,
+        .snapshot-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .hero-stats,
+        .kv-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .graph-wrap {
+            height: 440px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .rec-hero {
+            padding: 1.25rem 1rem;
+            border-radius: 22px;
+        }
+
+        .rec-hero h1 {
+            font-size: 1.7rem;
+        }
+
+        .panel-head,
+        .problem-top,
+        .focus-item-top,
+        .hero-row,
+        .graph-toolbar,
+        .path-card {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .graph-wrap {
+            height: 380px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rec-page">
+    <section class="rec-hero">
+        <div class="rec-eyebrow">
+            <i class="bi bi-stars"></i>
+            <span>学生端个性化推荐</span>
+        </div>
+
+        <h1>今天先做什么，这一页直接告诉你</h1>
+        <p>
+            系统会把你的做题表现拆成“当前薄弱大类 → 关联知识点 → 下一步训练方向”，
+            先告诉你哪里最需要补，再决定今天先做什么。
+        </p>
+
+        <div class="hero-row">
+            <div class="hero-actions">
+                <a href="{% url 'programming:problem_zones' %}" class="secondary-btn">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>回到题库分区</span>
+                </a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="label">已尝试</div>
+                    <div class="value">{{ summary.attempted_count }}</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="label">已通过</div>
+                    <div class="value">{{ summary.passed_count }}</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="label">待攻克</div>
+                    <div class="value">{{ summary.needs_work_count }}</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="label">通过率</div>
+                    <div class="value">{{ summary.pass_rate }}%</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="rec-layout">
+        <div class="panel graph-panel">
+            <div class="panel-head">
+                <div class="panel-head-main">
+                    <div class="panel-icon"><i class="bi bi-diagram-3-fill"></i></div>
+                    <div class="panel-title">
+                        <h2>学习知识图谱</h2>
+                        <p>中心是你的当前学习画像，向外展开到训练方向、重点分区和代表知识点。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="graph-toolbar">
+                <div class="legend-row">
+                    {% for item in knowledge_graph.legend %}
+                        <span class="legend-chip">
+                            <span class="legend-dot" data-color="{{ item.color }}"></span>
+                            <span>{{ item.name }}</span>
+                        </span>
+                    {% endfor %}
+                </div>
+                <div class="graph-stage-note">
+                    鼠标移到节点上可以看统计数据，拖动画布可以查看更清楚。
+                </div>
+            </div>
+
+            <div class="graph-wrap">
+                <div id="knowledgeGraph"></div>
+            </div>
+
+            <div class="graph-footnote">
+                图谱并不是简单展示“做了多少题”，而是把你的做题结果转成更可执行的学习路线：
+                先补最容易卡住的方向，再稳一个已接触方向，最后留一个相对较强方向做进阶。
+            </div>
+        </div>
+
+        <div class="insight-stack">
+            <div class="insight-card">
+                <h3>{{ graph_insight.headline }}</h3>
+                <p>{{ graph_insight.description }}</p>
+
+                <div class="kv-grid">
+                    <div class="kv-item">
+                        <div class="k">当前优先方向</div>
+                        <div class="v">{{ graph_insight.primary_focus }}</div>
+                    </div>
+                    <div class="kv-item">
+                        <div class="k">第二关注方向</div>
+                        <div class="v">{{ graph_insight.secondary_focus }}</div>
+                    </div>
+                    <div class="kv-item">
+                        <div class="k">当前较强方向</div>
+                        <div class="v">{{ graph_insight.strong_direction }}</div>
+                    </div>
+                    <div class="kv-item">
+                        <div class="k">整体通过率</div>
+                        <div class="v">{{ graph_insight.pass_rate }}%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="insight-card">
+                <h3>学习路径推荐</h3>
+                <div class="path-list">
+                    {% for step in learning_path %}
+                        <a href="{{ step.target_url }}" class="path-card">
+                            <span class="path-index {{ step.route }}">{{ forloop.counter }}</span>
+                            <div>
+                                <div class="path-title">{{ step.title }}</div>
+                                <div class="path-subtitle">{{ step.subtitle }}</div>
+                                <div class="path-detail">{{ step.detail }}</div>
+                            </div>
+                        </a>
+                    {% empty %}
+                        <div class="empty-state">先从题库分区里做几题，系统才会逐渐生成更明确的路径推荐。</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="tip-card">
+                <div class="tip-title">个性化学习建议</div>
+                <ul>
+                    {% for tip in personalized_tips %}
+                        <li>{{ tip }}</li>
+                    {% empty %}
+                        <li>先连续完成几题，系统会逐渐形成更稳定的个性化建议。</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel snapshot-panel">
+        <div class="panel-head">
+            <div class="panel-head-main">
+                <div class="panel-icon"><i class="bi bi-fire"></i></div>
+                <div class="panel-title">
+                    <h2>重点分区热度</h2>
+                    <p>把当前最需要关注的几个方向单独横向展开，页面节奏会更平衡。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="snapshot-grid">
+            {% for zone in priority_snapshot %}
+                <a href="{{ zone.zone_url }}" class="snapshot-card">
+                    <div class="focus-item-top">
+                        <h3 class="focus-item-name">{{ zone.name }}</h3>
+                        <span class="route-chip {% if forloop.first %}priority{% elif forloop.counter == 2 %}steady{% else %}advance{% endif %}">
+                            热度 {{ zone.heat }}
+                        </span>
+                    </div>
+                    <p>
+                        已尝试 {{ zone.attempted }} 题 · 已通过 {{ zone.passed }} 题 ·
+                        待攻克 {{ zone.retrying }} 题 · 错误 {{ zone.wrong_count }} 次
+                    </p>
+                    <div class="heat-track">
+                        <div class="heat-fill" data-heat="{{ zone.heat }}"></div>
+                    </div>
+                </a>
+            {% empty %}
+                <div class="empty-state">当前做题数据还不够，先做一些题后这里会出现热度分区分析。</div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-head">
+            <div class="panel-head-main">
+                <div class="panel-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+                <div class="panel-title">
+                    <h2>今日推荐</h2>
+                    <p>上半部分看方向，下半部分直接开做。优先做 2 到 4 题就够了。</p>
+                </div>
+            </div>
+        </div>
+
+        {% if today_recommendations %}
+            <div class="today-grid">
+                {% for item in today_recommendations|slice:":4" %}
+                    <article class="problem-card {{ item.bucket }}">
+                        <div class="problem-top">
+                            <div>
+                                <h3 class="problem-name">{{ item.title }}</h3>
+                                <div class="problem-meta">{{ item.zone_name }} · {{ item.difficulty }} · {{ item.estimated_minutes }} 分钟</div>
+                            </div>
+                        </div>
+
+                        <div class="pill-row">
+                            <span class="pill status">{{ item.status }}</span>
+                            <span class="pill zone">{{ item.zone_name }}</span>
+                            <span class="pill bucket">
+                                {% if item.bucket == 'weakness' %}补弱{% elif item.bucket == 'improvement' %}巩固{% else %}挑战{% endif %}
+                            </span>
+                        </div>
+
+                        <p class="problem-reason">{{ item.reason }}</p>
+
+                        {% if item.tags %}
+                            <div class="tag-row">
+                                {% for tag in item.tags|slice:":2" %}
+                                    <span class="tag-chip">{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="problem-actions">
+                            <a href="{{ item.detail_url }}" class="primary-btn"><span>去做这题</span></a>
+                            <a href="{{ item.zone_url }}" class="secondary-btn"><span>进入分区</span></a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                你当前还没有足够的做题数据，先从题库分区里做几题，推荐页会逐渐变得更准确。
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <div class="panel-head">
+            <div class="panel-head-main">
+                <div class="panel-icon"><i class="bi bi-diagram-3"></i></div>
+                <div class="panel-title">
+                    <h2>进一步练习</h2>
+                    <p>下面这部分继续保留三类推荐，你原来的操作习惯不用变。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-grid">
+            <div class="mini-card">
+                <h3>薄弱项补强</h3>
+                {% if weakness_recommendations %}
+                    {% with item=weakness_recommendations.0 %}
+                        <div class="mini-meta">{{ item.title }} · {{ item.zone_name }} · {{ item.difficulty }}</div>
+                        <p class="problem-reason">{{ item.reason }}</p>
+                        <div class="problem-actions">
+                            <a href="{{ item.detail_url }}" class="primary-btn"><span>去做题</span></a>
+                            <a href="{{ item.zone_url }}" class="secondary-btn"><span>查看分区</span></a>
+                        </div>
+                    {% endwith %}
+                {% else %}
+                    <div class="empty-state">当前没有明显需要优先补强的题目。</div>
+                {% endif %}
+            </div>
+
+            <div class="mini-card">
+                <h3>巩固提升</h3>
+                {% if improvement_recommendations %}
+                    {% with item=improvement_recommendations.0 %}
+                        <div class="mini-meta">{{ item.title }} · {{ item.zone_name }} · {{ item.difficulty }}</div>
+                        <p class="problem-reason">{{ item.reason }}</p>
+                        <div class="problem-actions">
+                            <a href="{{ item.detail_url }}" class="primary-btn"><span>去做题</span></a>
+                            <a href="{{ item.zone_url }}" class="secondary-btn"><span>查看分区</span></a>
+                        </div>
+                    {% endwith %}
+                {% else %}
+                    <div class="empty-state">完成更多基础题后，这里会逐渐补充更适合你的提升题。</div>
+                {% endif %}
+            </div>
+
+            <div class="mini-card">
+                <h3>挑战题</h3>
+                {% if challenge_recommendations %}
+                    {% with item=challenge_recommendations.0 %}
+                        <div class="mini-meta">{{ item.title }} · {{ item.zone_name }} · {{ item.difficulty }}</div>
+                        <p class="problem-reason">{{ item.reason }}</p>
+                        <div class="problem-actions">
+                            <a href="{{ item.detail_url }}" class="primary-btn"><span>去挑战</span></a>
+                            <a href="{{ item.zone_url }}" class="secondary-btn"><span>查看分区</span></a>
+                        </div>
+                    {% endwith %}
+                {% else %}
+                    <div class="empty-state">暂时还没到推荐挑战题的阶段，先把基础和巩固题做扎实会更稳。</div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+
+{{ knowledge_graph|json_script:"recommendation-graph-data" }}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script>
+    document.querySelectorAll('.legend-dot').forEach(function (el) {
+        const color = el.dataset.color || '#38bdf8';
+        el.style.background = color;
+    });
+
+    document.querySelectorAll('.heat-fill').forEach(function (el) {
+        const heat = Number(el.dataset.heat || 0);
+        el.style.width = Math.max(0, Math.min(100, heat)) + '%';
+    });
+
+    (function () {
+        const graphDom = document.getElementById('knowledgeGraph');
+        const dataEl = document.getElementById('recommendation-graph-data');
+
+        if (!graphDom || !dataEl) {
+            return;
+        }
+
+        if (typeof echarts === 'undefined') {
+            graphDom.innerHTML = '<div class="chart-fallback">图谱库加载失败，请检查网络或改成本地静态资源引入。</div>';
+            return;
+        }
+
+        const graphData = JSON.parse(dataEl.textContent);
+
+        function getNodeColor(category) {
+            if (category === 0) return '#0ea5e9';
+            if (category === 1) return '#f97316';
+            if (category === 2) return '#8b5cf6';
+            if (category === 3) return '#22c55e';
+            return '#38bdf8';
+        }
+
+        function tooltipFormatter(params) {
+            const data = params.data || {};
+            const value = data.value || {};
+
+            if (value.type === 'zone') {
+                const keywords = Array.isArray(value.keywords) && value.keywords.length
+                    ? value.keywords.join(' / ')
+                    : '暂无';
+                return [
+                    '<div style="font-weight:800;margin-bottom:6px;">' + (value.title || data.name) + '</div>',
+                    '<div>已尝试：' + (value.attempted || 0) + '</div>',
+                    '<div>已通过：' + (value.passed || 0) + '</div>',
+                    '<div>待攻克：' + (value.retrying || 0) + '</div>',
+                    '<div>累计错误：' + (value.wrong_count || 0) + '</div>',
+                    '<div>通过率：' + (value.pass_rate || 0) + '%</div>',
+                    '<div>关注热度：' + (value.heat || 0) + '</div>',
+                    '<div style="margin-top:4px;color:#64748b;">关联知识点：' + keywords + '</div>'
+                ].join('');
+            }
+
+            if (value.type === 'knowledge') {
+                return [
+                    '<div style="font-weight:800;margin-bottom:6px;">' + (value.title || data.name) + '</div>',
+                    '<div>所属方向：' + (value.zone_name || '未知') + '</div>',
+                    '<div style="margin-top:4px;color:#64748b;">' + (value.desc || '') + '</div>'
+                ].join('');
+            }
+
+            if (value.type === 'route') {
+                return [
+                    '<div style="font-weight:800;margin-bottom:6px;">' + (value.title || data.name) + '</div>',
+                    '<div style="color:#64748b;">' + (value.desc || '') + '</div>'
+                ].join('');
+            }
+
+            return [
+                '<div style="font-weight:800;margin-bottom:6px;">' + (value.title || data.name) + '</div>',
+                '<div style="color:#64748b;">' + (value.desc || '') + '</div>'
+            ].join('');
+        }
+
+        const chart = echarts.init(graphDom);
+
+        const option = {
+            animationDuration: 700,
+            animationEasingUpdate: 'quinticInOut',
+            tooltip: {
+                trigger: 'item',
+                backgroundColor: 'rgba(15, 23, 42, 0.94)',
+                borderWidth: 0,
+                textStyle: {
+                    color: '#f8fafc',
+                    fontSize: 12,
+                    lineHeight: 20
+                },
+                padding: 12,
+                formatter: tooltipFormatter
+            },
+            series: [
+                {
+                    type: 'graph',
+                    layout: 'force',
+                    roam: true,
+                    draggable: true,
+                    focusNodeAdjacency: true,
+                    data: (graphData.nodes || []).map(function (node) {
+                        const isRoot = node.category === 0;
+                        const isRoute = node.category === 1 || node.category === 2 || node.category === 3;
+
+                        return {
+                            ...node,
+                            itemStyle: {
+                                color: getNodeColor(node.category),
+                                shadowBlur: isRoot ? 18 : 10,
+                                shadowColor: 'rgba(15, 23, 42, 0.12)'
+                            },
+                            label: {
+                                show: true,
+                                position: isRoot || isRoute ? 'inside' : 'right',
+                                color: isRoot || isRoute ? '#ffffff' : '#0f172a',
+                                fontSize: isRoot ? 16 : (isRoute ? 13 : 12),
+                                fontWeight: 800,
+                                width: isRoot ? 110 : 90,
+                                overflow: 'truncate',
+                                formatter: function () {
+                                    const name = node.name || '';
+                                    if (isRoot || isRoute) return name;
+                                    return name.length > 8 ? name.slice(0, 8) + '…' : name;
+                                }
+                            }
+                        };
+                    }),
+                    links: (graphData.links || []).map(function (link) {
+                        return {
+                            ...link,
+                            lineStyle: {
+                                color: 'source',
+                                opacity: (link.lineStyle && link.lineStyle.opacity) || 0.45,
+                                width: (link.lineStyle && link.lineStyle.width) || 2,
+                                curveness: 0.08
+                            }
+                        };
+                    }),
+                    categories: graphData.categories || [],
+                    edgeSymbol: ['none', 'none'],
+                    lineStyle: {
+                        opacity: 0.45,
+                        curveness: 0.08
+                    },
+                    emphasis: {
+                        focus: 'adjacency',
+                        scale: true,
+                        lineStyle: {
+                            width: 3,
+                            opacity: 0.85
+                        }
+                    },
+                    force: {
+                        repulsion: 360,
+                        gravity: 0.08,
+                        edgeLength: [70, 135],
+                        friction: 0.12
+                    }
+                }
+            ]
+        };
+
+        chart.setOption(option);
+
+        let resizeTimer = null;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function () {
+                chart.resize();
+            }, 120);
+        });
+    })();
+</script>
+{% endblock %}

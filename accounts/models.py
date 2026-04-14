@@ -1,46 +1,75 @@
-from django.conf import settings
+from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.contrib.auth import get_user_model
 
 
-User = get_user_model()
+def user_avatar_upload_to(instance, filename):
+    return f"avatars/user_{instance.user_id}/{filename}"
 
 
 class UserProfile(models.Model):
+    ROLE_CHOICES = [
+        ('student', '学生'),
+        ('teacher', '教师'),
+    ]
+
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
+        User,
         on_delete=models.CASCADE,
-        related_name="profile"
+        related_name='profile',
+        verbose_name='用户'
     )
-    nickname = models.CharField(max_length=50, blank=True, verbose_name="昵称")
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default='student',
+        verbose_name='角色'
+    )
+
+    real_name = models.CharField(
+        max_length=50,
+        blank=True,
+        default='',
+        verbose_name='真实姓名'
+    )
+
+    nickname = models.CharField(
+        max_length=50,
+        blank=True,
+        default='',
+        verbose_name='昵称'
+    )
+
+    bio = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='个性签名 / 简介'
+    )
+
+    student_no = models.CharField(
+        max_length=30,
+        blank=True,
+        default='',
+        verbose_name='学号'
+    )
+
+    teacher_no = models.CharField(
+        max_length=30,
+        blank=True,
+        default='',
+        verbose_name='工号'
+    )
+
     avatar = models.ImageField(
-        upload_to="avatars/",
+        upload_to=user_avatar_upload_to,
         blank=True,
         null=True,
-        verbose_name="头像"
+        verbose_name='头像'
     )
-    bio = models.TextField(blank=True, verbose_name="个人简介")
 
     class Meta:
-        verbose_name = "用户资料"
-        verbose_name_plural = "用户资料"
+        verbose_name = '用户资料'
+        verbose_name_plural = '用户资料'
 
     def __str__(self):
-        return self.nickname or self.user.username
-
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
-
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    UserProfile.objects.get_or_create(user=instance)
-
-
-# 兼容前面 views.py / forms.py 中使用的 Profile 名称
-Profile = UserProfile
+        display_name = self.nickname or self.real_name or self.user.username
+        return f'{display_name} - {self.get_role_display()}'

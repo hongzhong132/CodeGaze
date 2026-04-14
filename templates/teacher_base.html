@@ -1,0 +1,33 @@
+{% extends 'base_common.html' %}
+
+{% block title %}CodeGaze - 教师管理端{% endblock %}
+{% block sidebar_tagline %}AI 智眸编程互助平台 · 教师管理端{% endblock %}
+{% block sidebar_hint %}当前为教师管理工作台，聚焦分析、管理与推荐{% endblock %}
+{% block footer_subtitle %}Powered by Django & AI · 面向教学管理、学习分析与考试监测{% endblock %}
+
+{% block sidebar_nav %}
+    <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' and request.resolver_match.namespace == 'teacher' %}active{% endif %}" href="{% url 'teacher:dashboard' %}">
+        <i class="bi bi-speedometer2"></i>
+        <span>教师端首页</span>
+    </a>
+
+    <a class="nav-link {% if request.resolver_match.url_name == 'student_list' and request.resolver_match.namespace == 'teacher' %}active{% endif %}" href="{% url 'teacher:student_list' %}">
+        <i class="bi bi-people"></i>
+        <span>学生管理</span>
+    </a>
+
+    <a class="nav-link {% if request.resolver_match.url_name == 'problem_analysis' and request.resolver_match.namespace == 'teacher' %}active{% endif %}" href="{% url 'teacher:problem_analysis' %}">
+        <i class="bi bi-bar-chart-line"></i>
+        <span>题目分析</span>
+    </a>
+
+    <a class="nav-link {% if request.resolver_match.url_name == 'recommendation_overview' and request.resolver_match.namespace == 'teacher' %}active{% endif %}" href="{% url 'teacher:recommendation_overview' %}">
+        <i class="bi bi-lightbulb"></i>
+        <span>学习推荐</span>
+    </a>
+
+    <a class="nav-link {% if request.resolver_match.namespace == 'management' %}active{% endif %}" href="{% url 'management:dashboard' %}">
+        <i class="bi bi-gear"></i>
+        <span>管理后台</span>
+    </a>
+{% endblock %}

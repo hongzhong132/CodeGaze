@@ -1,0 +1,143 @@
+{% extends 'teacher_base.html' %}
+{% block title %}教师端首页 - CodeGaze{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">教师端首页</h2>
+      <div class="text-muted">查看班级整体学习情况、重点关注学生与高频错题</div>
+    </div>
+    <div class="soft-chip">
+      <i class="bi bi-activity"></i>
+      当前活跃学生 {{ active_students_count }} 人
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+      <div class="glass-card p-4 h-100">
+        <div class="text-muted small mb-2">学生总数</div>
+        <h3 class="mb-1 fw-bold">{{ students_count }}</h3>
+        <div class="text-muted small">系统已识别的学生账号数量</div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="glass-card p-4 h-100">
+        <div class="text-muted small mb-2">总提交数</div>
+        <h3 class="mb-1 fw-bold">{{ submissions_count }}</h3>
+        <div class="text-muted small">学生代码提交总次数</div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="glass-card p-4 h-100">
+        <div class="text-muted small mb-2">通过次数</div>
+        <h3 class="mb-1 fw-bold">{{ accepted_count }}</h3>
+        <div class="text-muted small">状态为 accepted 的提交次数</div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="glass-card p-4 h-100">
+        <div class="text-muted small mb-2">整体通过率</div>
+        <h3 class="mb-1 fw-bold">{{ overall_accept_rate }}%</h3>
+        <div class="text-muted small">用于观察整体训练效果</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-xl-8">
+      <div class="glass-card p-4 h-100">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+          <div>
+            <h5 class="mb-1 fw-bold">热门错误题</h5>
+            <div class="text-muted small">帮助老师快速定位班级共性薄弱点</div>
+          </div>
+          <span class="soft-chip">
+            <i class="bi bi-exclamation-triangle"></i>
+            高频错题统计
+          </span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>题目</th>
+                <th>错误次数</th>
+                <th>总提交数</th>
+                <th>错误占比</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in hot_wrong_problems %}
+              <tr>
+                <td class="fw-semibold">{{ item.title }}</td>
+                <td>{{ item.wrong_count }}</td>
+                <td>{{ item.submit_count }}</td>
+                <td>
+                  {% if item.submit_count %}
+                    {% widthratio item.wrong_count item.submit_count 100 %}%
+                  {% else %}
+                    0%
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="text-center text-muted py-4">
+                  暂无错题统计数据，请先确认学生账号和提交记录是否已关联。
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4">
+      <div class="glass-card p-4 h-100">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+          <div>
+            <h5 class="mb-1 fw-bold">重点关注学生</h5>
+            <div class="text-muted small">按待攻克题与错误次数综合排序</div>
+          </div>
+          <span class="soft-chip">
+            <i class="bi bi-people"></i>
+            学生画像
+          </span>
+        </div>
+
+        <ul class="list-group list-group-flush">
+          {% for item in hard_students %}
+          <li class="list-group-item px-0 py-3 bg-transparent border-bottom">
+            <div class="d-flex justify-content-between align-items-start gap-3">
+              <div>
+                <div class="fw-semibold">{{ item.username }}</div>
+                <div class="text-muted small mt-1">
+                  待攻克 {{ item.needs_work_count }} 题 · 错误 {{ item.wrong_submissions }} 次
+                </div>
+              </div>
+              <div class="text-end">
+                <span class="badge rounded-pill text-dark" style="background: rgba(245, 158, 11, 0.18);">
+                  {{ item.focus_score }}
+                </span>
+                <div class="text-muted small mt-1">通过率 {{ item.accept_rate }}%</div>
+              </div>
+            </div>
+          </li>
+          {% empty %}
+          <li class="list-group-item px-0 py-4 text-muted bg-transparent">
+            暂无重点关注学生。可以先检查学生角色、提交记录与题目状态是否已建立关联。
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

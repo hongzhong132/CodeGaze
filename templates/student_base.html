@@ -1,0 +1,42 @@
+{% extends 'base_common.html' %}
+
+{% block title %}CodeGaze - 学生学习端{% endblock %}
+{% block sidebar_tagline %}AI 智眸编程互助平台 · 学生学习端{% endblock %}
+{% block sidebar_hint %}当前为学生学习工作台，聚焦刷题、推荐、提交与交流{% endblock %}
+
+{% block sidebar_nav %}
+    <a class="nav-link {% if request.resolver_match.url_name == 'problem_zones' or request.resolver_match.url_name == 'problem_zone_detail' %}active{% endif %}" href="{% url 'programming:problem_zones' %}">
+        <i class="bi bi-grid-1x2-fill"></i>
+        <span>题库分区</span>
+    </a>
+
+    <a class="nav-link {% if request.resolver_match.url_name == 'recommendation_home' %}active{% endif %}" href="{% url 'programming:recommendation_home' %}">
+        <i class="bi bi-stars"></i>
+        <span>学习推荐</span>
+    </a>
+
+    <a class="nav-link {% if request.resolver_match.url_name == 'problem_list' %}active{% endif %}" href="{% url 'programming:problem_list' %}">
+        <i class="bi bi-list-task"></i>
+        <span>全部题目</span>
+    </a>
+
+    <a class="nav-link {% if request.resolver_match.url_name == 'camera' %}active{% endif %}" href="{% url 'programming:camera' %}">
+        <i class="bi bi-camera-video"></i>
+        <span>AI 监测</span>
+    </a>
+
+    <a class="nav-link {% if request.resolver_match.url_name == 'submission_list' %}active{% endif %}" href="{% url 'programming:submission_list' %}">
+        <i class="bi bi-clock-history"></i>
+        <span>提交记录</span>
+    </a>
+
+    <a class="nav-link {% if request.resolver_match.namespace == 'community' %}active{% endif %}" href="{% url 'community:community_home' %}">
+        <i class="bi bi-people-fill"></i>
+        <span>社区交流</span>
+    </a>
+
+    <a class="nav-link" href="/admin/" target="_blank">
+        <i class="bi bi-gear"></i>
+        <span>管理后台</span>
+    </a>
+{% endblock %}

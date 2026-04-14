@@ -1,0 +1,703 @@
+{% extends 'teacher_base.html' %}
+{% block title %}学生详情 - {{ student.username }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+  <style>
+    .page-shell {
+      max-width: 1500px;
+      margin: 0 auto;
+    }
+
+    .chart-panel {
+      width: 100%;
+    }
+
+    .chart-panel--radar {
+      height: 470px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .chart-panel--graph {
+      height: 560px;
+    }
+
+    .ability-list-item {
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    .ability-list-item:last-child {
+      border-bottom: none;
+    }
+
+    .ability-bar-wrap {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.16);
+      overflow: hidden;
+    }
+
+    .ability-bar-inner {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(59, 130, 246, 0.85), rgba(99, 102, 241, 0.9));
+    }
+
+    .ability-meta {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .ability-meta-card {
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      background: rgba(255, 255, 255, 0.52);
+      border-radius: 16px;
+      padding: 12px 14px;
+      height: 100%;
+    }
+
+    .section-note {
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .mini-kpi {
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      background: rgba(255, 255, 255, 0.56);
+      border-radius: 18px;
+      padding: 14px 16px;
+      height: 100%;
+    }
+
+    .compact-card {
+      height: auto;
+    }
+
+    .bottom-section .glass-card {
+      height: 100%;
+    }
+
+    .recent-table-wrap {
+      max-height: 430px;
+      overflow-y: auto;
+      overflow-x: auto;
+      padding-right: 2px;
+    }
+
+    .problem-list-wrap {
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    .glass-card {
+      overflow: hidden;
+    }
+
+    @media (max-width: 1400px) {
+      .chart-panel--graph {
+        height: 520px;
+      }
+
+      .page-shell {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 1200px) {
+      .chart-panel--radar {
+        height: 430px;
+        max-width: 100%;
+      }
+
+      .chart-panel--graph {
+        height: 460px;
+      }
+
+      .ability-meta {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .recent-table-wrap,
+      .problem-list-wrap {
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .chart-panel--radar {
+        height: 360px;
+      }
+
+      .chart-panel--graph {
+        height: 360px;
+      }
+
+      .ability-meta {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <div class="page-shell">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <div>
+        <h2 class="fw-bold mb-1">学生详情：{{ student.username }}</h2>
+        <div class="text-muted">查看该学生的学习表现、能力画像、分类薄弱点与最近提交情况</div>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'teacher:student_list' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left"></i>
+          返回学生列表
+        </a>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-sm-6 col-xl-3">
+        <div class="glass-card p-4 h-100">
+          <div class="text-muted small mb-2">总提交数</div>
+          <h3 class="mb-0 fw-bold">{{ total_submissions }}</h3>
+        </div>
+      </div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="glass-card p-4 h-100">
+          <div class="text-muted small mb-2">通过次数</div>
+          <h3 class="mb-0 fw-bold">{{ accepted_submissions }}</h3>
+        </div>
+      </div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="glass-card p-4 h-100">
+          <div class="text-muted small mb-2">提交通过率</div>
+          <h3 class="mb-0 fw-bold">{{ accept_rate }}%</h3>
+        </div>
+      </div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="glass-card p-4 h-100">
+          <div class="text-muted small mb-2">待攻克题数</div>
+          <h3 class="mb-0 fw-bold">{{ needs_work_count }}</h3>
+        </div>
+      </div>
+    </div>
+
+    {% if recommendation_card %}
+    <div class="glass-card p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+        <div>
+          <h5 class="fw-bold mb-1">学习建议</h5>
+          <div class="text-muted small">基于该学生当前提交表现、待攻克题目与分类薄弱情况生成</div>
+        </div>
+
+        <div class="text-end">
+          <div class="mb-2">
+            <span class="badge rounded-pill px-3 py-2 {{ recommendation_card.focus_badge_class }}">
+              {{ recommendation_card.focus_level }}
+            </span>
+          </div>
+          <div class="text-muted small">
+            推荐方向：{{ recommendation_card.recommended_category }} · 关注分：{{ recommendation_card.score }}
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="border rounded-4 p-3 h-100 bg-white bg-opacity-50">
+            <div class="fw-semibold mb-2">诊断结论</div>
+            <p class="text-muted mb-3">{{ recommendation_card.diagnosis }}</p>
+
+            <div class="fw-semibold mb-2">教学建议</div>
+            <p class="text-muted mb-0">{{ recommendation_card.teacher_advice }}</p>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="border rounded-4 p-3 h-100 bg-white bg-opacity-50">
+            <div class="fw-semibold mb-3">建议优先练习</div>
+
+            <ul class="list-unstyled mb-0">
+              {% for problem in recommendation_card.recommended_problems %}
+              <li class="d-flex justify-content-between align-items-start gap-3 py-2 border-bottom">
+                <div>
+                  <div class="fw-semibold">{{ problem.title }}</div>
+                  <div class="text-muted small mt-1">分类：{{ problem.category }}</div>
+                </div>
+                <span class="badge rounded-pill text-dark" style="background: rgba(59, 130, 246, 0.14);">
+                  {{ problem.note }}
+                </span>
+              </li>
+              {% empty %}
+              <li class="text-muted">暂无可推荐题目</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-xxl-7">
+        <div class="glass-card p-4 h-100">
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <div>
+              <h5 class="fw-bold mb-1">学生能力雷达图</h5>
+              <div class="section-note">按分类训练情况生成的能力画像，可快速查看该学生当前能力分布</div>
+            </div>
+            <span class="soft-chip">
+              <i class="bi bi-broadcast-pin"></i>
+              能力画像
+            </span>
+          </div>
+
+          <div id="student-radar-chart" class="chart-panel chart-panel--radar"></div>
+
+          <div class="row g-3 mt-2">
+            <div class="col-md-4">
+              <div class="mini-kpi">
+                <div class="text-muted small mb-1">已通过题目</div>
+                <div class="fw-bold fs-4">{{ passed_problems }}</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mini-kpi">
+                <div class="text-muted small mb-1">尝试中题目</div>
+                <div class="fw-bold fs-4">{{ tried_count }}</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mini-kpi">
+                <div class="text-muted small mb-1">累计错误数</div>
+                <div class="fw-bold fs-4">{{ wrong_submissions }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xxl-5">
+        <div class="glass-card p-4 h-100">
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <div>
+              <h5 class="fw-bold mb-1">能力关系图</h5>
+              <div class="section-note">从“学生—能力维度—待攻克题目”的关系观察当前训练重点</div>
+            </div>
+            <span class="soft-chip">
+              <i class="bi bi-diagram-3"></i>
+              关系图谱
+            </span>
+          </div>
+
+          <div id="student-graph-chart" class="chart-panel chart-panel--graph"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card p-4 mb-4 compact-card">
+      <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <div>
+          <h5 class="fw-bold mb-1">学习阶段诊断</h5>
+          <div class="section-note">从整体训练状态判断该学生当前所处阶段，并快速查看画像摘要</div>
+        </div>
+        <span class="badge rounded-pill px-3 py-2 {{ ability_summary.stage_badge_class }}">
+          {{ ability_summary.stage_label }}
+        </span>
+      </div>
+
+      <p class="text-muted mb-3">{{ ability_summary.stage_description }}</p>
+
+      <div class="ability-meta mb-3">
+        <div class="ability-meta-card">
+          <div class="text-muted small mb-1">相对强项</div>
+          <div class="fw-semibold">{{ ability_summary.strong_text }}</div>
+        </div>
+        <div class="ability-meta-card">
+          <div class="text-muted small mb-1">重点补强</div>
+          <div class="fw-semibold">{{ ability_summary.weak_text }}</div>
+        </div>
+        <div class="ability-meta-card">
+          <div class="text-muted small mb-1">待攻克题量</div>
+          <div class="fw-semibold">{{ ability_summary.focus_problem_count }}</div>
+        </div>
+        <div class="ability-meta-card">
+          <div class="text-muted small mb-1">收藏题目</div>
+          <div class="fw-semibold">{{ favorite_count }}</div>
+        </div>
+      </div>
+
+      <div class="border rounded-4 p-3 bg-white bg-opacity-50">
+        <div class="fw-semibold mb-2">教师观察建议</div>
+        <div class="text-muted">{{ ability_summary.summary_text }}</div>
+      </div>
+    </div>
+
+    <div class="glass-card p-4 mb-4">
+      <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <div>
+          <h5 class="fw-bold mb-1">分类能力明细</h5>
+          <div class="section-note">按分类查看能力分、风险指数、通过率与训练情况</div>
+        </div>
+        <span class="soft-chip">
+          <i class="bi bi-sliders"></i>
+          画像明细
+        </span>
+      </div>
+
+      {% for item in ability_profile_list %}
+      <div class="ability-list-item">
+        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-2">
+          <div>
+            <div class="fw-semibold">{{ item.category }}</div>
+            <div class="text-muted small mt-1">
+              题目数 {{ item.problems }} · 通过 {{ item.passed }} · 待攻克 {{ item.needs_work }} · 尝试 {{ item.attempts }}
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge rounded-pill px-3 py-2 {{ item.mastery_badge_class }}">
+              {{ item.mastery_label }}
+            </span>
+            <span class="fw-semibold">{{ item.ability_score }} 分</span>
+          </div>
+        </div>
+
+        <div class="ability-bar-wrap mb-3">
+          <div
+            class="ability-bar-inner js-ability-bar"
+            data-width="{{ item.ability_score }}"
+          ></div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-3">
+            <div class="mini-kpi">
+              <div class="text-muted small mb-1">通过率</div>
+              <div class="fw-semibold">{{ item.accept_rate }}%</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="mini-kpi">
+              <div class="text-muted small mb-1">风险指数</div>
+              <div class="fw-semibold">{{ item.risk_index }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="mini-kpi">
+              <div class="text-muted small mb-1">错误次数</div>
+              <div class="fw-semibold">{{ item.wrong_count }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="mini-kpi">
+              <div class="text-muted small mb-1">关注分</div>
+              <div class="fw-semibold">{{ item.focus_score }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="text-center text-muted py-4">暂无能力画像数据</div>
+      {% endfor %}
+    </div>
+
+    <div class="row g-4 bottom-section">
+      <div class="col-12 col-xl-7">
+        <div class="glass-card p-4">
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <div>
+              <h5 class="fw-bold mb-1">分类薄弱分析</h5>
+              <div class="section-note">从分类维度判断该学生目前最需要补强的方向</div>
+            </div>
+            <span class="soft-chip">
+              <i class="bi bi-bar-chart"></i>
+              分类画像
+            </span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>分类</th>
+                  <th>题目数</th>
+                  <th>已通过</th>
+                  <th>待攻克</th>
+                  <th>尝试次数</th>
+                  <th>错误次数</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in category_stats_list %}
+                <tr>
+                  <td class="fw-semibold">{{ item.category }}</td>
+                  <td>{{ item.problems }}</td>
+                  <td>{{ item.passed }}</td>
+                  <td>
+                    <span class="badge rounded-pill text-dark" style="background: rgba(245, 158, 11, 0.18);">
+                      {{ item.needs_work }}
+                    </span>
+                  </td>
+                  <td>{{ item.attempts }}</td>
+                  <td>{{ item.wrong_count }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center text-muted py-4">暂无分类数据</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-5">
+        <div class="glass-card p-4">
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <div>
+              <h5 class="fw-bold mb-1">最近提交记录</h5>
+              <div class="section-note">帮助老师快速判断该学生近期是否处于稳定训练状态</div>
+            </div>
+            <span class="soft-chip">
+              <i class="bi bi-clock-history"></i>
+              最近动态
+            </span>
+          </div>
+
+          <div class="recent-table-wrap">
+            <div class="table-responsive">
+              <table class="table table-sm align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>题目</th>
+                    <th>语言</th>
+                    <th>结果</th>
+                    <th>模式</th>
+                    <th>提交时间</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in recent_submissions %}
+                  <tr>
+                    <td>{{ item.problem.title }}</td>
+                    <td>{{ item.language }}</td>
+                    <td>{{ item.get_status_display }}</td>
+                    <td>{{ item.get_mode_display }}</td>
+                    <td>{{ item.submitted_at|date:"Y-m-d H:i" }}</td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="5" class="text-center text-muted py-4">暂无提交记录</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-7">
+        <div class="glass-card p-4">
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <div>
+              <h5 class="fw-bold mb-1">待攻克题目</h5>
+              <div class="section-note">这些题目已经尝试过但尚未稳定通过，适合作为后续针对性训练入口</div>
+            </div>
+            <span class="soft-chip">
+              <i class="bi bi-exclamation-triangle"></i>
+              重点练习区
+            </span>
+          </div>
+
+          <div class="problem-list-wrap">
+            <ul class="list-group list-group-flush">
+              {% for item in needs_work_list %}
+              <li class="list-group-item px-0 bg-transparent">
+                <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                  <div>
+                    <div class="fw-semibold">{{ item.problem.title }}</div>
+                    <div class="text-muted small mt-1">分类：{{ item.problem.category|default:"未分类" }}</div>
+                  </div>
+                  <div class="text-end small text-muted">
+                    <div>尝试：{{ item.attempt_count }}</div>
+                    <div>错误：{{ item.wrong_count }}</div>
+                  </div>
+                </div>
+              </li>
+              {% empty %}
+              <li class="list-group-item px-0 text-muted bg-transparent">暂无待攻克题目</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-5">
+        <div class="glass-card p-4">
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <div>
+              <h5 class="fw-bold mb-1">已通过题目</h5>
+              <div class="section-note">可用于判断该学生目前相对稳定掌握的题型方向</div>
+            </div>
+            <span class="soft-chip">
+              <i class="bi bi-check-circle"></i>
+              已掌握
+            </span>
+          </div>
+
+          <div class="problem-list-wrap">
+            <ul class="list-group list-group-flush">
+              {% for item in passed_list %}
+              <li class="list-group-item px-0 bg-transparent">
+                <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                  <div>
+                    <div class="fw-semibold">{{ item.problem.title }}</div>
+                    <div class="text-muted small mt-1">分类：{{ item.problem.category|default:"未分类" }}</div>
+                  </div>
+                  <div class="small text-muted">通过次数：{{ item.passed_count }}</div>
+                </div>
+              </li>
+              {% empty %}
+              <li class="list-group-item px-0 text-muted bg-transparent">暂无已通过题目</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ radar_chart_data|json_script:"student-radar-data" }}
+{{ student_graph_data|json_script:"student-graph-data" }}
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script>
+  (function () {
+    const radarDom = document.getElementById("student-radar-chart");
+    const graphDom = document.getElementById("student-graph-chart");
+
+    const radarDataEl = document.getElementById("student-radar-data");
+    const graphDataEl = document.getElementById("student-graph-data");
+
+    const radarData = radarDataEl ? JSON.parse(radarDataEl.textContent) : null;
+    const graphData = graphDataEl ? JSON.parse(graphDataEl.textContent) : null;
+
+    let radarChart = null;
+    let graphChart = null;
+
+    document.querySelectorAll(".js-ability-bar").forEach(function (el) {
+      const rawWidth = Number(el.dataset.width || 0);
+      const width = Math.max(0, Math.min(100, rawWidth));
+      el.style.width = width + "%";
+    });
+
+    if (radarDom && radarData && radarData.indicators && radarData.indicators.length) {
+      radarChart = echarts.init(radarDom);
+      radarChart.setOption({
+        tooltip: {
+          trigger: "item"
+        },
+        radar: {
+          indicator: radarData.indicators,
+          radius: "74%",
+          splitNumber: 4,
+          axisName: {
+            color: "#334155",
+            fontSize: 13
+          },
+          splitArea: {
+            areaStyle: {
+              color: ["rgba(59,130,246,0.03)", "rgba(59,130,246,0.06)"]
+            }
+          }
+        },
+        series: [
+          {
+            type: "radar",
+            data: [
+              {
+                value: radarData.values,
+                name: "能力画像",
+                areaStyle: {
+                  opacity: 0.24
+                },
+                lineStyle: {
+                  width: 2.5
+                }
+              }
+            ]
+          }
+        ]
+      });
+    } else if (radarDom) {
+      radarDom.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100 text-muted">暂无可绘制的雷达图数据</div>';
+    }
+
+    if (graphDom && graphData && graphData.nodes && graphData.nodes.length) {
+      graphChart = echarts.init(graphDom);
+      graphChart.setOption({
+        tooltip: {
+          trigger: "item"
+        },
+        legend: [
+          {
+            bottom: 0
+          }
+        ],
+        series: [
+          {
+            type: "graph",
+            layout: "force",
+            roam: true,
+            draggable: true,
+            data: graphData.nodes,
+            links: graphData.links,
+            categories: graphData.categories,
+            force: {
+              repulsion: 380,
+              edgeLength: [95, 190],
+              gravity: 0.04
+            },
+            label: {
+              show: true,
+              position: "right",
+              color: "#334155",
+              fontSize: 12
+            },
+            lineStyle: {
+              opacity: 0.56,
+              width: 1.9
+            },
+            emphasis: {
+              focus: "adjacency",
+              lineStyle: {
+                width: 2.7
+              }
+            }
+          }
+        ]
+      });
+    } else if (graphDom) {
+      graphDom.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100 text-muted">暂无可绘制的关系图数据</div>';
+    }
+
+    window.addEventListener("resize", function () {
+      if (radarChart) {
+        radarChart.resize();
+      }
+      if (graphChart) {
+        graphChart.resize();
+      }
+    });
+  })();
+</script>
+{% endblock %}

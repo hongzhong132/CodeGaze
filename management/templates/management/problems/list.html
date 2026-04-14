@@ -1,0 +1,209 @@
+{% extends 'management_base.html' %}
+
+{% block content %}
+<style>
+    .page-hero {
+        padding: 1.7rem;
+        margin-bottom: 1rem;
+    }
+    .page-title {
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 0.35rem;
+        letter-spacing: -0.04em;
+    }
+    .page-subtitle {
+        color: #64748b;
+        margin-bottom: 0;
+    }
+    .filter-card, .table-card {
+        padding: 1.35rem;
+        margin-bottom: 1rem;
+    }
+    .summary-strip {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    .summary-box {
+        padding: 1.25rem 1.2rem;
+    }
+    .summary-label {
+        color: #64748b;
+        font-weight: 700;
+        margin-bottom: 0.45rem;
+    }
+    .summary-value {
+        font-size: 1.9rem;
+        font-weight: 900;
+        line-height: 1;
+    }
+    .table thead th {
+        white-space: nowrap;
+    }
+    .table td, .table th {
+        vertical-align: middle;
+    }
+    .action-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.32rem 0.66rem;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 0.8rem;
+        background: rgba(14, 165, 233, 0.08);
+        color: #0369a1;
+    }
+    .pagination-wrap {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    @media (max-width: 1024px) {
+        .summary-strip {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+    @media (max-width: 768px) {
+        .summary-strip {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<section class="glass-card page-hero">
+    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+        <div>
+            <div class="page-title">题库管理</div>
+            <p class="page-subtitle">在这里统一完成题目的搜索、筛选、新增、编辑与删除，不再依赖原生 Admin 的模型表格式管理。</p>
+        </div>
+        <a class="primary-btn" href="{% url 'management:problem_create' %}">
+            <i class="bi bi-plus-circle"></i> 新增题目
+        </a>
+    </div>
+</section>
+
+<section class="summary-strip">
+    <div class="glass-card summary-box">
+        <div class="summary-label">当前筛选结果</div>
+        <div class="summary-value">{{ question_total }}</div>
+    </div>
+    <div class="glass-card summary-box">
+        <div class="summary-label">分类筛选</div>
+        <div class="summary-value" style="font-size:1.15rem;">{{ category|default:"全部分类" }}</div>
+    </div>
+    <div class="glass-card summary-box">
+        <div class="summary-label">难度筛选</div>
+        <div class="summary-value" style="font-size:1.15rem;">{{ difficulty|default:"全部难度" }}</div>
+    </div>
+    <div class="glass-card summary-box">
+        <div class="summary-label">推荐阶段</div>
+        <div class="summary-value" style="font-size:1.15rem;">{{ stage|default:"全部阶段" }}</div>
+    </div>
+</section>
+
+<section class="glass-card filter-card">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-lg-4">
+            <label class="form-label fw-bold">关键词</label>
+            <input type="text" class="form-control" name="q" value="{{ keyword }}" placeholder="输入题目名、标签或知识点">
+        </div>
+        <div class="col-lg-2">
+            <label class="form-label fw-bold">分类</label>
+            <select class="form-select" name="category">
+                <option value="">全部分类</option>
+                {% for value, label in category_choices %}
+                    <option value="{{ value }}" {% if category == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-lg-2">
+            <label class="form-label fw-bold">难度</label>
+            <select class="form-select" name="difficulty">
+                <option value="">全部难度</option>
+                {% for value, label in difficulty_choices %}
+                    <option value="{{ value }}" {% if difficulty == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-lg-2">
+            <label class="form-label fw-bold">推荐阶段</label>
+            <select class="form-select" name="stage">
+                <option value="">全部阶段</option>
+                {% for value, label in stage_choices %}
+                    <option value="{{ value }}" {% if stage == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-lg-2 d-flex gap-2">
+            <button class="primary-btn w-100" type="submit"><i class="bi bi-search"></i> 筛选</button>
+        </div>
+    </form>
+</section>
+
+<section class="glass-card table-card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>题目</th>
+                    <th>分类 / 难度</th>
+                    <th>通过 / 提交</th>
+                    <th>通过率</th>
+                    <th>更新时间</th>
+                    <th style="min-width: 180px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in page_obj %}
+                    <tr>
+                        <td>#{{ item.id }}</td>
+                        <td>
+                            <div class="fw-bold">{{ item.title }}</div>
+                            <div class="text-muted small">{{ item.knowledge_points|default:"暂无知识点" }}</div>
+                        </td>
+                        <td>
+                            <div class="pill mb-1">{{ item.category }}</div><br>
+                            <span class="text-muted small">{{ item.get_difficulty_display }} · {{ item.recommend_stage }}</span>
+                        </td>
+                        <td>{{ item.accepted_count }} / {{ item.submission_count }}</td>
+                        <td>{{ item.acceptance_rate }}%</td>
+                        <td>{{ item.updated_at|date:"Y-m-d H:i" }}</td>
+                        <td>
+                            <div class="action-group">
+                                <a class="ghost-btn" href="{% url 'management:problem_edit' item.id %}">编辑</a>
+                                <a class="secondary-btn" href="{% url 'management:problem_delete' item.id %}">删除</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">当前没有符合条件的题目</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-wrap mt-4">
+        <div class="text-muted small">第 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 页</div>
+        <div class="d-flex gap-2">
+            {% if page_obj.has_previous %}
+                <a class="secondary-btn" href="?page={{ page_obj.previous_page_number }}&q={{ keyword }}&category={{ category }}&difficulty={{ difficulty }}&stage={{ stage }}">上一页</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+                <a class="secondary-btn" href="?page={{ page_obj.next_page_number }}&q={{ keyword }}&category={{ category }}&difficulty={{ difficulty }}&stage={{ stage }}">下一页</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
