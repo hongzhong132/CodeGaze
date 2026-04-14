@@ -210,15 +210,8 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
-
-# =========================================================
-# 媒体文件配置
-# =========================================================
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.getenv("MEDIA_ROOT", os.path.join(BASE_DIR, "media"))
-
-
-
+MEDIA_ROOT = Path(os.getenv("MEDIA_ROOT", str(BASE_DIR / "media")))
 
 # AI 监测截图 / 日志图片目录
 MONITOR_LOG_SUBDIR = "monitor_logs"
