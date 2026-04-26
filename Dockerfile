@@ -19,4 +19,4 @@ COPY . .
 
 ENV PORT=8080
 
-CMD ["sh", "-c", "python manage.py collectstatic --noinput && python manage.py migrate && python import_problems_enhanced.py problems_data_enhanced.json && gunicorn codegaze.wsgi:application --bind 0.0.0.0:${PORT}"]
+CMD ["sh", "-c", "python manage.py collectstatic --noinput && python manage.py migrate && gunicorn codegaze.wsgi:application --bind 0.0.0.0:${PORT}"]
