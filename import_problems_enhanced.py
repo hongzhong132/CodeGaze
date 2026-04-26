@@ -329,4 +329,3 @@ def import_from_json(file_path):
 if __name__ == '__main__':
     target_file = sys.argv[1] if len(sys.argv) > 1 else 'problems_data_enhanced.json'
     import_from_json(target_file)
-problems_data_enhanced
