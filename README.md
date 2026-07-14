@@ -39,8 +39,8 @@ CodeGaze 是一个面向高校程序设计课程、算法训练与编程考核�
 ## 项目演示
 
 - **GitHub 仓库：** https://github.com/hongzhong132/CodeGaze
-- **演示视频（GitHub Release）：** 上传后补充
-- **演示视频（备用网盘）：** 上传后补充
+- **演示视频（GitHub Release）：** 已上传release
+- **演示视频（备用网盘）：** https://pan.baidu.com/s/13jbOqzdOE2Nq76Bcau5MhA
 - **在线演示：** 项目曾通过 Docker 部署至 Railway，并配置 Railway MySQL 数据库；云端实例存在冷启动延迟
 - **演示账号：** 上传演示视频或重新开放服务后补充
 
